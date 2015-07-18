@@ -96,6 +96,8 @@
     <None Include="res\SLAP.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\README.md" />
+    <None Include="..\LICENSE" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SLAP.ico">
@@ -134,9 +136,6 @@
     <Image Include="res\Web.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\appcast.xml" />
