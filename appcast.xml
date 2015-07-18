@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+	<channel>
+		<title>SLAP</title>
+		<link>http://www.cherubicsoft.com/_media/projects/slap/appcast.xml</link>
+		<description>Second Life Avatar Probe</description>
+		<language>en</language>
+		<item>
+			<title>New version</title>
+			<description>
+				<![CDATA[
+				<b>Version 1.0.0.6</b>
+				<ul>
+					<li>Added "-tray" command-line option to minimize application at Windows startup.</li>
+				</ul>
+				<b>Version 1.0.0.5</b>
+				<ul>
+					<li>Fixed "Show online avatars only" option.</li>
+					<li>Added tray menu.</li>
+					<li>Setup built by InnoSetup 5.5.6.</li>
+				</ul>
+				<b>Version 1.0.0.4</b>
+				<ul>
+					<li>Added more options.</li>
+					<li>Added application auto-start after upgrade.</li>
+					<li>Improved debugging log.</li>
+					<li>Improved setup.</li>
+					<li>Minor optimizations.</li>
+				</ul>
+				<b>Version 1.0.0.3</b>
+				<ul>
+					<li>Added auto-restoring after login errors.</li>
+				</ul>
+				<b>Version 1.0.0.2</b>
+				<ul>
+					<li>Added start at Windows startup option.</li>
+					<li>Added avatar list context menu.</li>
+					<li>Minor bugfixes.</li>
+				</ul>
+				<b>Version 1.0.0.1</b>
+				<ul>
+					<li>Fixed case of display names.</li>
+					<li>Improved image cache.</li>
+					<li>Added online/offline delay time (5 minutes).</li>
+				</ul>
+				<b>Version 1.0.0.0</b>
+				<ul>
+					<li>Initial release.</li>
+				</ul>
+			]]>
+			</description>
+			<pubDate>18 Jul 2015 00:00:00 +0300</pubDate>
+			<enclosure url="http://www.cherubicsoft.com/_media/projects/slap/slap_1.0.0.6.exe" sparkle:version="1.0.0.6" length="7509557" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+		</item>
+	</channel>
+</rss>
