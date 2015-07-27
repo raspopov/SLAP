@@ -149,18 +149,18 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 		INTERNET_FLAG_IGNORE_CERT_CN_INVALID |
 		INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
 
-	TRY
+	try
 	{
 		CAutoPtr< CHttpConnection > pConnection( pInternet->GetHttpConnection( sServer, dwFlags, nPort ) );
 		if ( pConnection )
 		{
-			TRY
+			try
 			{
 				CAutoPtr< CHttpFile > pFile( pConnection->OpenRequest( ( bPOST ? CHttpConnection::HTTP_VERB_POST : CHttpConnection::HTTP_VERB_GET ),
 					sObject, sReferer, 1, pszAcceptTypes, szVersion, dwFlags ) );
 				if ( pFile )
 				{
-					TRY
+					try
 					{
 						if ( pFile->SendRequest( sHeaders,
 							( bPOST && szParams ? (LPVOID)szParams : NULL ),
@@ -194,20 +194,17 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 							sLocation = QueryInfo( pFile, HTTP_QUERY_LOCATION );
 						}
 					}
-					CATCH_ALL( e )
-					END_CATCH_ALL
+					catch( ... ){}
 
 					pFile->Close();
 				}
 			}
-			CATCH_ALL( e )
-			END_CATCH_ALL
+			catch ( ... ) {}
 
 			pConnection->Close();
 		}
 	}
-	CATCH_ALL( e )
-	END_CATCH_ALL
+	catch ( ... ) {}
 
 	return nStatus;
 }
@@ -712,12 +709,11 @@ void CSLAPDlg::Thread()
 	{
 		// Initialize WinInet
 		CAutoPtr< CInternetSession > pInternet;
-		TRY
+		try
 		{
 			pInternet.Attach( new CInternetSession( CString( theApp.m_pszAppName ) + _T("/") + theApp.sVersion ) );
 		}
-		CATCH_ALL( e )
-		END_CATCH_ALL
+		catch ( ... ) {}
 
 		if ( pInternet && *pInternet )
 		{

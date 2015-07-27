@@ -227,7 +227,7 @@ void CSLAPApp::Log(const CString& sText)
 	if ( m_bDebugLog && ! m_pLog )
 	{
 		// Open file
-		TRY
+		try
 		{
 			m_pLog.Attach( new CStdioFile( sDesktop + CTime::GetCurrentTime().Format( _T( "\\SLAP-%Y%m%d.txt" ) ),
 				CFile::modeCreate | CFile::modeWrite | CFile::typeUnicode | CFile::shareDenyWrite ) );
@@ -236,18 +236,16 @@ void CSLAPApp::Log(const CString& sText)
 			sWarning.LoadString( IDS_WARNING );
 			Log( CString( _T("This file created by ") ) + m_pszAppName + _T(" ") + sVersion + _T(" (") + _T( __DATE__ ) + _T(" ") + _T( __TIME__ ) + _T(")\n") + sWarning );
 		}
-		CATCH_ALL( e )
-		END_CATCH_ALL
+		catch ( ... ) {}
 	}
 	else if ( ! m_bDebugLog && m_pLog )
 	{
 		// Close file
-		TRY
+		try
 		{
 			m_pLog->Close();
 		}
-		CATCH_ALL( e )
-		END_CATCH_ALL
+		catch ( ... ) {}
 		m_pLog.Free();
 	}
 
@@ -268,13 +266,12 @@ void CSLAPApp::Log(const CString& sText)
 					const CString sLog = CTime::GetCurrentTime().Format( _T( "[%H:%M:%S] " ) ) + ( nStart ? _T( " | " ) : _T( "" ) ) + sPart + _T( "\n" );
 					if ( m_pLog )
 					{
-						TRY
+						try
 						{
 							m_pLog->WriteString( sLog );
 							m_pLog->Flush();
 						}
-						CATCH_ALL( e )
-						END_CATCH_ALL
+						catch ( ... ) {}
 					}
 #ifdef _DEBUG
 					OutputDebugString( sLog );
