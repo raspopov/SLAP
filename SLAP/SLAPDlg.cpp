@@ -367,7 +367,7 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 
 	for ( POSITION pos = theApp.GetAvatarIterator(); pos; )
 	{
-		CAvatar* pAvatar = theApp.GetNextAvatar( pos );
+		pAvatar = theApp.GetNextAvatar( pos );
 
 		const BOOL bEnabled = ( tNow - pAvatar->m_tStatusChange ).GetTotalSeconds() > m_nDeadTime;
 
@@ -684,13 +684,15 @@ void CSLAPDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT pDIS)
 		TRIVERTEX vertex[ 2 ] =
 		{
 			{ pDIS->rcItem.left, pDIS->rcItem.top,
-				GetRValue( rgbBack ) << 8,
-				GetGValue( rgbBack ) << 8,
-				GetBValue( rgbBack ) << 8, 0 },
+				(COLOR16)( GetRValue( rgbBack ) << 8 ),
+				(COLOR16)( GetGValue( rgbBack ) << 8 ),
+				(COLOR16)( GetBValue( rgbBack ) << 8 ),
+				(COLOR16)0 },
 			{ pDIS->rcItem.right, pDIS->rcItem.bottom,
-				( max( 16, GetRValue( rgbBack ) ) - 16 ) << 8,
-				( max( 16, GetGValue( rgbBack ) ) - 16 ) << 8,
-				( max( 16, GetBValue( rgbBack ) ) - 16 ) << 8, 0 }
+				(COLOR16)( ( max( 16, GetRValue( rgbBack ) ) - 16 ) << 8 ),
+				(COLOR16)( ( max( 16, GetGValue( rgbBack ) ) - 16 ) << 8 ),
+				(COLOR16)( ( max( 16, GetBValue( rgbBack ) ) - 16 ) << 8 ),
+				(COLOR16)0 }
 		};
 		GRADIENT_RECT gRect = { 0, 1 };
 		pDC->GradientFill( vertex, 2, &gRect, 1, GRADIENT_FILL_RECT_V );
@@ -703,13 +705,15 @@ void CSLAPDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT pDIS)
 		TRIVERTEX vertexIndicator[ 2 ] =
 		{
 			{ rcIndicator.left, rcIndicator.top,
-				GetRValue( rgbIndicator ) << 8,
-				GetGValue( rgbIndicator ) << 8,
-				GetBValue( rgbIndicator ) << 8, 0 },
+				(COLOR16)( GetRValue( rgbIndicator ) << 8 ),
+				(COLOR16)( GetGValue( rgbIndicator ) << 8 ),
+				(COLOR16)( GetBValue( rgbIndicator ) << 8 ),
+				(COLOR16)0 },
 			{ rcIndicator.right, rcIndicator.bottom,
-				GetRValue( rgbIndicatorBack ) << 8,
-				GetGValue( rgbIndicatorBack ) << 8,
-				GetBValue( rgbIndicatorBack ) << 8, 0 }
+				(COLOR16)( GetRValue( rgbIndicatorBack ) << 8 ),
+				(COLOR16)( GetGValue( rgbIndicatorBack ) << 8 ),
+				(COLOR16)( GetBValue( rgbIndicatorBack ) << 8 ),
+				(COLOR16)0 }
 		};
 		GRADIENT_RECT gRectIndicator = { 0, 1 };
 		pDC->GradientFill( vertexIndicator, 2, &gRectIndicator, 1, GRADIENT_FILL_RECT_H );

@@ -158,6 +158,8 @@ CSLAPApp::CSLAPApp()
 	: m_bDebugLog	( FALSE )
 	, m_bTray		( FALSE )
 {
+	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
+
 #ifdef _DEBUG
 	afxMemDF |= allocMemDF;
 #endif
@@ -729,6 +731,8 @@ BOOL CSLAPApp::InitInstance()
 		InitCommonControlsEx( &InitCtrls );
 
 		__super::InitInstance();
+
+		CMFCVisualManager::SetDefaultManager( RUNTIME_CLASS( CMFCVisualManagerWindows ) );
 
 		SetRegistryKey( AFX_IDS_COMPANY_NAME );
 

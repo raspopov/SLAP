@@ -9,8 +9,6 @@
 #define MyOutput		    LowerCase( StringChange( MyAppName + " " + MyAppVersion, " ", "_" ) )
 #define MyLocks			    "*" + MyAppExe
 
-#include "vs_12.iss"
-
 [Setup]
 AppId={#MyAppId}
 AppName={#MyAppName}
@@ -48,6 +46,14 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
+#ifdef WIN64
+  ; http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
+	Source: "vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; AfterInstall: ExecTemp( 'vc_redist.x64.exe', '/quiet' );
+#else
+  ; http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
+	Source: "vc_redist.x86.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall; AfterInstall: ExecTemp( 'vc_redist.x86.exe', '/quiet' );
+#endif
+
 Source: "IssProc.dll"; DestDir: "{tmp}"; Flags: dontcopy deleteafterinstall
 Source: "IssProc.dll"; DestDir: "{app}"
 Source: "..\WinSparkle\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
@@ -117,4 +123,11 @@ begin
 		Result := True;
 	end;
 	UnloadDLL( ExpandConstant( '{app}\IssProc.dll' ) );
+end;
+
+procedure ExecTemp(File, Params : String);
+var
+	nCode: Integer;
+begin
+	Exec( ExpandConstant( '{tmp}' ) + '\' + File, Params, ExpandConstant( '{tmp}' ), SW_SHOW, ewWaitUntilTerminated, nCode );
 end;
