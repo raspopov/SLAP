@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="Setup_12.iss">
+    <CustomBuild Include="Setup.iss">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(ProgramFiles)\Inno Setup 5\ISCC.exe" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building setup...</Message>
@@ -38,9 +38,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(TargetDir)Setup-Manifest.txt</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\$(Configuration)\SLAP.exe</AdditionalInputs>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vs_12.iss" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79F736DA-969C-48DF-9CA8-65304B44A60C}</ProjectGuid>
