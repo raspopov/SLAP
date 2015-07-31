@@ -85,6 +85,9 @@ protected:
 	BOOL					m_bOnlineTray;
 	BOOL					m_bOfflineTray;
 
+	int						m_nYOffset;
+	int						m_nXOffset;
+
 	enum Work { Idle, Login, Update };
 	CList< Work >			m_pWorkQueue;
 	void AddWork(Work work);
@@ -142,6 +145,7 @@ protected:
 	afx_msg void OnDestroy();
 	afx_msg void OnExit();
 	afx_msg void OnShow();
+	afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
 
 	DECLARE_MESSAGE_MAP()
 };

@@ -47,6 +47,8 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowOnlineOnly	( theApp.GetProfileInt( SETTINGS, SHOW_ONLINE_ONLY, 0 ) != 0 )
 	, m_bOnlineTray		( theApp.GetProfileInt( SETTINGS, ONLINE_TRAY, 1 ) != 0 )
 	, m_bOfflineTray	( theApp.GetProfileInt( SETTINGS, OFFLINE_TRAY, 1 ) != 0 )
+	, m_nYOffset		( 15 )
+	, m_nXOffset		( 15 )
 {
 }
 
@@ -120,6 +122,7 @@ BEGIN_MESSAGE_MAP(CSLAPDlg, CDialog)
 	ON_WM_RBUTTONUP()
 	ON_COMMAND( IDC_EXIT, &CSLAPDlg::OnExit )
 	ON_COMMAND( IDC_SHOW, &CSLAPDlg::OnShow )
+	ON_WM_WINDOWPOSCHANGING()
 END_MESSAGE_MAP()
 
 // CSLAPDlg message handlers
@@ -1026,5 +1029,73 @@ void CSLAPDlg::OnBnClickedAvatarOptions()
 			CAvatarDlg dlg( (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected ), this );
 			dlg.DoModal();
 		}
+	}
+}
+
+void CSLAPDlg::OnWindowPosChanging(WINDOWPOS* lpwndpos)
+{
+	CRect wndRect;
+	GetWindowRect( &wndRect );
+
+	// Screen resolution
+	const int screenWidth = GetSystemMetrics( SM_CXSCREEN );
+	const int screenHeight = GetSystemMetrics( SM_CYSCREEN );
+
+	// Find the taskbar
+	CWnd* pWnd = FindWindow( _T("Shell_TrayWnd"), _T("") );
+	if ( ! pWnd )
+		return;
+
+	CRect trayRect;
+	pWnd->GetWindowRect( &trayRect );
+
+	const int wndWidth = wndRect.right - wndRect.left;
+	const int wndHeight = wndRect.bottom - wndRect.top;
+
+	int leftTaskbar = 0, rightTaskbar = 0, topTaskbar = 0, bottomTaskbar = 0;
+	if ( trayRect.top <= 0 && trayRect.left <= 0 && trayRect.right >= screenWidth )
+	{
+		// top taskbar
+		topTaskbar = trayRect.bottom - trayRect.top;
+	}
+	else if ( trayRect.top > 0 && trayRect.left <= 0 )
+	{
+		// bottom taskbar
+		bottomTaskbar = trayRect.bottom - trayRect.top;
+	}
+	else if ( trayRect.top <= 0 && trayRect.left > 0 )
+	{
+		// right taskbar
+		rightTaskbar = trayRect.right - trayRect.left;
+	}
+	else
+	{
+		// left taskbar
+		leftTaskbar = trayRect.right - trayRect.left;
+	}
+
+	// Snap to screen border
+	// Left border
+	if ( lpwndpos->x >= -m_nXOffset + leftTaskbar && lpwndpos->x <= leftTaskbar + m_nXOffset )
+	{
+		lpwndpos->x = leftTaskbar;
+	}
+
+	// Top border
+	if ( lpwndpos->y >= -m_nYOffset && lpwndpos->y <= topTaskbar + m_nYOffset )
+	{
+		lpwndpos->y = topTaskbar;
+	}
+
+	// Right border
+	if ( lpwndpos->x + wndWidth <= screenWidth - rightTaskbar + m_nXOffset && lpwndpos->x + wndWidth >= screenWidth - rightTaskbar - m_nXOffset )
+	{
+		lpwndpos->x = screenWidth - rightTaskbar - wndWidth;
+	}
+
+	// Bottom border
+	if ( lpwndpos->y + wndHeight <= screenHeight - bottomTaskbar + m_nYOffset && lpwndpos->y + wndHeight >= screenHeight - bottomTaskbar - m_nYOffset )
+	{
+		lpwndpos->y = screenHeight - bottomTaskbar - wndHeight;
 	}
 }
