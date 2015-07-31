@@ -1034,6 +1034,9 @@ void CSLAPDlg::OnBnClickedAvatarOptions()
 
 void CSLAPDlg::OnWindowPosChanging(WINDOWPOS* lpwndpos)
 {
+	if ( ! lpwndpos->cx || ! lpwndpos->cy || ! ( GetKeyState( VK_SHIFT ) & 0x8000000 ) )
+		return;
+
 	CRect wndRect;
 	GetWindowRect( &wndRect );
 
@@ -1049,8 +1052,8 @@ void CSLAPDlg::OnWindowPosChanging(WINDOWPOS* lpwndpos)
 	CRect trayRect;
 	pWnd->GetWindowRect( &trayRect );
 
-	const int wndWidth = wndRect.right - wndRect.left;
-	const int wndHeight = wndRect.bottom - wndRect.top;
+	const int wndWidth = wndRect.Width();
+	const int wndHeight = wndRect.Height();
 
 	int leftTaskbar = 0, rightTaskbar = 0, topTaskbar = 0, bottomTaskbar = 0;
 	if ( trayRect.top <= 0 && trayRect.left <= 0 && trayRect.right >= screenWidth )
