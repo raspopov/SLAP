@@ -7,9 +7,24 @@
 #define MyAppCopyright	GetFileCopyright( MyAppSource )
 #define MyAppPublisher	GetFileCompany( MyAppSource )
 #define MyOutput		    LowerCase( StringChange( MyAppName + " " + MyAppVersion, " ", "_" ) )
-#define MyLocks			    "*" + MyAppExe
 
-#include "vc_redist.iss"
+#ifndef WIN64
+  #define vcredist_exe          "vc_redist.x86.exe"
+  #define vcredist_title        "Microsoft Visual C++ 2015 Redistributable (x86)"
+  #define vcredist_url          "http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/" + vcredist_exe
+  #define vcredist_productcode  "{A2563E55-3BEC-3828-8D67-E5E8B9E8B675}"
+#else
+  #define vcredist_exe          "vc_redist.x64.exe"
+  #define vcredist_title        "Microsoft Visual C++ 2015 Redistributable (x64)"
+  #define vcredist_productcode  "{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}"
+  #define vcredist_url          "http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/" + vcredist_exe
+#endif
+
+#include "idp\lang\russian.iss"
+#include "idp\idp.iss"
+
+#include "dep\lang\russian.iss"
+#include "dep\dep.iss"
 
 [Setup]
 AppId={#MyAppId}
@@ -48,8 +63,6 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "IssProc.dll"; DestDir: "{tmp}"; Flags: dontcopy deleteafterinstall
-Source: "IssProc.dll"; DestDir: "{app}"
 Source: "..\WinSparkle\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 
 Source: "{#MyAppSource}"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
@@ -60,6 +73,7 @@ Source: "..\LICENSE"; DestName: "License.txt"; DestDir: "{app}"; Flags: replaces
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"; Tasks: desktopicon
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"
 Name: "{group}\ReadMe.txt"; Filename: "{app}\ReadMe.txt"
+Name: "{group}\License.txt"; Filename: "{app}\License.txt"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}";	Filename: "{uninstallexe}"
 
 [Run]
@@ -78,49 +92,19 @@ Name: "{localappdata}\{#MyAppPublisher}\{#MyAppName}"; Type: filesandordirs
 Name: "{localappdata}\{#MyAppPublisher}"; Type: dirifempty
 
 [Code]
-function IssFindModule(hWnd: Integer; Modulename: String; Language: PAnsiChar; Silent: Boolean; CanIgnore: Boolean ): Integer;
-external 'IssFindModuleW@files:IssProc.dll stdcall setuponly';
-
-function IssFindModuleU(hWnd: Integer; Modulename: String; Language: PAnsiChar; Silent: Boolean; CanIgnore: Boolean ): Integer;
-external 'IssFindModuleW@{app}\IssProc.dll stdcall uninstallonly';
-
-function IssEnableAnyFileInUseCheck(Folder: String): Integer;
-external 'IssEnableAnyFileInUseCheckW@files:IssProc.dll stdcall setuponly';
-
-function IssEnableAnyFileInUseCheckU(Folder: String): Integer;
-external 'IssEnableAnyFileInUseCheckW@{app}\IssProc.dll stdcall uninstallonly';
-
-function InitializeSetup(): Boolean;
-begin
-  Result := vcInitializeSetup();
-end;
-
-function NextButtonClick(CurPageID: integer): Boolean;
+procedure InitializeWizard();
 var
-	nCode: Integer;
+  bWork: Boolean;
 begin
-	Result := True;
-	if CurPageID = wpWelcome then begin
-		Result := False;
-		nCode := IssFindModule( StrToInt( ExpandConstant( '{wizardhwnd}' ) ), '{#MyLocks}', 'en', False, True );
-		if ( nCode = 1 ) then begin
-			PostMessage( WizardForm.Handle, $0010, 0, 0 );
-		end else if ( nCode = 0 ) or ( nCode = 2 ) then begin
-			Result := True;
-		end;
-	end else if CurPageID = wpReady then begin
-    Result := vcNextButtonClick();
+  bWork := False;
+
+  if ( not MsiProduct( '{#vcredist_productcode}' ) ) then begin
+    AddProduct( '{#vcredist_exe}', '/passive /norestart', '{#vcredist_title}', '{#vcredist_url}', false, false );
+    bWork := True;
   end;
-end;
 
-function InitializeUninstall(): Boolean;
-var
-	nCode: Integer;
-begin
-	Result := False;
-	nCode := IssFindModuleU( 0, '{#MyLocks}', 'en', False, False );
-	if ( nCode = 0 ) or ( nCode = 2 ) then begin
-		Result := True;
-	end;
-	UnloadDLL( ExpandConstant( '{app}\IssProc.dll' ) );
+  if bWork then begin
+    idpDownloadAfter( wpReady );
+    idpSetDetailedMode( True );
+  end;
 end;

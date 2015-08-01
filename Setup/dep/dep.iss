@@ -1,42 +1,12 @@
-﻿[CustomMessages]
-vcredist_title_x86=Microsoft Visual C++ 2015 Redistributable (x86)
-vcredist_title_x64=Microsoft Visual C++ 2015 Redistributable (x64)
-vcredist_url_x86=http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe
-vcredist_url_x64=http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe
-vcredist_productcode_x86={A2563E55-3BEC-3828-8D67-E5E8B9E8B675}
-vcredist_productcode_x64={0D3E9E15-DE7A-300B-96F1-B4AF12B96488}
+﻿#ifdef UNICODE
+  #define AW "W"
+#else
+  #define AW "A"
+#endif
 
-en.depdownload_msg=The following applications are required before setup can continue:%n%n%1%nDownload and install now?
-en.depdownload_memo_title=Download dependencies
-en.depinstall_memo_title=Install dependencies
-en.depinstall_title=Installing dependencies
-en.depinstall_description=Please wait while Setup installs dependencies on your computer.
-en.depinstall_status=Installing %1...
-en.depinstall_missing=%1 must be installed before setup can continue. Please install %1 and run Setup again.
-en.depinstall_error=An error occured while installing the dependencies. Please restart the computer and run the setup again or install the following dependencies manually:%n
-en.isxdl_langfile=
-
-ru.depdownload_msg=Следующая программа должна быть предустановлена перед продолжением установки:%n%n%1%nЗагрузить и установить её сейчас?
-ru.depdownload_memo_title=Загрузить программы
-ru.depinstall_memo_title=Установить программы
-ru.depinstall_title=Установка программы
-ru.depinstall_description=Пожалуйста подождите пока происходит установка программы на ваш компьютер.
-ru.depinstall_status=Установка %1...
-ru.depinstall_missing=Программа %1 должна быть предустановлена пред продолжением установки. Пожалуйста установите %1 и запустите эту установку снова.
-ru.depinstall_error=Произошла ошибка при установке программы. Пожалуйста перезагрузите компьютер и запустите эту установку снова, либо установите следующие программы вручную:%n
-ru.isxdl_langfile=russian.ini
-
-[Files]
-Source: "isxdl\isxdl.dll";   DestDir: "{tmp}"; Flags: dontcopy deleteafterinstall
-Source: "isxdl\russian.ini"; DestDir: "{tmp}"; Flags: dontcopy deleteafterinstall
+#include "lang\default.iss"
 
 [Code]
-#IFDEF UNICODE
-    #DEFINE AW "W"
-#ELSE
-    #DEFINE AW "A"
-#ENDIF
-
 type
     INSTALLSTATE = Longint;
 const
@@ -49,19 +19,10 @@ const
 function MsiQueryProductState(szProduct: string): INSTALLSTATE;
 external 'MsiQueryProductState{#AW}@msi.dll stdcall';
 
-function msiproduct(const ProductID: string): boolean;
+function MsiProduct(const ProductID: string): boolean;
 begin
     Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
 end;
-
-procedure isxdl_AddFile(URL, Filename: PAnsiChar);
-external 'isxdl_AddFile@files:isxdl.dll stdcall';
-
-function isxdl_DownloadFiles(hWnd: Integer): Integer;
-external 'isxdl_DownloadFiles@files:isxdl.dll stdcall';
-
-function isxdl_SetOption(Option, Value: PAnsiChar): Integer;
-external 'isxdl_SetOption@files:isxdl.dll stdcall';
 
 type
 	TProduct = record
@@ -89,7 +50,7 @@ begin
 
   path := ExpandConstant('{tmp}{\}') + FileName;
 
-  isxdl_AddFile(URL, path);
+  idpAddFile( URL, path );
 
   downloadMemo := downloadMemo + '%1' + Title + #13;
   downloadMessage := downloadMessage + '	' + Title + #13;
@@ -132,7 +93,7 @@ begin
 	productCount := GetArrayLength(products);
 
 	if productCount > 0 then begin
-		DependencyPage := CreateOutputProgressPage(CustomMessage('depinstall_title'), CustomMessage('depinstall_description'));
+		DependencyPage := CreateOutputProgressPage(ExpandConstant('{cm:depinstall_title}'), ExpandConstant('{cm:depinstall_description}'));
 		DependencyPage.Show;
 
 		for i := 0 to productCount - 1 do begin
@@ -141,7 +102,7 @@ begin
 				break;
 			end;
 
-			DependencyPage.SetText(FmtMessage(CustomMessage('depinstall_status'), [products[i].Title]), '');
+			DependencyPage.SetText(FmtMessage(ExpandConstant('{cm:depinstall_status}'), [products[i].Title]), '');
 			DependencyPage.SetProgress(i, productCount);
 
 			if SmartExec(products[i], ResultCode) then begin
@@ -189,7 +150,7 @@ begin
 
 	case InstallProducts() of
 		InstallError: begin
-			s := CustomMessage('depinstall_error');
+			s := ExpandConstant('{cm:depinstall_error}');
 			for i := 0 to GetArrayLength(products) - 1 do begin
 				s := s + #13 + '	' + products[i].Title;
 			end;
@@ -216,51 +177,11 @@ var
 	s: string;
 begin
 	if downloadMemo <> '' then
-		s := s + CustomMessage('depdownload_memo_title') + ':' + NewLine + FmtMessage(downloadMemo, [Space]) + NewLine;
+		s := s + ExpandConstant('{cm:depdownload_memo_title}') + ':' + NewLine + FmtMessage(downloadMemo, [Space]) + NewLine;
 	if installMemo <> '' then
-		s := s + CustomMessage('depinstall_memo_title') + ':' + NewLine + FmtMessage(installMemo, [Space]) + NewLine;
+		s := s + ExpandConstant('{cm:depinstall_memo_title}') + ':' + NewLine + FmtMessage(installMemo, [Space]) + NewLine;
 	s := s + MemoDirInfo + NewLine + NewLine + MemoGroupInfo
 	if MemoTasksInfo <> '' then
 		s := s + NewLine + NewLine + MemoTasksInfo;
 	Result := s
-end;
-
-function vcNextButtonClick(): Boolean;
-begin
-	Result := true;
-  if downloadMemo <> '' then begin
-    if (ActiveLanguage() <> 'en') then begin
-      ExtractTemporaryFile(CustomMessage('isxdl_langfile'));
-      isxdl_SetOption('language', ExpandConstant('{tmp}{\}') + CustomMessage('isxdl_langfile'));
-    end;
-    if SuppressibleMsgBox(FmtMessage(CustomMessage('depdownload_msg'), [downloadMessage]), mbConfirmation, MB_YESNO, IDYES) = IDNO then
-      Result := false
-    else if isxdl_DownloadFiles(StrToInt(ExpandConstant('{wizardhwnd}'))) = 0 then
-      Result := false;
-  end;
-end;
-
-function IsX64(): Boolean;
-begin
-	Result := Is64BitInstallMode and (ProcessorArchitecture = paX64);
-end;
-
-function GetArchitectureString(): String;
-begin
-	if IsX64() then begin
-		Result := 'x64';
-	end else begin
-		Result := 'x86';
-	end;
-end;
-
-function vcInitializeSetup(): Boolean;
-begin
-  Result := true;
-  if ( not msiproduct( CustomMessage( 'vcredist_productcode_' + GetArchitectureString() ) ) ) then
-    AddProduct( 'vc_redist.' + GetArchitectureString() + '.exe',
-      '/passive /norestart',
-      CustomMessage( 'vcredist_title_' + GetArchitectureString() ),
-      CustomMessage( 'vcredist_url_' + GetArchitectureString() ),
-      false, false );
 end;
