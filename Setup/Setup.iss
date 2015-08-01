@@ -99,7 +99,7 @@ begin
   bWork := False;
 
   if ( not MsiProduct( '{#vcredist_productcode}' ) ) then begin
-    AddProduct( '{#vcredist_exe}', '/passive /norestart', '{#vcredist_title}', '{#vcredist_url}', false, false );
+    AddProduct( '{#vcredist_exe}', '/quiet /norestart', '{#vcredist_title}', '{#vcredist_url}', false, false );
     bWork := True;
   end;
 
