@@ -35,6 +35,9 @@ http://www.cherubicsoft.com/projects/slap
     Ctrl + C, Ctrl + Insert:
         Copy to Clipboard
 
+	Shift + Mouse (move or resize)
+		Snap SLAP window to screen edges
+
  Licenses
 ------------
 
