@@ -8,7 +8,7 @@
 		<item>
 			<title>New version</title>
 			<pubDate>1 Aug 2015 00:00:00 +0300</pubDate>
-			<enclosure url="http://www.cherubicsoft.com/_media/projects/slap/slap_1.0.0.6.exe" sparkle:version="1.0.0.6" length="1079336" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+			<enclosure url="http://www.cherubicsoft.com/_media/projects/slap/slap_1.0.0.6.exe" sparkle:version="1.0.0.6" length="1079453" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
 			<description>
 				<![CDATA[
 				<b>Version 1.0.0.6</b>
