@@ -3,7 +3,7 @@
 
 Shows Second Life friends list and notify about their online/offline status.
 
-http://www.cherubicsoft.com/projects/slap
+http://www.cherubicsoft.com/en/projects/slap
 
  Hotkeys
 ---------
@@ -30,13 +30,13 @@ http://www.cherubicsoft.com/projects/slap
         Refresh list
     
     Ctrl + P:
-        Global Opotions
+        Global Options
     
     Ctrl + C, Ctrl + Insert:
-        Copy to Clipboard
+        Copy to the clipboard
 
 	Shift + Mouse (move or resize)
-		Snap SLAP window to screen edges
+		Snap main window to the screen edges
 
  Licenses
 ------------
