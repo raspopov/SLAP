@@ -1,7 +1,7 @@
 ﻿#define MyAppName		    "SLAP"
 #define MyAppURL		    "http://www.cherubicsoft.com/projects/slap"
 #define MyAppExe		    "SLAP.exe"
-#define MyAppSource		  "..\Win32\Release\" + MyAppExe
+#define MyAppSource		  "..\Release\" + MyAppExe
 #define MyAppId			    GetStringFileInfo( MyAppSource, INTERNAL_NAME )
 #define MyAppVersion	  GetFileProductVersion( MyAppSource )
 #define MyAppCopyright	GetFileCopyright( MyAppSource )

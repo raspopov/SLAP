@@ -136,8 +136,8 @@
     <Image Include="res\Web.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="..\appcast.xml" />
+    <Image Include="res\filter.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

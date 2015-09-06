@@ -24,6 +24,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 #include "NotifyDlg.h"
 #include "UsersBox.h"
 
+
 #define MIN_WIDTH		250
 #define MIN_HEIGHT		250
 #define BOX_GAP			4
@@ -84,6 +85,8 @@ protected:
 	BOOL					m_bShowOnlineOnly;
 	BOOL					m_bOnlineTray;
 	BOOL					m_bOfflineTray;
+	CString					m_sFilter;
+	CEdit					m_wndFilter;
 
 	int						m_nYOffset;
 	int						m_nXOffset;
@@ -103,6 +106,7 @@ protected:
 	void SetStatus(LPCTSTR szStatus);
 	CString GetStatus() const;
 	
+	bool Filter(const CAvatar* pAvatar) const;					// Show filtered avatars only
 	void ReCreateList();										// Re-create avatar list
 	int FindAvatar(CAvatar* pAvatar);							// Returns avatar index in the avatar list (LB_ERR - not found)
 	void ShowNotify(CAvatar* pAvatar);
@@ -146,6 +150,7 @@ protected:
 	afx_msg void OnExit();
 	afx_msg void OnShow();
 	afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
+	afx_msg void OnFilterChange();
 
 	DECLARE_MESSAGE_MAP()
 };

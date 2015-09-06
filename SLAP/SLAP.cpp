@@ -28,6 +28,56 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
+// Case independent string search
+LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString)
+{
+	// Return null if string or substring is empty
+	if ( !*pszString || !*pszSubString )
+		return NULL;
+
+	// Return if string is too small to hold the substring
+	size_t nString(_tcslen(pszString));
+	size_t nSubString(_tcslen(pszSubString));
+	if ( nString < nSubString )
+		return NULL;
+
+	// Get the first character from the substring and lowercase it
+	const TCHAR cFirstPatternChar = _totlower(*pszSubString);
+
+	// Loop over the part of the string that the substring could fit into
+	LPCTSTR pszCutOff = pszString + nString - nSubString;
+	while ( pszString <= pszCutOff )
+	{
+		// Search for the start of the substring
+		while ( pszString <= pszCutOff && _totlower(*pszString) != cFirstPatternChar )
+		{
+			++pszString;
+		}
+
+		// Exit loop if no match found
+		if ( pszString > pszCutOff )
+			break;
+
+		// Check the rest of the substring
+		size_t nChar(1);
+		while ( pszSubString[ nChar ] && _totlower(pszString[ nChar ]) == _totlower(pszSubString[ nChar ]) )
+		{
+			++nChar;
+		}
+
+		// If the substring matched return a pointer to the start of the match
+		if ( !pszSubString[ nChar ] )
+			return pszString;
+
+		// Move on to the next character and continue search
+		++pszString;
+	}
+
+	// No match found, return a null pointer
+	return NULL;
+}
+
+
 CString URLEncode(LPCTSTR szText)
 {
 	CString res;
@@ -86,6 +136,7 @@ CAvatar::CAvatar()
 	, m_bNewOnline		( FALSE )
 	, m_bNewFriend		( FALSE )
 	, m_bDirty			( TRUE )
+	, m_bFiltered		( TRUE )
 {
 }
 
@@ -103,6 +154,17 @@ CString CAvatar::GetSound() const
 {
 	const CString sSound = m_bOnline ? m_sOnlineSound : m_sOfflineSound;
 	return ( sSound == NO_SOUND ) ? CString() : ( sSound.IsEmpty() ? theApp.GetProfileString( SETTINGS, m_bOnline ? SOUND_ONLINE : SOUND_OFFLINE ) : sSound );
+}
+
+void CAvatar::Filter(const CString& sFilter)
+{
+	BOOL bFiltered = sFilter.IsEmpty() || _tcsistr( m_sDisplayName, sFilter ) || _tcsistr( m_sRealName, sFilter );
+
+	if ( bFiltered != m_bFiltered )
+	{
+		m_bFiltered = bFiltered;
+		m_bDirty = TRUE;
+	}
 }
 
 BOOL CAvatar::IsValidUsername(LPCTSTR szUsername)

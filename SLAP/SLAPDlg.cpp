@@ -29,7 +29,6 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
-
 // CSLAPDlg dialog
 
 CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
@@ -54,16 +53,22 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 
 void CSLAPDlg::DoDataExchange(CDataExchange* pDX)
 {
-	__super::DoDataExchange( pDX );
+	__super::DoDataExchange(pDX);
 
-	DDX_Control( pDX, IDC_USERS, m_wndAvatars );
-	DDX_Control( pDX, IDC_STATUS, m_wndStatus );
-	DDX_Control( pDX, IDC_TELEPORT, m_wndTeleport );
-	DDX_Control( pDX, IDC_WEB, m_wndWeb );
-	DDX_Control( pDX, IDC_COPY, m_wndCopy );
-	DDX_Control( pDX, IDC_AVATAR_OPTIONS, m_wndAvatarOptions );
-	DDX_Control( pDX, IDC_REFRESH, m_wndRefresh );
-	DDX_Control( pDX, IDC_OPTIONS, m_wndOptions );
+	DDX_Control(pDX, IDC_USERS, m_wndAvatars);
+	DDX_Control(pDX, IDC_STATUS, m_wndStatus);
+	DDX_Control(pDX, IDC_TELEPORT, m_wndTeleport);
+	DDX_Control(pDX, IDC_WEB, m_wndWeb);
+	DDX_Control(pDX, IDC_COPY, m_wndCopy);
+	DDX_Control(pDX, IDC_AVATAR_OPTIONS, m_wndAvatarOptions);
+	DDX_Control(pDX, IDC_REFRESH, m_wndRefresh);
+	DDX_Control(pDX, IDC_OPTIONS, m_wndOptions);
+	DDX_Control(pDX, IDC_FILTER, m_wndFilter);
+}
+
+bool CSLAPDlg::Filter(const CAvatar* pAvatar) const
+{
+	return ( ! m_bShowOnlineOnly || ( pAvatar->m_bFriend && pAvatar->m_bOnline ) ) && pAvatar->m_bFiltered;
 }
 
 void CSLAPDlg::ReCreateList()
@@ -77,7 +82,7 @@ void CSLAPDlg::ReCreateList()
 		const CAvatar* pAvatar = theApp.GetNextAvatar( pos );
 
 		// Add new item
-		if ( ! m_bShowOnlineOnly || pAvatar->m_bOnline )
+		if ( Filter( pAvatar ) )
 		{
 			int nIndex = m_wndAvatars.AddString( pAvatar->GetSortName() );
 			m_wndAvatars.SetItemDataPtr( nIndex, (void*)pAvatar );
@@ -123,6 +128,7 @@ BEGIN_MESSAGE_MAP(CSLAPDlg, CDialog)
 	ON_COMMAND( IDC_EXIT, &CSLAPDlg::OnExit )
 	ON_COMMAND( IDC_SHOW, &CSLAPDlg::OnShow )
 	ON_WM_WINDOWPOSCHANGING()
+	ON_EN_CHANGE( IDC_FILTER, &CSLAPDlg::OnFilterChange)
 END_MESSAGE_MAP()
 
 // CSLAPDlg message handlers
@@ -144,6 +150,7 @@ BOOL CSLAPDlg::OnInitDialog()
 	m_pResizer.SetParentWnd( this );
 	m_pResizer.AddControl( GetDlgItem( IDC_USERS   ), BIND_ALL );
 	m_pResizer.AddControl( GetDlgItem( IDC_STATUS  ), BIND_BOTTOM | BIND_LEFT | BIND_RIGHT );
+	m_pResizer.AddControl( &m_wndFilter, BIND_TOP | BIND_LEFT | BIND_RIGHT );
 	m_pResizer.AddControl( &m_wndRefresh, BIND_TOP | BIND_RIGHT );
 	m_pResizer.AddControl( &m_wndOptions, BIND_TOP | BIND_RIGHT );
 	m_pResizer.FixControls();
@@ -157,6 +164,7 @@ BOOL CSLAPDlg::OnInitDialog()
 	m_pTips.AddTool( &m_wndAvatarOptions, m_wndAvatarOptions.GetDlgCtrlID() );
 	m_pTips.AddTool( &m_wndRefresh, m_wndRefresh.GetDlgCtrlID() );
 	m_pTips.AddTool( &m_wndOptions, m_wndOptions.GetDlgCtrlID() );
+	m_pTips.AddTool( &m_wndFilter, m_wndFilter.GetDlgCtrlID() );
 
 	m_wndTeleport.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_TELEPORT ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
 	m_wndWeb.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_WEB ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
@@ -397,7 +405,7 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 			}
 
 			// Add new item
-			if ( ! m_bShowOnlineOnly || ( pAvatar->m_bFriend && pAvatar->m_bOnline ) )
+			if ( Filter( pAvatar ) )
 			{
 				nIndex = m_wndAvatars.AddString( pAvatar->GetSortName() );
 				m_wndAvatars.SetItemDataPtr( nIndex, (void*)pAvatar );
@@ -809,9 +817,17 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 {
 	if ( nChar == VK_DELETE )
 	{
-		if ( AfxMessageBox( IDS_DELETE_AVATAR, MB_ICONQUESTION | MB_YESNO ) == IDYES )
+		DWORD nSelected = 0;
+		const int nCount = m_wndAvatars.GetCount();
+		for ( int i = 0; i < nCount; ++i )
 		{
-			int nCount = m_wndAvatars.GetCount();
+			if ( m_wndAvatars.GetSel(i) > 0 )
+			{
+				++ nSelected;
+			}
+		}
+		if ( nSelected && GetFocus() == static_cast< CWnd*>( &m_wndAvatars ) && AfxMessageBox( IDS_DELETE_AVATAR, MB_ICONQUESTION | MB_YESNO ) == IDYES )
+		{
 			for ( int i = 0; i < nCount; ++i )
 			{
 				if ( m_wndAvatars.GetSel( i ) > 0 )
@@ -827,8 +843,8 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 					}
 				}
 			}
+			return TRUE;
 		}
-		return TRUE;
 	}
 	else if ( nChar == VK_RETURN )
 	{
@@ -1101,4 +1117,20 @@ void CSLAPDlg::OnWindowPosChanging(WINDOWPOS* lpwndpos)
 	{
 		lpwndpos->y = screenHeight - bottomTaskbar - wndHeight;
 	}
+}
+
+void CSLAPDlg::OnFilterChange()
+{
+	m_wndFilter.GetWindowText( m_sFilter );
+
+	CSingleLock pLock( &theApp.m_pSection, TRUE );
+
+	for ( POSITION pos = theApp.GetAvatarIterator(); pos; )
+	{
+		CAvatar* pAvatar = theApp.GetNextAvatar(pos);
+
+		pAvatar->Filter( m_sFilter );
+	}
+
+	ReCreateList();
 }

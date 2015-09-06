@@ -22,6 +22,7 @@
     <ProjectGuid>{F2A2C266-FB7A-4AFA-B350-4154CDC1987A}</ProjectGuid>
     <RootNamespace>SLAP</RootNamespace>
     <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,16 +73,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -284,6 +281,7 @@
     <Image Include="res\Alert.ico" />
     <Image Include="res\AvatarOptions.ico" />
     <Image Include="res\Copy.ico" />
+    <Image Include="res\filter.ico" />
     <Image Include="res\NoSound.ico" />
     <Image Include="res\Options.ico" />
     <Image Include="res\Play.ico" />
@@ -293,9 +291,6 @@
     <Image Include="res\Teleport.ico" />
     <Image Include="res\User.ico" />
     <Image Include="res\Web.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="..\appcast.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

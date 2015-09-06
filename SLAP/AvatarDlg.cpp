@@ -153,8 +153,8 @@ void CAvatarDlg::OnOK()
 			case IDC_OFFLINE_DEFAULT:
 				break;
 			case IDC_OFFLINE_CUSTOM:
-			m_wndOfflineSound.GetWindowText( sOfflineSound );
-			break;
+				m_wndOfflineSound.GetWindowText( sOfflineSound );
+				break;
 			}
 			m_pAvatar->m_sOfflineSound = sOfflineSound;
 		}

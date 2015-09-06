@@ -73,6 +73,7 @@ public:
 
 	CString GetSortName() const;
 	CString GetSound() const;
+	void Filter(const CString& sFilter);
 
 	static BOOL IsValidUsername(LPCTSTR szUsername);
 	static CString MakePretty(const CString& sName);
@@ -92,6 +93,7 @@ public:
 	BOOL		m_bNewOnline;		// New online status
 	BOOL		m_bNewFriend;		// New friend status
 	BOOL		m_bDirty;			// Data was changed and list must be resorted
+	BOOL		m_bFiltered;		// Avatar was filtered by name filter
 	CImage		m_pImage;			// Avatar image (second life)
 };
 
