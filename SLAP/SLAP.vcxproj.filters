@@ -54,6 +54,9 @@
     <ClInclude Include="..\WinSparkle\winsparkle-version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IconEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SLAP.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NotifyDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IconEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

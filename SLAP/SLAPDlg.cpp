@@ -142,6 +142,12 @@ BOOL CSLAPDlg::OnInitDialog()
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR | LR_SHARED ), TRUE );		// Set big icon
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ), FALSE );	// Set small icon
 
+	CString sFilterCue;
+	sFilterCue.LoadString( IDC_FILTER );
+	m_wndFilter.SetCueBanner( sFilterCue );
+	m_wndFilter.SetLimitText( 64 );
+	m_wndFilter.SetIcon( IDI_FILTER );
+
 	m_pTray.SetIcon( m_hIcon, false );
 	m_pTray.SetName( theApp.m_pszAppName );
 	m_pTray.SetVisible( true );

@@ -242,6 +242,7 @@
     <ClInclude Include="..\WinSparkle\winsparkle.h" />
     <ClInclude Include="AvatarDlg.h" />
     <ClInclude Include="CtrlsResize.h" />
+    <ClInclude Include="IconEdit.h" />
     <ClInclude Include="NotifyDlg.h" />
     <ClInclude Include="OptionsDlg.h" />
     <ClInclude Include="Resource.h" />
@@ -255,6 +256,7 @@
   <ItemGroup>
     <ClCompile Include="AvatarDlg.cpp" />
     <ClCompile Include="CtrlsResize.cpp" />
+    <ClCompile Include="IconEdit.cpp" />
     <ClCompile Include="NotifyDlg.cpp" />
     <ClCompile Include="OptionsDlg.cpp" />
     <ClCompile Include="SLAP.cpp" />

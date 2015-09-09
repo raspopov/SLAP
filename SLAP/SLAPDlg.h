@@ -23,6 +23,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 #include "CtrlsResize.h"
 #include "NotifyDlg.h"
 #include "UsersBox.h"
+#include "IconEdit.h"
 
 
 #define MIN_WIDTH		250
@@ -86,7 +87,7 @@ protected:
 	BOOL					m_bOnlineTray;
 	BOOL					m_bOfflineTray;
 	CString					m_sFilter;
-	CEdit					m_wndFilter;
+	CIconEdit				m_wndFilter;
 
 	int						m_nYOffset;
 	int						m_nXOffset;
