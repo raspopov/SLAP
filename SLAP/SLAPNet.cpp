@@ -220,9 +220,9 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 
 	SetStatus( IDS_LOGINING );
 
-	sUrl.LoadString( IDS_LOGIN_URL );
-	sReferer.LoadString( IDS_LOGIN_REFERER );
-	sReturnTo.LoadString( IDS_FRIENDS_URL );
+	VERIFY( sUrl.LoadString( IDS_LOGIN_URL ) );
+	VERIFY( sReferer.LoadString( IDS_LOGIN_REFERER ) );
+	VERIFY( sReturnTo.LoadString( IDS_FRIENDS_URL ) );
 
 	CString sUsername, sPassword;
 	if ( ! theApp.LoadPassword( sUsername, sPassword ) || sUsername.IsEmpty() || sPassword.IsEmpty() )
@@ -232,7 +232,7 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 	}
 
 	CStringA sParams;
-	sParams.LoadString( IDS_LOGIN_FORM );
+	VERIFY( sParams.LoadString( IDS_LOGIN_FORM ) );
 	sParams.Replace( "{USERNAME}", URLEncode( CT2A( sUsername, CP_UTF8 ) ) );
 	sParams.Replace( "{PASSWORD}", URLEncode( CT2A( sPassword, CP_UTF8 ) ) );
 	sParams.Replace( "{RETURNTO}", URLEncode( CT2A( sReturnTo.Left( sReturnTo.ReverseFind( _T( '/' ) ) + 1 ) ) ) );
@@ -336,7 +336,7 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 	SetStatus( IDS_UPDATING_FRIENDS_ONLINE );
 
 	// Load "Friends Online"
-	sUrl.LoadString( IDS_FRIENDS_ONLINE_URL );
+	VERIFY( sUrl.LoadString( IDS_FRIENDS_ONLINE_URL ) );
 	DWORD nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
@@ -452,7 +452,7 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 	SetStatus( IDS_UPDATING_FRIENDS );
 
 	// Load "Friends Widget"
-	sUrl.LoadString( IDS_FRIENDS_URL );
+	VERIFY( sUrl.LoadString( IDS_FRIENDS_URL ) );
 	nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
@@ -545,13 +545,13 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 			return FALSE;
 
 		pAvatar->m_tImage = CTime::GetCurrentTime();
-		theApp.SaveAvatar( pAvatar );
+		pAvatar->Save();
 
 		sRealName = pAvatar->m_sRealName;
 	}
 
 	CString sUrl;
-	sUrl.LoadString( IDS_IMAGE_URL );
+	VERIFY( sUrl.LoadString( IDS_IMAGE_URL ) );
 	sRealName.Replace( _T( ' ' ), _T( '.' ) );
 	sUrl.Replace( _T( "{USERNAME}" ), sRealName );
 
@@ -573,39 +573,42 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 				CImage img;
 				if ( SUCCEEDED( img.Load( pStream ) ) )
 				{
-					// Resize image to 48x48
-					CDC* dcScreen = GetDC();
+					// Resize image to 48x48 bitmap
 					CBitmap bmp;
-					bmp.CreateCompatibleBitmap( dcScreen, 48, 48 );
-					CDC dcMem;
-					dcMem.CreateCompatibleDC( dcScreen );
-					CBitmap* pbmpOld = (CBitmap*)dcMem.SelectObject( &bmp );
-					img.Draw( dcMem.m_hDC, CRect( 0, 0, 48, 48 ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
-					dcMem.SelectObject( pbmpOld );
-					dcMem.DeleteDC();
+					if ( CDC* pDC = GetDC() )
+					{
+						if ( bmp.CreateCompatibleBitmap( pDC, 48, 48 ) )
+						{
+							CDC dcMem;
+							if ( dcMem.CreateCompatibleDC( pDC ) )
+							{
+								CBitmap* pbmpOld = (CBitmap*)dcMem.SelectObject( &bmp );
+
+								bRet = img.Draw( dcMem.m_hDC, CRect( 0, 0, 48, 48 ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
+
+								dcMem.SelectObject( pbmpOld );
+							}
+							dcMem.DeleteDC();
+						}
+
+						ReleaseDC( pDC );
+					}
 					img.Destroy();
 
+					if ( bRet )
 					{
 						CSingleLock pLock( &theApp.m_pSection, TRUE );
 
 						if ( theApp.IsValid( pAvatar ) )
 						{
-							pAvatar->m_pImage.Destroy();
-							pAvatar->m_pImage.Attach( (HBITMAP)bmp.Detach() );
-
-							// Save to cache
-							const CString sCached = theApp.sImageCache + _T( "\\" ) + pAvatar->m_sRealName + _T( ".png" );
-							SHCreateDirectory( NULL, theApp.sImageCache );
-							if ( SUCCEEDED( pAvatar->m_pImage.Save( sCached ) ) )
-								theApp.Log( _T( "Successfuly saved image: " ) + sCached );
-							else
-								theApp.Log( _T( "Failed to save image: " ) + sCached );
+							pAvatar->SetImage( (HBITMAP)bmp.Detach() );
 
 							theApp.Refresh( TRUE, pAvatar );
 						}
 					}
 
-					bRet = TRUE;
+					if ( bmp.m_hObject )
+						bmp.DeleteObject();
 				}
 				pStream->Release();
 			}
@@ -620,7 +623,7 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 void CSLAPDlg::SetStatus(UINT nStatus)
 {
 	CString sStatus;
-	sStatus.LoadString( nStatus );
+	VERIFY( sStatus.LoadString( nStatus ) );
 	SetStatus( sStatus );
 }
 

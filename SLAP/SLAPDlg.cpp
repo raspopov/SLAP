@@ -34,10 +34,6 @@ static char THIS_FILE[] = __FILE__;
 CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	: CDialog			( CSLAPDlg::IDD, pParent )
 	, m_hIcon			( theApp.LoadIcon( IDR_MAINFRAME ) )
-	, m_hUserIcon		( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_USER ), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR | LR_SHARED ) )
-	, m_hSoundIcon		( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_SOUND ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) )
-	, m_hNoSoundIcon	( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_NOSOUND ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) )
-	, m_hAlertIcon		( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_ALERT ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) )
 	, m_pThread			( NULL )
 	, m_eventThreadStop	( FALSE, TRUE )
 	, m_dlgNotify		( NULL )
@@ -48,6 +44,7 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	, m_bOfflineTray	( theApp.GetProfileInt( SETTINGS, OFFLINE_TRAY, 1 ) != 0 )
 	, m_nYOffset		( 15 )
 	, m_nXOffset		( 15 )
+	, m_nMouseSelected	( LB_ERR )
 {
 }
 
@@ -89,7 +86,32 @@ void CSLAPDlg::ReCreateList()
 		}
 	}
 
-	OnLbnSelchangeUsers();
+	UpdateInterface();
+}
+
+int CSLAPDlg::GetSelectedCount() const
+{
+	int nSelected = 0;
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
+	{
+		if ( IsSelected( i ) )
+		{
+			++ nSelected;
+		}
+	}
+	return nSelected;
+}
+
+int CSLAPDlg::GetSelected() const
+{
+	const int nCount = m_wndAvatars.GetSelCount();
+	if ( nCount < 1 )
+		return LB_ERR;
+	else if ( nCount == 1 || ! IsSelected( m_nMouseSelected ) )
+		return m_wndAvatars.GetCurSel();
+	else
+		return m_nMouseSelected;
 }
 
 BOOL CSLAPDlg::PreTranslateMessage(MSG* pMsg)
@@ -129,6 +151,7 @@ BEGIN_MESSAGE_MAP(CSLAPDlg, CDialog)
 	ON_COMMAND( IDC_SHOW, &CSLAPDlg::OnShow )
 	ON_WM_WINDOWPOSCHANGING()
 	ON_EN_CHANGE( IDC_FILTER, &CSLAPDlg::OnFilterChange)
+	ON_COMMAND( IDC_DELETE, &CSLAPDlg::OnDelete )
 END_MESSAGE_MAP()
 
 // CSLAPDlg message handlers
@@ -143,7 +166,7 @@ BOOL CSLAPDlg::OnInitDialog()
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ), FALSE );	// Set small icon
 
 	CString sFilterCue;
-	sFilterCue.LoadString( IDC_FILTER );
+	VERIFY( sFilterCue.LoadString( IDC_FILTER ) );
 	m_wndFilter.SetCueBanner( sFilterCue );
 	m_wndFilter.SetLimitText( 64 );
 	m_wndFilter.SetIcon( IDI_FILTER );
@@ -248,7 +271,7 @@ void CSLAPDlg::OnDestroy()
 		return;
 
 	CString sClose;
-	sClose.LoadString( IDS_CLOSING );
+	VERIFY( sClose.LoadString( IDS_CLOSING ) );
 	m_pTray.SetName( theApp.sFullTitle + _T( "\r\n" ) + sClose );
 
 	win_sparkle_cleanup();
@@ -270,8 +293,7 @@ void CSLAPDlg::OnDestroy()
 	
 	m_pTray.SetVisible( false );
 
-	if ( m_fntBold.m_hObject ) m_fntBold.DeleteObject();
-	if ( m_fntNormal.m_hObject ) m_fntNormal.DeleteObject();
+	CAvatar::Clear();
 
 	__super::OnDestroy();
 }
@@ -340,14 +362,12 @@ void CSLAPDlg::OnBnClickedOptions()
 	}
 }
 
-int CSLAPDlg::FindAvatar(CAvatar* pAvatar)
+int CSLAPDlg::FindAvatar(const CAvatar* pAvatar)
 {
-	int nCount = m_wndAvatars.GetCount();
-
+	const int nCount = GetCount();
 	for ( int i = 0; i < nCount; ++i )
 	{
-		CAvatar* pListAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( i );
-		if ( pListAvatar == pAvatar )
+		if ( Get( i ) == pAvatar )
 			return i;
 	}
 	return LB_ERR;
@@ -366,7 +386,7 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 	{
 		if ( theApp.IsValid( pAvatar ) )
 		{
-			theApp.SaveAvatar( pAvatar );
+			pAvatar->Save();
 
 			int nIndex = FindAvatar( pAvatar );
 			if ( nIndex != LB_ERR )
@@ -431,6 +451,8 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 		pAvatar->m_bNewOnline = FALSE;
 	}
 
+	UpdateInterface();
+
 	// Report good result
 	if ( bSuccess )
 	{
@@ -438,8 +460,6 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 		sStatus.Format( IDS_RESULT, theApp.GetAvatarCount(), theApp.GetAvatarCount( TRUE ) );
 		SetStatus( sStatus );
 	}
-
-	UpdateWindow();
 
 	return 0;
 }
@@ -490,7 +510,7 @@ void CSLAPDlg::OnTimer( UINT_PTR nIDEvent )
 	}
 }
 
-void CSLAPDlg::ShowNotify(CAvatar* pAvatar)
+void CSLAPDlg::ShowNotify(const CAvatar* pAvatar)
 {
 	CSingleLock pLock( &theApp.m_pSection, TRUE );
 
@@ -521,7 +541,7 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 	
 	CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-	CAvatar* pAvatar = (CAvatar*)lParam;
+	const CAvatar* pAvatar = (const CAvatar*)lParam;
 
 	if ( ! pAvatar )
 	{
@@ -533,7 +553,7 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 	else if ( theApp.IsValid( pAvatar ) )
 	{
 		CString sTitle;
-		sTitle.LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
+		VERIFY( sTitle.LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE ) );
 
 		CString sNotify;
 		sNotify.Format( IDS_AVATAR_NOTIFY, (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
@@ -602,7 +622,7 @@ void CSLAPDlg::OnLbnDblclkUsers()
 		const int nSelected = m_wndAvatars.GetCurSel();
 		if ( nSelected != LB_ERR )
 		{
-			ShowNotify( (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected ) );
+			ShowNotify( Get( nSelected ) );
 		}
 	}
 	else if ( GetKeyState( VK_CONTROL ) & 0x8000000 )
@@ -650,24 +670,7 @@ void CSLAPDlg::OnMeasureItem(int nIDCtl, LPMEASUREITEMSTRUCT pMIS)
 {
 	if ( nIDCtl == IDC_USERS )
 	{
-		CPaintDC dc( this );
-
-		// Create fonts
-		LOGFONT lf = {};
-		SystemParametersInfo( SPI_GETICONTITLELOGFONT, sizeof( lf ), &lf, 0 );
-		lf.lfWeight = FW_SEMIBOLD;
-		if ( ! m_fntBold.m_hObject ) m_fntBold.CreateFontIndirect( &lf );
-		lf.lfHeight += 1;
-		lf.lfWeight = FW_NORMAL;
-		if ( ! m_fntNormal.m_hObject ) m_fntNormal.CreateFontIndirect( &lf );
-
-		CFont* pOldFont = (CFont*)dc.SelectObject( &m_fntBold );
-		m_nTitleHeight = dc.GetTextExtent( _T( "Xg" ) ).cy + 1;
-		dc.SelectObject( &m_fntNormal );
-		m_nTextHeight = dc.GetTextExtent( _T( "Xg" ) ).cy + 1;
-		dc.SelectObject( pOldFont );
-
-		pMIS->itemHeight = BOX_GAP + max( BOX_ICON, m_nTitleHeight + m_nTextHeight * 2 ) + BOX_GAP;
+		pMIS->itemHeight = CAvatar::OnMeasureItem( this );
 	}
 	else
 		__super::OnMeasureItem( nIDCtl, pMIS );
@@ -679,141 +682,11 @@ void CSLAPDlg::OnDrawItem(int nIDCtl, LPDRAWITEMSTRUCT pDIS)
 	{
 		CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-		CAvatar* pAvatar = (CAvatar*)pDIS->itemData;
-		if ( ! theApp.IsValid( pAvatar ) )
-			return;
-
-		const BOOL bSelected = ( pDIS->itemState & ODS_SELECTED );
-		const COLORREF rgbIndicator = pAvatar->m_bFriend ? ( pAvatar->m_bOnline ? RGB_ONLINE : RGB_OFFLINE ) : RGB_UNKNOWN;
-		const COLORREF rgbIndicatorBack = RGB(
-			max( 64, GetRValue( rgbIndicator ) ) - 64,
-			max( 64, GetGValue( rgbIndicator ) ) - 64,
-			max( 64, GetBValue( rgbIndicator ) ) - 64 );
-		const COLORREF rgbBack = GetSysColor( COLOR_BTNFACE );
-		const int cx = pDIS->rcItem.right - pDIS->rcItem.left;
-		const int cy = pDIS->rcItem.bottom - pDIS->rcItem.top;
-
-		CDC* pDC = CDC::FromHandle( pDIS->hDC );
-		pDC->SetBkMode( TRANSPARENT );
-		pDC->SetTextColor( GetSysColor( COLOR_BTNTEXT ) );
-		pDC->SetBkColor( rgbBack );
-
-		TRIVERTEX vertex[ 2 ] =
+		const CAvatar* pAvatar = (const CAvatar*)pDIS->itemData;
+		if ( theApp.IsValid( pAvatar ) )
 		{
-			{ pDIS->rcItem.left, pDIS->rcItem.top,
-				(COLOR16)( GetRValue( rgbBack ) << 8 ),
-				(COLOR16)( GetGValue( rgbBack ) << 8 ),
-				(COLOR16)( GetBValue( rgbBack ) << 8 ),
-				(COLOR16)0 },
-			{ pDIS->rcItem.right, pDIS->rcItem.bottom,
-				(COLOR16)( ( max( 16, GetRValue( rgbBack ) ) - 16 ) << 8 ),
-				(COLOR16)( ( max( 16, GetGValue( rgbBack ) ) - 16 ) << 8 ),
-				(COLOR16)( ( max( 16, GetBValue( rgbBack ) ) - 16 ) << 8 ),
-				(COLOR16)0 }
-		};
-		GRADIENT_RECT gRect = { 0, 1 };
-		pDC->GradientFill( vertex, 2, &gRect, 1, GRADIENT_FILL_RECT_V );
-
-		const CRect rcIndicator(
-			pDIS->rcItem.left	+ BOX_GAP,
-			pDIS->rcItem.top	+ BOX_GAP,
-			pDIS->rcItem.left	+ BOX_GAP + BOX_INDICATOR,
-			pDIS->rcItem.top	+ BOX_GAP + BOX_ICON );
-		TRIVERTEX vertexIndicator[ 2 ] =
-		{
-			{ rcIndicator.left, rcIndicator.top,
-				(COLOR16)( GetRValue( rgbIndicator ) << 8 ),
-				(COLOR16)( GetGValue( rgbIndicator ) << 8 ),
-				(COLOR16)( GetBValue( rgbIndicator ) << 8 ),
-				(COLOR16)0 },
-			{ rcIndicator.right, rcIndicator.bottom,
-				(COLOR16)( GetRValue( rgbIndicatorBack ) << 8 ),
-				(COLOR16)( GetGValue( rgbIndicatorBack ) << 8 ),
-				(COLOR16)( GetBValue( rgbIndicatorBack ) << 8 ),
-				(COLOR16)0 }
-		};
-		GRADIENT_RECT gRectIndicator = { 0, 1 };
-		pDC->GradientFill( vertexIndicator, 2, &gRectIndicator, 1, GRADIENT_FILL_RECT_H );
-
-		CRect rcIcon(
-			rcIndicator.right,
-			rcIndicator.top,
-			rcIndicator.right   + BOX_ICON,
-			rcIndicator.bottom );
-		pDC->Draw3dRect( &rcIcon, rgbIndicatorBack, rgbIndicatorBack );
-		rcIcon.DeflateRect( 1, 1, 1, 1 );
-		if ( pAvatar->m_pImage.IsNull() )
-			DrawIconEx( pDIS->hDC, rcIcon.left, rcIcon.top, m_hUserIcon, 48, 48, NULL, NULL, DI_NORMAL );
-		else
-			pAvatar->m_pImage.Draw( pDIS->hDC, rcIcon.left, rcIcon.top );
-
-		CRect rcTitle(
-			rcIcon.right		+ BOX_GAP,
-			pDIS->rcItem.top	+ BOX_GAP,
-			pDIS->rcItem.right  - BOX_GAP - BOX_STATUS,
-			pDIS->rcItem.top	+ BOX_GAP + m_nTitleHeight );
-		CFont* pOldFont = (CFont*)pDC->SelectObject( &m_fntBold );
-		pDC->DrawText( pAvatar->m_sDisplayName, &rcTitle, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
-		
-		CPoint rcSoundIcon(
-			pDIS->rcItem.right	- BOX_GAP - BOX_STATUS,
-			pDIS->rcItem.top	+ BOX_GAP );
-		if ( ! pAvatar->m_sOnlineSound.IsEmpty() )
-		{
-			if ( pAvatar->m_sOnlineSound == NO_SOUND )
-				DrawIconEx( pDIS->hDC, rcSoundIcon.x, rcSoundIcon.y, m_hNoSoundIcon, 16, 16, NULL, NULL, DI_NORMAL );
-			else
-				DrawIconEx( pDIS->hDC, rcSoundIcon.x, rcSoundIcon.y, m_hSoundIcon, 16, 16, NULL, NULL, DI_NORMAL );
+			pAvatar->OnDrawItem( pDIS );
 		}
-		if ( pAvatar->m_bLoopSound )
-			DrawIconEx( pDIS->hDC, rcSoundIcon.x, rcSoundIcon.y + 17, m_hAlertIcon, 16, 16, NULL, NULL, DI_NORMAL );
-		
-		CRect rcRealName(
-			rcTitle.left,
-			rcTitle.bottom,
-			rcTitle.right,
-			rcTitle.bottom		+ m_nTextHeight );
-		pDC->SelectObject( &m_fntNormal );
-		pDC->DrawText( _T("(") + pAvatar->m_sRealName + _T(")"), &rcRealName, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
-
-		CString sOnline;
-		if ( ( ! pAvatar->m_bFriend || ! pAvatar->m_bOnline ) && pAvatar->m_tLastOnline.GetTime() )
-		{
-			sOnline = pAvatar->m_tLastOnline.Format( IDS_AVATAR_LAST_ONLINE );
-		}
-		else if ( pAvatar->m_bOnline && ! pAvatar->m_sPlace.IsEmpty() )
-		{
-			pDC->SetTextColor( GetSysColor( COLOR_HOTLIGHT ) );
-			sOnline = _T("@ ") + pAvatar->m_sPlace;
-		}
-		if ( ! sOnline.IsEmpty() )
-		{
-			CRect rcOnline(
-				rcRealName.left,
-				rcRealName.bottom,
-				rcRealName.right,
-				rcRealName.bottom + m_nTextHeight );
-			pDC->DrawText( sOnline, &rcOnline, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
-		}
-
-		if ( bSelected )
-		{
-			CDC dcSelection;
-			dcSelection.CreateCompatibleDC( pDC );
-			CBitmap bmSelection;
-			bmSelection.CreateCompatibleBitmap( pDC, cx, cy );
-			CBitmap* pOldBitmap = (CBitmap*)dcSelection.SelectObject( &bmSelection );
-			dcSelection.FillSolidRect( 0, 0, cx, cy, GetSysColor( COLOR_HIGHLIGHT ) );
-			BLENDFUNCTION fn = { AC_SRC_OVER, 0, 48, 0 };
-			pDC->AlphaBlend( pDIS->rcItem.left, pDIS->rcItem.top, cx, cy, &dcSelection, 0, 0, cx, cy, fn );
-			dcSelection.SelectObject( pOldBitmap );
-			bmSelection.DeleteObject();
-			dcSelection.DeleteDC();
-		}
-
-		pDC->SelectObject( pOldFont );
-
-		pDC->ExcludeClipRect( &pDIS->rcItem );
 	}
 	else
 		__super::OnDrawItem( nIDCtl, pDIS );
@@ -823,32 +696,9 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 {
 	if ( nChar == VK_DELETE )
 	{
-		DWORD nSelected = 0;
-		const int nCount = m_wndAvatars.GetCount();
-		for ( int i = 0; i < nCount; ++i )
+		if ( GetFocus() == static_cast< CWnd*>( &m_wndAvatars ) )
 		{
-			if ( m_wndAvatars.GetSel(i) > 0 )
-			{
-				++ nSelected;
-			}
-		}
-		if ( nSelected && GetFocus() == static_cast< CWnd*>( &m_wndAvatars ) && AfxMessageBox( IDS_DELETE_AVATAR, MB_ICONQUESTION | MB_YESNO ) == IDYES )
-		{
-			for ( int i = 0; i < nCount; ++i )
-			{
-				if ( m_wndAvatars.GetSel( i ) > 0 )
-				{
-					CSingleLock pLock( &theApp.m_pSection, TRUE );
-
-					CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( i );
-					if ( theApp.IsValid( pAvatar ) )
-					{
-						theApp.DeleteAvatar( pAvatar );
-
-						m_wndAvatars.DeleteString( i );
-					}
-				}
-			}
+			OnDelete();
 			return TRUE;
 		}
 	}
@@ -877,14 +727,32 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 		OnBnClickedCopy();
 		return TRUE;
 	}
+	else if ( nChar == 'A' && GetKeyState( VK_CONTROL ) & 0x8000000 )
+	{
+		const int nCount = GetCount();
+		for ( int i = 0; i < nCount; ++ i )
+		{
+			m_wndAvatars.SetSel( i, TRUE );
+		}
+		return TRUE;
+	}
+	else if ( nChar == VK_ESCAPE )
+	{
+		const int nCount = GetCount();
+		for ( int i = 0; i < nCount; ++ i )
+		{
+			m_wndAvatars.SetSel( i, FALSE );
+		}
+		return TRUE;
+	}
 	return FALSE;
 }
 
 void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 {
 	BOOL bOutside = TRUE;
-	const int nIndex = m_wndAvatars.ItemFromPoint( point, bOutside );
-	if ( nIndex != LB_ERR && ! bOutside )
+	m_nMouseSelected = m_wndAvatars.ItemFromPoint( point, bOutside );
+	if ( m_nMouseSelected != LB_ERR && ! bOutside )
 	{
 		CMenu pMenu;
 		if ( pMenu.LoadMenu( IDR_MENU ) )
@@ -894,13 +762,9 @@ void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 			{
 				CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-				CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( nIndex );
+				const CAvatar* pAvatar = Get( m_nMouseSelected );
 				if ( theApp.IsValid( pAvatar ) )
 				{
-					// Select current item only
-					m_wndAvatars.SelItemRange( FALSE, 0, m_wndAvatars.GetCount() - 1 );
-					m_wndAvatars.SetSel( nIndex );
-
 					// Get first sub-menu - Avatar Menu
 					pAvatarMenu = pMenu.GetSubMenu( 0 );
 
@@ -920,48 +784,50 @@ void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 
 void CSLAPDlg::OnLbnSelchangeUsers()
 {
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount == 1 )
+	UpdateInterface();
+}
+
+void CSLAPDlg::UpdateInterface()
+{
+	BOOL bTeleport = FALSE, bSelected = FALSE;
+
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
 	{
-		const int nSelected = m_wndAvatars.GetCurSel();
-		if ( nSelected != LB_ERR )
+		if ( IsSelected( i ) )
 		{
 			CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-			CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected );
-			m_wndTeleport.EnableWindow( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() );
-			m_wndWeb.EnableWindow( TRUE );
-			m_wndCopy.EnableWindow( TRUE );
-			m_wndAvatarOptions.EnableWindow( TRUE );
-			return;
+			const CAvatar* pAvatar = Get( i );
+			if ( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() )
+				bTeleport = TRUE;
+
+			bSelected = TRUE;
 		}
 	}
-	m_wndTeleport.EnableWindow( FALSE );
-	m_wndWeb.EnableWindow( FALSE );
-	m_wndCopy.EnableWindow( FALSE );
-	m_wndAvatarOptions.EnableWindow( FALSE );
+
+	m_wndTeleport.EnableWindow( bTeleport );
+	m_wndWeb.EnableWindow( bSelected );
+	m_wndCopy.EnableWindow( bSelected );
+	m_wndAvatarOptions.EnableWindow( bSelected );
 }
 
 void CSLAPDlg::OnBnClickedTeleport()
 {
 	CWaitCursor wc;
 
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount == 1 )
+	const int nSelected = GetSelected();
+	if ( nSelected != LB_ERR )
 	{
-		const int nSelected = m_wndAvatars.GetCurSel();
-		if ( nSelected != LB_ERR )
+		CSingleLock pLock( &theApp.m_pSection, TRUE );
+
+		const CAvatar* pAvatar = Get( nSelected );
+		if ( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() )
 		{
-			CSingleLock pLock( &theApp.m_pSection, TRUE );
+			const CString sPlace = pAvatar->m_sPlace + _T( "/0" );
 
-			CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected );
-			if ( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() )
-			{
-				CString sPlace = pAvatar->m_sPlace + _T( "/0" );
-
-				theApp.Log( _T( "Teleporting to: " ) + sPlace );
-				ShellExecute( NULL, NULL, sPlace, NULL, NULL, SW_SHOWDEFAULT );
-			}
+			theApp.Log( _T( "Teleporting to: " ) + sPlace );
+			ShellExecute( NULL, NULL, sPlace, NULL, NULL, SW_SHOWDEFAULT );
 		}
 	}
 }
@@ -970,15 +836,14 @@ void CSLAPDlg::OnBnClickedWebProfile()
 {
 	CWaitCursor wc;
 
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount == 1 )
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
 	{
-		const int nSelected = m_wndAvatars.GetCurSel();
-		if ( nSelected != LB_ERR )
+		if ( IsSelected( i ) )
 		{
 			CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-			CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected );
+			const CAvatar* pAvatar = Get( i );
 			if ( theApp.IsValid( pAvatar ) )
 			{
 				CString sRealName = pAvatar->m_sRealName;
@@ -986,7 +851,7 @@ void CSLAPDlg::OnBnClickedWebProfile()
 				sRealName.Replace( _T( ' ' ), _T( '.' ) );
 
 				CString sProfile;
-				sProfile.LoadString( IDS_PROFILE_URL );
+				VERIFY( sProfile.LoadString( IDS_PROFILE_URL ) );
 				sProfile.Replace( _T( "{USERNAME}" ), sRealName );
 
 				theApp.Log( _T( "Opening web-profile: " ) + sProfile );
@@ -999,42 +864,43 @@ void CSLAPDlg::OnBnClickedWebProfile()
 void CSLAPDlg::OnBnClickedCopy()
 {
 	CWaitCursor wc;
+	CString sText;
 
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount == 1 )
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
 	{
-		const int nSelected = m_wndAvatars.GetCurSel();
-		if ( nSelected != LB_ERR )
+		if ( IsSelected( i ) )
 		{
 			CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-			CAvatar* pAvatar = (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected );
+			const CAvatar* pAvatar = Get( i );
 			if ( theApp.IsValid( pAvatar ) )
 			{
-				CString sText = pAvatar->m_sDisplayName + _T( " (" ) + CAvatar::MakePretty( pAvatar->m_sRealName ) + _T( ")" );
+				sText += pAvatar->m_sDisplayName + _T( " (" ) + CAvatar::MakePretty( pAvatar->m_sRealName ) + _T( ")" );
 				if ( ! pAvatar->m_sPlace.IsEmpty() )
 					sText += _T( " - " ) + pAvatar->m_sPlace + _T( "/0" );
-
-				if ( OpenClipboard() )
-				{
-					EmptyClipboard();
-
-					if ( HGLOBAL hCopy = GlobalAlloc( GMEM_MOVEABLE, ( sText.GetLength() + 1 ) * sizeof( TCHAR ) ) )
-					{
-						if ( LPVOID lpCopy = GlobalLock( hCopy ) )
-						{
-							memcpy( lpCopy, (LPCTSTR)sText, ( sText.GetLength() + 1 ) * sizeof( TCHAR ) );
-
-							GlobalUnlock( hCopy );
-
-							SetClipboardData( CF_UNICODETEXT, hCopy );
-						}
-					}
-
-					CloseClipboard();
-				}
+				sText += _T( "\r\n" );
 			}
 		}
+	}
+
+	if ( ! sText.IsEmpty() && OpenClipboard() )
+	{
+		EmptyClipboard();
+
+		if ( HGLOBAL hCopy = GlobalAlloc( GMEM_MOVEABLE, ( sText.GetLength() + 1 ) * sizeof( TCHAR ) ) )
+		{
+			if ( LPVOID lpCopy = GlobalLock( hCopy ) )
+			{
+				memcpy( lpCopy, (LPCTSTR)sText, ( sText.GetLength() + 1 ) * sizeof( TCHAR ) );
+
+				GlobalUnlock( hCopy );
+
+				SetClipboardData( CF_UNICODETEXT, hCopy );
+			}
+		}
+
+		CloseClipboard();
 	}
 }
 
@@ -1042,15 +908,11 @@ void CSLAPDlg::OnBnClickedAvatarOptions()
 {
 	CWaitCursor wc;
 
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount == 1 )
+	const int nSelected = GetSelected();
+	if ( nSelected != LB_ERR )
 	{
-		const int nSelected = m_wndAvatars.GetCurSel();
-		if ( nSelected != LB_ERR )
-		{
-			CAvatarDlg dlg( (CAvatar*)m_wndAvatars.GetItemDataPtr( nSelected ), this );
-			dlg.DoModal();
-		}
+		CAvatarDlg dlg( Get( nSelected ), this );
+		dlg.DoModal();
 	}
 }
 
@@ -1139,4 +1001,30 @@ void CSLAPDlg::OnFilterChange()
 	}
 
 	ReCreateList();
+}
+
+void CSLAPDlg::OnDelete()
+{
+	const int nSelected = GetSelectedCount();
+	if ( nSelected > 0 )
+	{
+		CString sPrompt;
+		sPrompt.Format( IDS_DELETE_AVATAR, nSelected );
+		if ( AfxMessageBox( sPrompt, MB_ICONQUESTION | MB_YESNO ) == IDYES )
+		{
+			int nCount = GetCount();
+			for ( int i = 0; i < nCount; ++i )
+			{
+				if ( IsSelected( i ) )
+				{
+					theApp.DeleteAvatar( Get( i ) );
+
+					nCount = m_wndAvatars.DeleteString( i );
+					i = -1;
+				}
+			}
+
+			UpdateInterface();
+		}
+	}
 }

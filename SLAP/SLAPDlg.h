@@ -28,13 +28,6 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #define MIN_WIDTH		250
 #define MIN_HEIGHT		250
-#define BOX_GAP			4
-#define BOX_INDICATOR	8
-#define BOX_STATUS		16
-#define BOX_ICON		(48 + 2)
-#define RGB_ONLINE		RGB( 64, 240, 64 )		// Minimum color value must be 64
-#define RGB_OFFLINE		RGB( 200, 200, 200 )	// Minimum color value must be 64
-#define RGB_UNKNOWN		RGB( 240, 64, 64 )		// Minimum color value must be 64
 #define TIMER			1
 
 
@@ -52,14 +45,6 @@ public:
 
 protected:
 	HICON					m_hIcon;
-	HICON					m_hUserIcon;
-	HICON					m_hSoundIcon;
-	HICON					m_hNoSoundIcon;
-	HICON					m_hAlertIcon;
-	CFont					m_fntBold;
-	CFont					m_fntNormal;
-	int						m_nTitleHeight;
-	int						m_nTextHeight;
 	CButton					m_wndTeleport;
 	CButton					m_wndWeb;
 	CButton					m_wndCopy;
@@ -74,7 +59,7 @@ protected:
 	CTrayIcon				m_pTray;
 	CNotifyDlg*				m_dlgNotify;
 
-	CList< CAvatar* >		m_pNotifications;		// Avatar notification queue
+	CList< const CAvatar* >	m_pNotifications;		// Avatar notification queue
 	CTime					m_tLastNotification;	// Time of last notification
 
 	volatile CWinThread*	m_pThread;
@@ -88,7 +73,7 @@ protected:
 	BOOL					m_bOfflineTray;
 	CString					m_sFilter;
 	CIconEdit				m_wndFilter;
-
+	int						m_nMouseSelected;
 	int						m_nYOffset;
 	int						m_nXOffset;
 
@@ -106,12 +91,19 @@ protected:
 	void SetStatus(UINT nStatus);
 	void SetStatus(LPCTSTR szStatus);
 	CString GetStatus() const;
-	
+
+	inline int GetCount() const { return m_wndAvatars.GetCount(); }
+	inline const CAvatar* Get(int n) const { return (const CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
+	inline CAvatar* Get(int n) { return (CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
+	inline BOOL IsSelected(int n) const { return ( m_wndAvatars.GetSel( n ) > 0 ); }
+	int GetSelectedCount() const;
+	int GetSelected() const;									// Returns currently selected avatar in the list (mouse preferred)
 	bool Filter(const CAvatar* pAvatar) const;					// Show filtered avatars only
 	void ReCreateList();										// Re-create avatar list
-	int FindAvatar(CAvatar* pAvatar);							// Returns avatar index in the avatar list (LB_ERR - not found)
-	void ShowNotify(CAvatar* pAvatar);
+	int FindAvatar(const CAvatar* pAvatar);						// Returns avatar index in the avatar list (LB_ERR - not found)
+	void ShowNotify(const CAvatar* pAvatar);
 	void ShowNotifyDialog(LPCTSTR szTitle, LPCTSTR szText);
+	void UpdateInterface();
 
 	static UINT __cdecl ThreadFn(LPVOID pParam);
 	void Thread();
@@ -152,6 +144,7 @@ protected:
 	afx_msg void OnShow();
 	afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
 	afx_msg void OnFilterChange();
+	afx_msg void OnDelete();
 
 	DECLARE_MESSAGE_MAP()
 };

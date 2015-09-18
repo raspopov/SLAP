@@ -23,6 +23,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 	#error "include 'stdafx.h' before including this file for PCH"
 #endif
 
+
 #define APP_URL				"http://www.cherubicsoft.com/projects/slap"
 
 // WinSparkle AppCast feed
@@ -56,6 +57,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 #define LAST_ONLINE			_T("LastOnline")
 #define SOUND_ONLINE		_T("SoundOnline")
 #define SOUND_OFFLINE		_T("SoundOffline")
+#define TIMELINE			_T("Timeline")
 #define LOOP_SOUND			_T("LoopSound")
 #define IMAGE_TIME			_T("ImageTime")
 #define COOKIES				_T("Cookies")
@@ -65,37 +67,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 #define WM_APP_NOTIFY		(WM_APP + 2)
 
 
-class CAvatar
-{
-public:
-	CAvatar();
-	~CAvatar();
-
-	CString GetSortName() const;
-	CString GetSound() const;
-	void Filter(const CString& sFilter);
-
-	static BOOL IsValidUsername(LPCTSTR szUsername);
-	static CString MakePretty(const CString& sName);
-
-	CString		m_sRealName;		// Avatar real name (including "Resident" for new avatars)
-	CString		m_sDisplayName;		// Avatar display name
-	BOOL		m_bOnline;			// Is avatar online?
-	CTime		m_tStatusChange;	// Time of last online/offline status change
-	BOOL		m_bFriend;			// Is avatar a friend?
-	CTime		m_tLastOnline;		// When avatar was online?
-	CString		m_sPlace;			// Last known avatar place
-	CString		m_sOnlineSound;		// Play this sound file when avatar goes online (empty - default sound)
-	CString		m_sOfflineSound;	// Play this sound file when avatar goes offline
-	BOOL		m_bLoopSound;		// Play sound until manually stopped
-	CTime		m_tImage;			// When image was loaded (successful or not)
-
-	BOOL		m_bNewOnline;		// New online status
-	BOOL		m_bNewFriend;		// New friend status
-	BOOL		m_bDirty;			// Data was changed and list must be resorted
-	BOOL		m_bFiltered;		// Avatar was filtered by name filter
-	CImage		m_pImage;			// Avatar image (second life)
-};
+#include "Avatar.h"
 
 
 class CSLAPApp : public CWinApp, CCommandLineInfo
@@ -127,7 +99,7 @@ public:
 	}
 
 	// Show avatar notification (NULL - hide)
-	inline void Notify(CAvatar* pAvatar)
+	inline void Notify(const CAvatar* pAvatar)
 	{
 		m_pMainWnd->PostMessage( WM_APP_NOTIFY, NULL, (LPARAM)pAvatar );
 	}
@@ -144,14 +116,13 @@ public:
 
 	void LoadAvatars();
 	void SaveAvatars() const;
-	void SaveAvatar(CAvatar* pAvatar) const;
 	void ClearAvatars();
-	void SetAvatar(const CString& sRealName, const CString& sDisplayName, const CString& sPlace, BOOL bOnline, BOOL bFriend);
+	CAvatar* SetAvatar(const CString& sRealName, const CString& sDisplayName, const CString& sPlace, BOOL bOnline, BOOL bFriend);
 	POSITION GetAvatarIterator() const;
 	CAvatar* GetNextAvatar(POSITION& pos) const;
 	UINT GetAvatarCount(BOOL bOnlineOnly = FALSE) const;
 	CAvatar* GetEmptyAvatar() const;
-	BOOL IsValid(CAvatar* pTestAvatar) const;
+	BOOL IsValid(const CAvatar* pTestAvatar) const;
 	void DeleteAvatar(CAvatar* pAvatar);
 
 	// Well-Known cookie names
@@ -187,5 +158,7 @@ protected:
 
 extern CSLAPApp theApp;
 
+CString RegGetString(CRegKey& key, LPCTSTR szValueName = NULL, DWORD nMaxSize = MAX_PATH, LPCTSTR szDefault = NULL);
+LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString);
 CString URLEncode(LPCTSTR szText);
 CStringA URLEncode(LPCSTR szText);

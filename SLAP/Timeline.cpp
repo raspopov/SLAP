@@ -17,37 +17,44 @@ You should have received a copy of the GNU General Public License
 along with this program.If not, see < http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
+#include "stdafx.h"
+#include "SLAP.h"
 #include "Timeline.h"
 
 
-// CAvatarDlg dialog
+#ifdef _DEBUG
+#undef THIS_FILE
+static char THIS_FILE[] = __FILE__;
+#define new DEBUG_NEW
+#endif
 
-class CAvatarDlg : public CDialog
+
+// CTimeline
+
+IMPLEMENT_DYNAMIC(CTimeline, CStatic)
+
+CTimeline::CTimeline(CAvatar* pAvatar)
+	: m_pAvatar( pAvatar )
 {
-public:
-	CAvatarDlg(CAvatar* pAVatar, CWnd* pParent = NULL);
+}
 
-	enum { IDD = IDD_AVATAR };
+BEGIN_MESSAGE_MAP(CTimeline, CStatic)
+	ON_WM_PAINT()
+END_MESSAGE_MAP()
 
-protected:
-	CAvatar*			m_pAvatar;
-	CMFCEditBrowseCtrl	m_wndOnlineSound;
-	CMFCEditBrowseCtrl	m_wndOfflineSound;
-	CButton				m_wndPlayOnline;
-	CButton				m_wndPlayOffline;
-	BOOL				m_bLoop;
-	CTimeline			m_wndTimeline;
+// CTimeline message handlers
 
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnBnClickedOnline();
-	afx_msg void OnBnClickedOffline();
-	afx_msg void OnBnClickedPlayOnline();
-	afx_msg void OnBnClickedPlayOffline();
-	afx_msg void OnBnClickedReset();
+void CTimeline::OnPaint()
+{
+	CPaintDC dc( this );
 
-	DECLARE_MESSAGE_MAP()
-};
+	CRect rc;
+	GetClientRect( &rc );
+
+	CSingleLock pLock( &theApp.m_pSection, TRUE );
+
+	if ( theApp.IsValid( m_pAvatar ) )
+	{
+		m_pAvatar->PaintTimeline( &dc, &rc );
+	}
+}

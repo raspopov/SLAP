@@ -102,7 +102,7 @@ BOOL COptionsDlg::OnInitDialog()
 	theApp.LoadPassword( m_sUsername, m_sPassword );
 
 	CString sFilter;
-	sFilter.LoadString( IDS_SOUNDS_FILTER );
+	VERIFY( sFilter.LoadString( IDS_SOUNDS_FILTER ) );
 
 	{
 		CString sOnlineSound = theApp.GetProfileString( SETTINGS, SOUND_ONLINE );

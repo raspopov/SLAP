@@ -27,6 +27,18 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
+// Returns string from registry
+CString RegGetString(CRegKey& key, LPCTSTR szValueName, DWORD nMaxSize, LPCTSTR szDefault)
+{
+	CString str;
+	DWORD nLength = nMaxSize;
+	LSTATUS ret = key.QueryStringValue( szValueName, str.GetBuffer( nLength ), &nLength );
+	if ( ret == ERROR_SUCCESS && nLength )
+		str.ReleaseBuffer( nLength - 1 );
+	else
+		str.ReleaseBuffer( 0 );
+	return ( ret == ERROR_SUCCESS || ! szDefault ) ? str : CString( szDefault );
+}
 
 // Case independent string search
 LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString)
@@ -126,89 +138,6 @@ CStringA URLEncode(LPCSTR szText)
 	return res;
 }
 
-
-// CAvatar
-
-CAvatar::CAvatar()
-	: m_bOnline			( FALSE )
-	, m_bFriend			( FALSE )
-	, m_bLoopSound		( FALSE )
-	, m_bNewOnline		( FALSE )
-	, m_bNewFriend		( FALSE )
-	, m_bDirty			( TRUE )
-	, m_bFiltered		( TRUE )
-{
-}
-
-CAvatar::~CAvatar()
-{
-	m_pImage.Destroy();
-}
-
-CString CAvatar::GetSortName() const
-{
-	return ( m_bFriend ? ( m_bOnline ? _T( "A" ) : _T( "B" ) ) : _T( "C" ) ) + m_sDisplayName + _T( " " ) + m_sRealName;
-}
-
-CString CAvatar::GetSound() const
-{
-	const CString sSound = m_bOnline ? m_sOnlineSound : m_sOfflineSound;
-	return ( sSound == NO_SOUND ) ? CString() : ( sSound.IsEmpty() ? theApp.GetProfileString( SETTINGS, m_bOnline ? SOUND_ONLINE : SOUND_OFFLINE ) : sSound );
-}
-
-void CAvatar::Filter(const CString& sFilter)
-{
-	BOOL bFiltered = sFilter.IsEmpty() || _tcsistr( m_sDisplayName, sFilter ) || _tcsistr( m_sRealName, sFilter );
-
-	if ( bFiltered != m_bFiltered )
-	{
-		m_bFiltered = bFiltered;
-		m_bDirty = TRUE;
-	}
-}
-
-BOOL CAvatar::IsValidUsername(LPCTSTR szUsername)
-{
-	if ( ! szUsername || ! *szUsername )
-		return FALSE;
-
-	UINT nLength = 0;
-	BOOL bSpace = FALSE;
-	for ( LPCTSTR ch = szUsername; *ch ; ++ch )
-	{
-		if ( ( *ch >= _T('0') && *ch <= _T('9') ) || ( *ch >= _T('a') && *ch <= _T('z') ) || ( *ch >= _T('A') && *ch <= _T('Z') ) ) // Can be alpha-numeric
-		{
-			if ( ++ nLength > 31 ) // Maximum length is 31 symbols
-			{
-				ASSERT( FALSE );
-				return FALSE;
-			}
-		}
-		else if ( *ch == _T(' ') && ch != szUsername && *( ch + 1 ) && ! bSpace ) // Can be one space in the middle
-		{
-			bSpace = TRUE;
-			nLength = 0;
-		}
-		else
-		{
-			ASSERT( FALSE );
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-CString CAvatar::MakePretty(const CString& sName)
-{
-	int nPos = sName.FindOneOf( _T(" .") );
-	if ( nPos != -1 )
-		return sName.Left( 1 ).MakeUpper() + sName.Mid( 1, nPos ).MakeLower() + _T(" ") +
-			sName.Mid( nPos + 1, 1 ).MakeUpper() + sName.Mid( nPos + 2 ).MakeLower();
-	else
-		return sName.Left( 1 ).MakeUpper() + sName.Mid( 1 ).MakeLower(); // No "Resident"
-}
-
 // CSLAPApp
 
 BEGIN_MESSAGE_MAP(CSLAPApp, CWinApp)
@@ -279,7 +208,7 @@ void CSLAPApp::Log( UINT nID )
 #endif
 	{
 		CString sText;
-		sText.LoadString( nID );
+		VERIFY( sText.LoadString( nID ) );
 		Log( sText );
 	}
 }
@@ -295,7 +224,7 @@ void CSLAPApp::Log(const CString& sText)
 				CFile::modeCreate | CFile::modeWrite | CFile::typeUnicode | CFile::shareDenyWrite ) );
 
 			CString sWarning;
-			sWarning.LoadString( IDS_WARNING );
+			VERIFY( sWarning.LoadString( IDS_WARNING ) );
 			Log( CString( _T("This file created by ") ) + m_pszAppName + _T(" ") + sVersion + _T(" (") + _T( __DATE__ ) + _T(" ") + _T( __TIME__ ) + _T(")\n") + sWarning );
 		}
 		catch ( ... ) {}
@@ -345,18 +274,6 @@ void CSLAPApp::Log(const CString& sText)
 	}
 }
 
-CString RegGetString(CRegKey& key, LPCTSTR szValueName = NULL, DWORD nMaxSize = MAX_PATH, LPCTSTR szDefault = NULL)
-{
-	CString str;
-	DWORD nLength = nMaxSize;
-	LSTATUS ret = key.QueryStringValue( szValueName, str.GetBuffer( nLength ), &nLength );
-	if ( ret == ERROR_SUCCESS && nLength )
-		str.ReleaseBuffer( nLength - 1 );
-	else
-		str.ReleaseBuffer( 0 );
-	return ( ret == ERROR_SUCCESS || ! szDefault ) ? str : CString( szDefault );
-}
-
 void CSLAPApp::LoadAvatars()
 {
 	LSTATUS ret;
@@ -375,63 +292,39 @@ void CSLAPApp::LoadAvatars()
 			DWORD nLength = MAX_PATH;
 			ret = keyAvatars.EnumKey( i, sRealName.GetBuffer( nLength ), &nLength, NULL );
 			if ( ret == ERROR_SUCCESS )
+			{
 				sRealName.ReleaseBuffer( nLength );
+				sRealName.MakeLower();
+				sRealName.Replace( _T( " resident" ), _T( "" ) ); // Cut off "Resident" family
+			}
 			else
 			{
 				sRealName.ReleaseBuffer( 0 );
 				break;
 			}
 
-			CRegKey keyAvatar;
-			ret = keyAvatar.Create( HKEY_CURRENT_USER, GetAvatarsKey() + _T("\\") + sRealName );
-			ASSERT( ret == ERROR_SUCCESS );
-			if ( ret == ERROR_SUCCESS )
+			CAutoPtr< CAvatar > pAvatar( new CAvatar( sRealName ) );
+			if ( pAvatar )
 			{
-				CAutoPtr< CAvatar > pAvatar( new CAvatar() );
-				if ( pAvatar )
+				if ( pAvatar->Load() )
 				{
-					pAvatar->m_sRealName = sRealName;
-					pAvatar->m_sDisplayName = RegGetString( keyAvatar );
-
-					DWORD bLoop = 0;
-					keyAvatar.QueryDWORDValue( LOOP_SOUND, bLoop );
-					pAvatar->m_bLoopSound = ( bLoop != 0 );
-
-					DWORD bOnline = 0;
-					keyAvatar.QueryDWORDValue( ONLINE, bOnline );
-					pAvatar->m_bOnline = ( bOnline != 0 );
-
-					DWORD bFriend = 0;
-					keyAvatar.QueryDWORDValue( FRIEND, bFriend );
-					pAvatar->m_bFriend = ( bFriend != 0 );
-
-					ULONGLONG nOnline = 0;
-					keyAvatar.QueryQWORDValue( LAST_ONLINE, nOnline );
-					pAvatar->m_tLastOnline = CTime( (__time64_t)nOnline );
-
-					ULONGLONG nImage = 0;
-					keyAvatar.QueryQWORDValue( IMAGE_TIME, nImage );
-					pAvatar->m_tImage = CTime( (__time64_t)nImage );
-
-					pAvatar->m_sPlace = RegGetString( keyAvatar, PLACE );
-					pAvatar->m_sOnlineSound = RegGetString( keyAvatar, SOUND_ONLINE );
-					pAvatar->m_sOfflineSound = RegGetString( keyAvatar, SOUND_OFFLINE );
-
-					if ( ! sImageCache.IsEmpty() )
-					{
-						const CString sCached = sImageCache + _T( "\\" ) + pAvatar->m_sRealName + _T( ".png" );
-						if ( FAILED( pAvatar->m_pImage.Load( sCached ) ) )
-							// Mark for reload
-							pAvatar->m_tLastOnline = CTime();
-					}
-
-					CString sKey( sRealName );
-					sKey.MakeLower();
-					m_pAvatars.SetAt( sKey, pAvatar.Detach() );
+					m_pAvatars.SetAt( sRealName, pAvatar.Detach() );
 				}
 			}
 		}
 	}
+
+#ifdef _DEBUG
+	if ( GetAvatarCount() == 0 )
+	{
+		CAvatar* pAvatar = SetAvatar( _T("Demo1 Resident"), _T("Demo1 Avatar"), _T("Demo1 Location"), FALSE, FALSE );
+		for ( int i = 0; i < 24 ; ++i ) pAvatar->m_nTimeline[ i ] = i * 10;
+		pAvatar = SetAvatar( _T( "Demo2 Resident" ), _T( "Demo2 Avatar" ), _T( "Demo2 Location" ), FALSE, FALSE );
+		for ( int i = 0; i < 24; ++i ) pAvatar->m_nTimeline[ i ] = 100 + ( i / 12 ) * 100;
+		pAvatar = SetAvatar( _T( "Demo3 Resident" ), _T( "Demo3 Avatar" ), _T( "Demo3 Location" ), FALSE, FALSE );
+		for ( int i = 0; i < 24; ++i ) pAvatar->m_nTimeline[ i ] = rand();
+	}
+#endif
 }
 
 void CSLAPApp::SaveAvatars() const
@@ -445,26 +338,7 @@ void CSLAPApp::SaveAvatars() const
 		CAvatar* pAvatar = NULL;
 		m_pAvatars.GetNextAssoc( pos, sKey, pAvatar );
 
-		SaveAvatar( pAvatar );
-	}
-}
-
-void CSLAPApp::SaveAvatar(CAvatar* pAvatar) const
-{
-	CRegKey keyAvatar;
-	LSTATUS ret = keyAvatar.Create( HKEY_CURRENT_USER, GetAvatarsKey() + _T( "\\" ) + pAvatar->m_sRealName );
-	ASSERT( ret == ERROR_SUCCESS );
-	if ( ret == ERROR_SUCCESS )
-	{
-		keyAvatar.SetStringValue( NULL, pAvatar->m_sDisplayName );
-		keyAvatar.SetDWORDValue( ONLINE, pAvatar->m_bOnline ? 1 : 0 );
-		keyAvatar.SetDWORDValue( FRIEND, pAvatar->m_bFriend ? 1 : 0 );
-		keyAvatar.SetQWORDValue( LAST_ONLINE, (ULONGLONG)(__time64_t)pAvatar->m_tLastOnline.GetTime() );
-		keyAvatar.SetQWORDValue( IMAGE_TIME, (ULONGLONG)(__time64_t)pAvatar->m_tImage.GetTime() );
-		keyAvatar.SetStringValue( PLACE, pAvatar->m_sPlace );
-		keyAvatar.SetStringValue( SOUND_ONLINE, pAvatar->m_sOnlineSound );
-		keyAvatar.SetStringValue( SOUND_OFFLINE, pAvatar->m_sOfflineSound );
-		keyAvatar.SetDWORDValue( LOOP_SOUND, pAvatar->m_bLoopSound ? 1 : 0 );
+		pAvatar->Save();
 	}
 }
 
@@ -484,7 +358,7 @@ void CSLAPApp::ClearAvatars()
 	m_pAvatars.RemoveAll();
 }
 
-void CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayName, const CString& sPlace, BOOL bOnline, BOOL bFriend)
+CAvatar* CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayName, const CString& sPlace, BOOL bOnline, BOOL bFriend)
 {
 	BOOL bSave = FALSE;
 
@@ -498,10 +372,10 @@ void CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayName, 
 	if ( ! m_pAvatars.Lookup( sKey, pAvatar ) )
 	{
 		bSave = TRUE;
-		pAvatar = new CAvatar();
+		pAvatar = new CAvatar( sKey );
 		if ( ! pAvatar )
-			return;
-		pAvatar->m_sRealName = sKey;
+			// Out of memory
+			return NULL;
 		m_pAvatars.SetAt( sKey, pAvatar );
 	}
 
@@ -524,7 +398,15 @@ void CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayName, 
 	}
 
 	if ( pAvatar->m_bOnline )
-		pAvatar->m_tLastOnline = CTime::GetCurrentTime();
+	{
+		const CTime tNow = CTime::GetCurrentTime();
+		const int nHour = tNow.GetHour();
+		if ( nHour >= 0 && nHour <= 23 )
+		{
+			++ pAvatar->m_nTimeline[ nHour ];
+		}
+		pAvatar->m_tLastOnline = tNow;
+	}
 
 	// Prefer online status
 	if ( bOnline ) pAvatar->m_bNewOnline = TRUE;
@@ -533,10 +415,12 @@ void CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayName, 
 	if ( bFriend ) pAvatar->m_bNewFriend = TRUE;
 
 	if ( bSave )
-		SaveAvatar( pAvatar );
+		pAvatar->Save();
 
 	Log( _T( "Updated avatar: \"" ) + pAvatar->m_sDisplayName + _T( "\" (" ) + pAvatar->m_sRealName + _T( ") " ) +
 		( ( pAvatar->m_bOnline != pAvatar->m_bNewOnline ) ?  ( pAvatar->m_bOnline ? _T("offline -> online") : _T("online -> offline") ) : _T("") ) );
+
+	return pAvatar;
 }
 
 POSITION CSLAPApp::GetAvatarIterator() const
@@ -609,7 +493,7 @@ CAvatar* CSLAPApp::GetEmptyAvatar() const
 	return NULL;
 }
 
-BOOL CSLAPApp::IsValid(CAvatar* pTestAvatar) const
+BOOL CSLAPApp::IsValid(const CAvatar* pTestAvatar) const
 {
 	CSingleLock pLock( &m_pSection, TRUE );
 	
@@ -640,13 +524,7 @@ void CSLAPApp::DeleteAvatar(CAvatar* pAvatar)
 		{
 			m_pAvatars.RemoveKey( sKey );
 
-			SHDeleteKey( HKEY_CURRENT_USER, GetAvatarsKey() + _T("\\") + pAvatar->m_sRealName );
-
-			if ( ! sImageCache.IsEmpty() )
-			{
-				const CString sCached = sImageCache + _T( "\\" ) + pAvatar->m_sRealName + _T( ".png" );
-				DeleteFile( sCached );
-			}
+			pAvatar->Delete();
 
 			delete pAvatar;
 
@@ -703,9 +581,9 @@ void CSLAPApp::LoadCookies()
 	CSingleLock pLock( &m_pSection, TRUE );
 
 	// Load well-known cookie names
-	sLoginCookie.LoadString( IDS_LOGIN_COOKIE );
-	sSessionCookie.LoadString( IDS_SESSION_COOKIE );
-	sMemberCookie.LoadString( IDS_MEMBER_COOKIE );
+	VERIFY( sLoginCookie.LoadString( IDS_LOGIN_COOKIE ) );
+	VERIFY( sSessionCookie.LoadString( IDS_SESSION_COOKIE ) );
+	VERIFY( sMemberCookie.LoadString( IDS_MEMBER_COOKIE ) );
 
 	ClearCookies();
 
@@ -799,7 +677,7 @@ BOOL CSLAPApp::InitInstance()
 
 		ParseCommandLine( *this );
 
-		sFullTitle.LoadString( IDS_FULLTITLE );
+		VERIFY( sFullTitle.LoadString( IDS_FULLTITLE ) );
 
 		// Get application .exe-file path
 		GetModuleFileName( AfxGetInstanceHandle(), sModuleFileName.GetBuffer( MAX_PATH ), MAX_PATH );

@@ -31,9 +31,10 @@ static char THIS_FILE[] = __FILE__;
 // CAvatarDlg dialog
 
 CAvatarDlg::CAvatarDlg(CAvatar* pAvatar, CWnd* pParent /*=NULL*/)
-	: CDialog	(CAvatarDlg::IDD, pParent)
-	, m_pAvatar ( pAvatar )
-	, m_bLoop	( FALSE )
+	: CDialog		(CAvatarDlg::IDD, pParent)
+	, m_pAvatar		 ( pAvatar )
+	, m_bLoop		( FALSE )
+	, m_wndTimeline	( pAvatar )
 {
 }
 
@@ -46,6 +47,7 @@ void CAvatarDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control( pDX, IDC_PLAY_ONLINE, m_wndPlayOnline );
 	DDX_Control( pDX, IDC_PLAY_OFFLINE, m_wndPlayOffline );
 	DDX_Check( pDX, IDC_LOOP, m_bLoop );
+	DDX_Control( pDX, IDC_TIMELINE, m_wndTimeline );
 }
 
 BEGIN_MESSAGE_MAP(CAvatarDlg, CDialog)
@@ -57,6 +59,7 @@ BEGIN_MESSAGE_MAP(CAvatarDlg, CDialog)
 	ON_BN_CLICKED( IDC_OFFLINE_CUSTOM, &CAvatarDlg::OnBnClickedOffline )
 	ON_BN_CLICKED( IDC_PLAY_ONLINE, &CAvatarDlg::OnBnClickedPlayOnline )
 	ON_BN_CLICKED( IDC_PLAY_OFFLINE, &CAvatarDlg::OnBnClickedPlayOffline )
+	ON_BN_CLICKED( IDC_RESET, &CAvatarDlg::OnBnClickedReset )
 END_MESSAGE_MAP()
 
 // CAvatarDlg message handlers
@@ -76,7 +79,7 @@ BOOL CAvatarDlg::OnInitDialog()
 	SetWindowText( m_pAvatar->m_sDisplayName );
 
 	CString sFilter;
-	sFilter.LoadString( IDS_SOUNDS_FILTER );
+	VERIFY( sFilter.LoadString( IDS_SOUNDS_FILTER ) );
 
 	{
 		int nOnline = ( m_pAvatar->m_sOnlineSound.IsEmpty() ? IDC_ONLINE_DEFAULT :
@@ -203,4 +206,22 @@ void CAvatarDlg::OnBnClickedPlayOffline()
 	m_wndOfflineSound.GetWindowText( sOfflineSound );
 
 	PlaySound( sOfflineSound, NULL, SND_FILENAME | SND_ASYNC );
+}
+
+void CAvatarDlg::OnBnClickedReset()
+{
+	{
+		CSingleLock pLock( &theApp.m_pSection, TRUE );
+
+		if ( theApp.IsValid( m_pAvatar ) )
+		{
+			ZeroMemory( m_pAvatar->m_nTimeline, sizeof( m_pAvatar->m_nTimeline ) );
+		}
+	}
+
+	AfxGetMainWnd()->GetDlgItem( IDC_USERS )->InvalidateRect( NULL );
+	AfxGetMainWnd()->GetDlgItem( IDC_USERS )->UpdateWindow();
+
+	m_wndTimeline.InvalidateRect( NULL );
+	m_wndTimeline.UpdateWindow();
 }

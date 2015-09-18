@@ -19,35 +19,22 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "Timeline.h"
+#include "Avatar.h"
 
 
-// CAvatarDlg dialog
+// CTimeline
 
-class CAvatarDlg : public CDialog
+class CTimeline : public CStatic
 {
-public:
-	CAvatarDlg(CAvatar* pAVatar, CWnd* pParent = NULL);
+	DECLARE_DYNAMIC(CTimeline)
 
-	enum { IDD = IDD_AVATAR };
+public:
+	CTimeline(CAvatar* pAvatar);
 
 protected:
-	CAvatar*			m_pAvatar;
-	CMFCEditBrowseCtrl	m_wndOnlineSound;
-	CMFCEditBrowseCtrl	m_wndOfflineSound;
-	CButton				m_wndPlayOnline;
-	CButton				m_wndPlayOffline;
-	BOOL				m_bLoop;
-	CTimeline			m_wndTimeline;
+	CAvatar*		m_pAvatar;
 
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnBnClickedOnline();
-	afx_msg void OnBnClickedOffline();
-	afx_msg void OnBnClickedPlayOnline();
-	afx_msg void OnBnClickedPlayOffline();
-	afx_msg void OnBnClickedReset();
+	afx_msg void OnPaint();
 
 	DECLARE_MESSAGE_MAP()
 };

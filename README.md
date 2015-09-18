@@ -28,7 +28,13 @@ http://www.cherubicsoft.com/en/projects/slap
     
     F5:
         Refresh list
-    
+     
+    Ctrl + A:
+        Select all avatars
+
+	Esc
+		Deselect all avatars
+
     Ctrl + P:
         Global Options
     
