@@ -461,6 +461,9 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 		SetStatus( sStatus );
 	}
 
+	m_wndAvatars.InvalidateRect( NULL );
+	m_wndAvatars.UpdateWindow();
+
 	return 0;
 }
 
