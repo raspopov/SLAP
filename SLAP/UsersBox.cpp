@@ -26,10 +26,6 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 IMPLEMENT_DYNAMIC(CUsersBox, CListBox)
 
-CUsersBox::CUsersBox()
-{
-}
-
 BEGIN_MESSAGE_MAP(CUsersBox, CListBox)
 	ON_WM_RBUTTONUP()
 END_MESSAGE_MAP()
@@ -38,7 +34,7 @@ END_MESSAGE_MAP()
 
 void CUsersBox::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	CListBox::OnRButtonUp( nFlags, point );
+	__super::OnRButtonUp( nFlags, point );
 
 	((CSLAPDlg*)GetParent())->OnUsersRButtonUp( nFlags, point );
 }

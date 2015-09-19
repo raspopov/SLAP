@@ -33,7 +33,7 @@ CNotifyDlg::CNotifyDlg(LPCTSTR szTitle, LPCTSTR szText)
 
 void CNotifyDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange( pDX );
+	__super::DoDataExchange( pDX );
 
 	DDX_Text( pDX, IDC_TEXT, m_sText );
 }
@@ -47,12 +47,12 @@ void CNotifyDlg::OnOK()
 {
 	theApp.Notify( NULL );
 
-	CDialog::OnOK();
+	__super::OnOK();
 }
 
 void CNotifyDlg::OnCancel()
 {
 	theApp.Notify( NULL );
 
-	CDialog::OnCancel();
+	__super::OnCancel();
 }

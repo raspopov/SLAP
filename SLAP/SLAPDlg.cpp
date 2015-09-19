@@ -42,9 +42,10 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowOnlineOnly	( theApp.GetProfileInt( SETTINGS, SHOW_ONLINE_ONLY, 0 ) != 0 )
 	, m_bOnlineTray		( theApp.GetProfileInt( SETTINGS, ONLINE_TRAY, 1 ) != 0 )
 	, m_bOfflineTray	( theApp.GetProfileInt( SETTINGS, OFFLINE_TRAY, 1 ) != 0 )
+	, m_wndFilter		( IDI_FILTER )
+	, m_nMouseSelected	( LB_ERR )
 	, m_nYOffset		( 15 )
 	, m_nXOffset		( 15 )
-	, m_nMouseSelected	( LB_ERR )
 {
 }
 
@@ -169,7 +170,6 @@ BOOL CSLAPDlg::OnInitDialog()
 	VERIFY( sFilterCue.LoadString( IDC_FILTER ) );
 	m_wndFilter.SetCueBanner( sFilterCue );
 	m_wndFilter.SetLimitText( 64 );
-	m_wndFilter.SetIcon( IDI_FILTER );
 
 	m_pTray.SetIcon( m_hIcon, false );
 	m_pTray.SetName( theApp.m_pszAppName );

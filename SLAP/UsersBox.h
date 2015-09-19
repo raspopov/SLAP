@@ -25,9 +25,6 @@ class CUsersBox : public CListBox
 {
 	DECLARE_DYNAMIC(CUsersBox)
 
-public:
-	CUsersBox();
-
 protected:
 	virtual void DrawItem(LPDRAWITEMSTRUCT)
 	{
