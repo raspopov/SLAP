@@ -26,10 +26,10 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 IMPLEMENT_DYNAMIC(CIconEdit, CEdit)
 
-CIconEdit::CIconEdit()
-	: m_hIcon			( NULL )
-	, m_nOriginalMargin	( -1 )
+CIconEdit::CIconEdit(UINT id)
+	: m_hIcon( NULL )
 {
+	SetIcon( id );
 }
 
 CIconEdit::~CIconEdit()
@@ -39,34 +39,21 @@ CIconEdit::~CIconEdit()
 
 BOOL CIconEdit::SetIcon(UINT id)
 {
-	if ( m_hIcon ) DestroyIcon( m_hIcon );
-
-	if ( id )
+	if ( m_hIcon )
 	{
-		m_hIcon = (HICON)::LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( id ), IMAGE_ICON, ICON_SIZE, ICON_SIZE, LR_DEFAULTCOLOR );
+		DestroyIcon( m_hIcon );
+		m_hIcon = NULL;
 	}
 
-	Recalc();
+	if ( id )
+		m_hIcon = (HICON)::LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( id ), IMAGE_ICON, ICON_SIZE, ICON_SIZE, LR_DEFAULTCOLOR );
 
-	return ( m_hIcon != NULL );
-}
-
-void CIconEdit::Recalc()
-{
-	const DWORD dwMargins = GetMargins();
-	if ( m_nOriginalMargin == -1 )
-		m_nOriginalMargin = HIWORD( dwMargins );
-	SetMargins( LOWORD( dwMargins ), m_nOriginalMargin + ICON_SIZE + 2 );
-}
-
-void CIconEdit::PreSubclassWindow()
-{
-	Recalc();
+	return ( m_hIcon != NULL ) || ! id;
 }
 
 BEGIN_MESSAGE_MAP(CIconEdit, CEdit)
 	ON_WM_PAINT()
-	ON_WM_SIZE()
+	ON_WM_NCCALCSIZE()
 END_MESSAGE_MAP()
 
 // CIconEdit message handlers
@@ -76,22 +63,25 @@ void CIconEdit::OnPaint()
 	CRect rect;
 	GetClientRect( &rect );
 
-	const int x = rect.right - ICON_SIZE - 2;
+	const int x = rect.right;
 	const int y = rect.top + ( rect.Height() - ICON_SIZE ) / 2;
 
 	__super::OnPaint();
 
 	if ( m_hIcon )
 	{
-		CClientDC dc( this );
-		dc.FillSolidRect( x, y, ICON_SIZE, ICON_SIZE, dc.GetBkColor() );
-		::DrawIconEx( dc.m_hDC, x, y, m_hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
+		if ( CDC* pDC = GetDC() )
+		{
+			pDC->FillSolidRect( x, y, ICON_SIZE, ICON_SIZE, pDC->GetBkColor() );
+			::DrawIconEx( pDC->m_hDC, x, y, m_hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
+			ReleaseDC( pDC );
+		}
 	}
 }
 
-void CIconEdit::OnSize(UINT nType, int cx, int cy)
+void CIconEdit::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp)
 {
-	__super::OnSize( nType, cx, cy );
+	lpncsp->rgrc->right -= ICON_SIZE + HIWORD( GetMargins() );
 
-	Recalc();
+	__super::OnNcCalcSize( bCalcValidRects, lpncsp );
 }

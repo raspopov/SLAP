@@ -25,21 +25,16 @@ class CIconEdit : public CEdit
 	DECLARE_DYNAMIC(CIconEdit)
 
 public:
-	CIconEdit();
+	CIconEdit(UINT id = 0);
 	virtual ~CIconEdit();
 
 	BOOL SetIcon(UINT id);
 
 protected:
 	HICON	m_hIcon;
-	int		m_nOriginalMargin;
-
-	void Recalc();
-
-	virtual void PreSubclassWindow();
 
 	afx_msg void OnPaint();
-	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp);
 
 	DECLARE_MESSAGE_MAP()
 };
