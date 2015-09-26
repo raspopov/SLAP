@@ -318,11 +318,11 @@ void CSLAPApp::LoadAvatars()
 	if ( GetAvatarCount() == 0 )
 	{
 		CAvatar* pAvatar = SetAvatar( _T("Demo1 Resident"), _T("Demo1 Avatar"), _T("Demo1 Location"), FALSE, FALSE );
-		for ( int i = 0; i < 24 ; ++i ) pAvatar->m_nTimeline[ i ] = i * 10;
+		for ( int i = 0; i < 24 ; ++i ) pAvatar->m_nTimeline[ i ] = i;
 		pAvatar = SetAvatar( _T( "Demo2 Resident" ), _T( "Demo2 Avatar" ), _T( "Demo2 Location" ), FALSE, FALSE );
-		for ( int i = 0; i < 24; ++i ) pAvatar->m_nTimeline[ i ] = 100 + ( i / 12 ) * 100;
+		for ( int i = 0; i < 24; ++i ) pAvatar->m_nTimeline[ i ] = 100000 + rand();
 		pAvatar = SetAvatar( _T( "Demo3 Resident" ), _T( "Demo3 Avatar" ), _T( "Demo3 Location" ), FALSE, FALSE );
-		for ( int i = 0; i < 24; ++i ) pAvatar->m_nTimeline[ i ] = rand();
+		for ( int i = 0; i < 12; ++i ) pAvatar->m_nTimeline[ i ] = 1000000;
 	}
 #endif
 }

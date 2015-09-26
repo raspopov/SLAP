@@ -323,12 +323,15 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 {
 	const BOOL bExtended = ( pRect->Height() > 24 );
 
-	DWORD nMax = m_nTimeline[ 0 ];
+	DWORD nMax = m_nTimeline[ 0 ], nMin = m_nTimeline[ 0 ];
 	for ( int i = 1; i < 24; ++i )
 	{
 		if ( nMax < m_nTimeline[ i ] )
 			nMax = m_nTimeline[ i ];
+		if ( nMin > m_nTimeline[ i ] )
+			nMin = m_nTimeline[ i ];
 	}
+	ULONGLONG d = max( ( nMax - nMin ) / 128, 1 );
 
 	int width = ( pRect->Width() - 2 ) / 24;
 	int offset = ( pRect->Width() - 2 - width * 24 ) / 2;
@@ -364,7 +367,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 		rcText.left = rcHour.left;
 		rcText.right = rcHour.right;
 
-		const BYTE nBlend = nMax ? 255 - (BYTE)min( ( m_nTimeline[ i ] * 255 ) / nMax, 255 ) : 255;
+		const BYTE nBlend = ( nMax * d ) ? ( 255 - (BYTE)min( ( ( m_nTimeline[ i ] * d ) * 255 ) / ( nMax * d ), 255 ) ) : 255;
 		pDC->FillSolidRect( rcHour, RGB( nBlend, nBlend, 255 ) );
 
 		if ( bExtended )
