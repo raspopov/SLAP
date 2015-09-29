@@ -27,10 +27,6 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
-
-LPCTSTR pszAcceptTypes[] = { _T( "*/*" ), NULL };
-LPCTSTR szVersion = _T( "HTTP/1.1" );
-
 CStringA GetValue( const CStringA& sText, const CStringA& sName )
 {
 	int nBegin = sText.Find( sName + "=" );
@@ -212,17 +208,13 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 {
 	BOOL bRet = FALSE;
-	CString sUrl;
-	CString sReferer;
-	CString sReturnTo;
+	CString sUrl = szLoginURL;
+	CString sReferer = szLoginReferer;
+	CString sReturnTo = szFriendsURL;
 	CByteArray aContent;
 	CString sLocation;
 
 	SetStatus( IDS_LOGINING );
-
-	VERIFY( sUrl.LoadString( IDS_LOGIN_URL ) );
-	VERIFY( sReferer.LoadString( IDS_LOGIN_REFERER ) );
-	VERIFY( sReturnTo.LoadString( IDS_FRIENDS_URL ) );
 
 	CString sUsername, sPassword;
 	if ( ! theApp.LoadPassword( sUsername, sPassword ) || sUsername.IsEmpty() || sPassword.IsEmpty() )
@@ -231,8 +223,7 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 		return bRet;
 	}
 
-	CStringA sParams;
-	VERIFY( sParams.LoadString( IDS_LOGIN_FORM ) );
+	CStringA sParams = szLoginForm;
 	sParams.Replace( "{USERNAME}", URLEncode( CT2A( sUsername, CP_UTF8 ) ) );
 	sParams.Replace( "{PASSWORD}", URLEncode( CT2A( sPassword, CP_UTF8 ) ) );
 	sParams.Replace( "{RETURNTO}", URLEncode( CT2A( sReturnTo.Left( sReturnTo.ReverseFind( _T( '/' ) ) + 1 ) ) ) );
@@ -240,7 +231,7 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 	theApp.ClearCookies();
 
 	DWORD nStatus = WebRequest( pInternet, sUrl, sReferer, aContent, sLocation, sParams, TRUE );
-	if ( ! theApp.GetCookie( theApp.sLoginCookie ).IsEmpty() )
+	if ( ! theApp.GetCookie( szLoginCookie ).IsEmpty() )
 	{
 		// Some redirects
 		for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
@@ -329,14 +320,13 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 {
 	BOOL bRet = FALSE;
-	CString sUrl;
+	CString sUrl = szFriendsOnlineURL;
 	CByteArray aContent;
 	CString sLocation;
 
 	SetStatus( IDS_UPDATING_FRIENDS_ONLINE );
 
 	// Load "Friends Online"
-	VERIFY( sUrl.LoadString( IDS_FRIENDS_ONLINE_URL ) );
 	DWORD nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
@@ -452,7 +442,7 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 	SetStatus( IDS_UPDATING_FRIENDS );
 
 	// Load "Friends Widget"
-	VERIFY( sUrl.LoadString( IDS_FRIENDS_URL ) );
+	sUrl = szFriendsURL;
 	nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
@@ -550,8 +540,7 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 		sRealName = pAvatar->m_sRealName;
 	}
 
-	CString sUrl;
-	VERIFY( sUrl.LoadString( IDS_IMAGE_URL ) );
+	CString sUrl = szImageURL;
 	sRealName.Replace( _T( ' ' ), _T( '.' ) );
 	sUrl.Replace( _T( "{USERNAME}" ), sRealName );
 

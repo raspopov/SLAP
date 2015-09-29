@@ -27,6 +27,21 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
+LPCTSTR szAppURL = _T("http://www.cherubicsoft.com/projects/slap");
+LPCSTR szAppCastURL = "http://www.cherubicsoft.com/_media/projects/slap/appcast.xml";
+LPCTSTR szLoginCookie = _T("agni_sl_session_id");
+LPCTSTR szSessionCookie = _T("session-token");
+LPCTSTR szMemberCookie = _T("second-life-member");
+LPCTSTR szLoginURL = _T("https://id.secondlife.com/openid/loginsubmit");
+LPCTSTR szFriendsURL = _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends");
+LPCTSTR szFriendsOnlineURL = _T("https://secondlife.com/my/account/friends.php");
+LPCTSTR szLoginReferer = _T("https://id.secondlife.com/openid/login");
+LPCSTR szLoginForm = "username={USERNAME}&password={PASSWORD}&Submit=&stay_logged_in=stay_logged_in&return_to={RETURNTO}&previous_language=en_US&language=en_US&show_join=True&from_amazon=";
+LPCTSTR szImageURL = _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
+LPCTSTR pszAcceptTypes[] = { _T( "*/*" ), NULL };
+LPCTSTR szVersion = _T( "HTTP/1.1" );
+
+
 // Returns string from registry
 CString RegGetString(CRegKey& key, LPCTSTR szValueName, DWORD nMaxSize, LPCTSTR szDefault)
 {
@@ -554,9 +569,9 @@ BOOL CSLAPApp::HasCookies() const
 	CSingleLock pLock( &m_pSection, TRUE );
 
 	return m_pCookies.GetCount() >= 3 &&
-		! GetCookie( sLoginCookie ).IsEmpty() &&
-		! GetCookie( sSessionCookie ).IsEmpty() &&
-		! GetCookie( sMemberCookie ).IsEmpty();
+		! GetCookie( szLoginCookie ).IsEmpty() &&
+		! GetCookie( szSessionCookie ).IsEmpty() &&
+		! GetCookie( szMemberCookie ).IsEmpty();
 }
 
 CString CSLAPApp::GetAllCookies()
@@ -579,11 +594,6 @@ void CSLAPApp::LoadCookies()
 	LSTATUS ret;
 
 	CSingleLock pLock( &m_pSection, TRUE );
-
-	// Load well-known cookie names
-	VERIFY( sLoginCookie.LoadString( IDS_LOGIN_COOKIE ) );
-	VERIFY( sSessionCookie.LoadString( IDS_SESSION_COOKIE ) );
-	VERIFY( sMemberCookie.LoadString( IDS_MEMBER_COOKIE ) );
 
 	ClearCookies();
 

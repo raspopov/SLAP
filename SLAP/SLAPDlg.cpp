@@ -248,7 +248,7 @@ BOOL CSLAPDlg::OnInitDialog()
 	Start();
 
 	// Setup WinSparkle update system
-	win_sparkle_set_appcast_url( APPCAST_URL );
+	win_sparkle_set_appcast_url( szAppCastURL );
 	win_sparkle_set_langid( GetUserDefaultLangID() );
 	win_sparkle_set_shutdown_request_callback( &CSLAPDlg::OnShutdown );
 	win_sparkle_init();
@@ -712,7 +712,7 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 	}
 	else if ( nChar == VK_F1 )
 	{
-		ShellExecute( NULL, NULL, _T( APP_URL ), NULL, NULL, SW_SHOWDEFAULT );
+		ShellExecute( NULL, NULL, szAppURL, NULL, NULL, SW_SHOWDEFAULT );
 		return TRUE;
 	}
 	else if ( nChar == VK_F5 )

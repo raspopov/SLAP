@@ -94,7 +94,7 @@ BOOL COptionsDlg::OnInitDialog()
 	const int nClose = theApp.sCopyright.Find( _T( '>' ) );
 	const int nOpen = theApp.sCopyright.Find( _T( '<' ) );
 	const CString sMail = theApp.sCopyright.Mid( nOpen + 1, nClose - nOpen - 1 );
-	m_wndTitle.SetWindowText( _T("<a href=\"" ) _T( APP_URL ) _T( "\">" ) +
+	m_wndTitle.SetWindowText( CString( _T("<a href=\"" ) ) + szAppURL + _T( "\">" ) +
 		theApp.sFullTitle + _T("</a> ") + theApp.sVersion + _T( "\n" ) +
 		theApp.sCopyright.Left( nOpen + 1 ) + _T("<a href=\"mailto:" ) + sMail + _T( "?Subject=" ) +
 		theApp.sFullTitle + _T(" ") + theApp.sVersion + _T( "\">" ) + sMail + _T( "</a>" ) + theApp.sCopyright.Mid( nClose ) );

@@ -24,11 +24,6 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 #endif
 
 
-#define APP_URL				"http://www.cherubicsoft.com/projects/slap"
-
-// WinSparkle AppCast feed
-#define APPCAST_URL			"http://www.cherubicsoft.com/_media/projects/slap/appcast.xml"
-
 #define UPDATE_PERIOD_DEFAULT	60
 #define UPDATE_PERIOD_MIN		30
 #define UPDATE_PERIOD_MAX		3600
@@ -125,11 +120,6 @@ public:
 	BOOL IsValid(const CAvatar* pTestAvatar) const;
 	void DeleteAvatar(CAvatar* pAvatar);
 
-	// Well-Known cookie names
-	CString sLoginCookie;
-	CString sSessionCookie;
-	CString sMemberCookie;
-
 	void AddCookie(const CString& sName, const CString& sValue);	// Add cookie by name
 	CString GetCookie(const CString& sName) const;					// Get cookie by name
 	BOOL HasCookies() const;										// Check for vital cookies
@@ -157,6 +147,26 @@ protected:
 };
 
 extern CSLAPApp theApp;
+
+// Homepage
+extern LPCTSTR szAppURL;
+
+// WinSparkle AppCast feed
+extern LPCSTR szAppCastURL;
+
+// Well-Known cookie names
+extern LPCTSTR szLoginCookie;
+extern LPCTSTR szSessionCookie;
+extern LPCTSTR szMemberCookie;
+
+extern LPCTSTR szLoginURL;
+extern LPCTSTR szFriendsURL;
+extern LPCTSTR szFriendsOnlineURL;
+extern LPCTSTR szLoginReferer;
+extern LPCSTR szLoginForm;
+extern LPCTSTR szImageURL;
+extern LPCTSTR pszAcceptTypes[];
+extern LPCTSTR szVersion;
 
 CString RegGetString(CRegKey& key, LPCTSTR szValueName = NULL, DWORD nMaxSize = MAX_PATH, LPCTSTR szDefault = NULL);
 LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString);
