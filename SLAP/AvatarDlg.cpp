@@ -31,8 +31,8 @@ static char THIS_FILE[] = __FILE__;
 // CAvatarDlg dialog
 
 CAvatarDlg::CAvatarDlg(CAvatar* pAvatar, CWnd* pParent /*=NULL*/)
-	: CDialog		(CAvatarDlg::IDD, pParent)
-	, m_pAvatar		 ( pAvatar )
+	: CDialog		( CAvatarDlg::IDD, pParent )
+	, m_pAvatar		( pAvatar )
 	, m_bLoop		( FALSE )
 	, m_wndTimeline	( pAvatar )
 {
@@ -76,10 +76,11 @@ BOOL CAvatarDlg::OnInitDialog()
 		return FALSE;
 	}
 
+	theApp.m_Loc.Translate( GetSafeHwnd(), CAvatarDlg::IDD );
+
 	SetWindowText( m_pAvatar->m_sDisplayName );
 
-	CString sFilter;
-	VERIFY( sFilter.LoadString( IDS_SOUNDS_FILTER ) );
+	CString sFilter = theApp.LoadString( IDS_SOUNDS_FILTER );
 
 	{
 		int nOnline = ( m_pAvatar->m_sOnlineSound.IsEmpty() ? IDC_ONLINE_DEFAULT :

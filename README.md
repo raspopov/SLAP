@@ -5,6 +5,13 @@ Shows Second Life friends list and notify about their online/offline status.
 
 http://www.cherubicsoft.com/en/projects/slap
 
+ Command-line options
+----------------------
+
+	-tray - Minimize application to the tray
+
+	-lang:x - Force application language, where x - 2 or 4-digits hexadecimal code of language (09 - English, 19 - Russian etc.)
+
  Hotkeys
 ---------
 
@@ -18,8 +25,11 @@ http://www.cherubicsoft.com/en/projects/slap
         Teleport To
     
     Shift + Left Double Click:
-        Simulate notification
-    
+        Simulate notification with current online status
+
+     Shift + Ctrl + Left Double Click:
+        Simulate notification with opposite online status
+   
     Delete:
         Delete selected avatar(s)
     
@@ -43,6 +53,25 @@ http://www.cherubicsoft.com/en/projects/slap
 
 	Shift + Mouse (move or resize)
 		Snap main window to the screen edges
+
+ Translations
+--------------
+
+Complete translations:
+
+	* English (09) by Nikolay Raspopov
+	* Russian (19) by Nikolay Raspopov
+
+How to add a new translation:
+
+	1) Download and install poEdit utility - https://poedit.net/
+	2) Download language template file: "SLAP.exe.pot" - https://github.com/raspopov/SLAP/blob/master/SLAP/SLAP.exe.pot
+	3) Open "SLAP.exe.pot" by poEdit and press "Create new translation" button (at bottom of poEdit window)
+	4) Save newly created file under name "SLAP.exe.xx.po" near "SLAP.exe" inside application installation folder,
+	   where xx - 2 or 4-digit hexadecimal language code, for example Russian language code is "19" so Russian translation must be
+	   named as "SLAP.exe.19.po"
+	5) Use "-lang:xx" command-line option to force loading different language, for example to force Russian you must run "SLAP.exe -lang:19"
+	6) Send completed translation to <raspopov@cherubicsoft.com>
 
  Licenses
 ------------

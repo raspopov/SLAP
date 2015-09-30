@@ -80,12 +80,32 @@ public:
 	BOOL	m_bDebugLog;			// Enabled debug log
 	BOOL	m_bTray;				// Send to tray on start
 
+	LANGID			m_nLangID;
+	CLocalization	m_Loc;
+
 	BOOL SavePassword(const CString& sUsername, const CString& sPassword);
 	BOOL LoadPassword(CString& sUsername, CString& sPassword);
 
 	void LogFormat(LPCTSTR szFormat, ...);
 	void Log(const CString& sText = CString());
 	void Log(UINT nID);
+
+	// Load and translate string
+	inline CString LoadString(UINT nID) const
+	{
+		return m_Loc.LoadString( nID );
+	}
+
+	// Load and translate menu
+	inline BOOL LoadMenu(CMenu& pMenu, UINT nMenuID, UINT* pnOrdinal = NULL) const
+	{
+		if ( pMenu.LoadMenu( nMenuID ) )
+		{
+			VERIFY( m_Loc.Translate( pMenu.GetSafeHmenu(), nMenuID, pnOrdinal ) );
+			return TRUE;
+		}
+		return FALSE;
+	}
 
 	// Refresh avatar list (NULL - whole list)
 	inline void Refresh(BOOL bSuccess, CAvatar* pAvatar = NULL)
@@ -138,6 +158,8 @@ protected:
 	CAvatarMap						m_pAvatars;
 	CCookieMap						m_pCookies;
 	DWORD							m_nCacheTime;
+
+	static void __cdecl OnShutdown();
 
 	virtual BOOL InitInstance();
 	virtual BOOL ProcessMessageFilter(int code, LPMSG lpMsg);

@@ -32,6 +32,7 @@ protected:
 	CString m_sText;
 
 	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual void OnCancel();
 

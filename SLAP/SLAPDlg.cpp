@@ -161,14 +161,14 @@ BOOL CSLAPDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
+	theApp.m_Loc.Translate( GetSafeHwnd(), CSLAPDlg::IDD );
+
 	SetWindowText( theApp.m_pszAppName );
 
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR | LR_SHARED ), TRUE );		// Set big icon
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ), FALSE );	// Set small icon
 
-	CString sFilterCue;
-	VERIFY( sFilterCue.LoadString( IDC_FILTER ) );
-	m_wndFilter.SetCueBanner( sFilterCue );
+	m_wndFilter.SetCueBanner( theApp.LoadString( IDC_FILTER ) );
 	m_wndFilter.SetLimitText( 64 );
 
 	m_pTray.SetIcon( m_hIcon, false );
@@ -187,13 +187,13 @@ BOOL CSLAPDlg::OnInitDialog()
 	m_pTips.Create( this, TTS_ALWAYSTIP );
 	m_pTips.Activate( TRUE );
 	m_pTips.SetMaxTipWidth( 300 );
-	m_pTips.AddTool( &m_wndTeleport, m_wndTeleport.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndWeb, m_wndWeb.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndCopy, m_wndCopy.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndAvatarOptions, m_wndAvatarOptions.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndRefresh, m_wndRefresh.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndOptions, m_wndOptions.GetDlgCtrlID() );
-	m_pTips.AddTool( &m_wndFilter, m_wndFilter.GetDlgCtrlID() );
+	m_pTips.AddTool( &m_wndTeleport, theApp.LoadString( m_wndTeleport.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndWeb, theApp.LoadString( m_wndWeb.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndCopy, theApp.LoadString( m_wndCopy.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndAvatarOptions, theApp.LoadString( m_wndAvatarOptions.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndRefresh, theApp.LoadString( m_wndRefresh.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndOptions, theApp.LoadString( m_wndOptions.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndFilter, theApp.LoadString( m_wndFilter.GetDlgCtrlID() ) );
 
 	m_wndTeleport.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_TELEPORT ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
 	m_wndWeb.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_WEB ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
@@ -247,19 +247,11 @@ BOOL CSLAPDlg::OnInitDialog()
 
 	Start();
 
-	// Setup WinSparkle update system
-	win_sparkle_set_appcast_url( szAppCastURL );
-	win_sparkle_set_langid( GetUserDefaultLangID() );
-	win_sparkle_set_shutdown_request_callback( &CSLAPDlg::OnShutdown );
+	// Start WinSparkle update system
 	win_sparkle_init();
 	win_sparkle_check_update_without_ui();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
-}
-
-void __cdecl CSLAPDlg::OnShutdown()
-{
-	::PostMessage( theApp.m_pMainWnd->GetSafeHwnd(), WM_CLOSE, 0, 0 );
 }
 
 void CSLAPDlg::OnDestroy()
@@ -270,9 +262,7 @@ void CSLAPDlg::OnDestroy()
 		// Already waiting for stop
 		return;
 
-	CString sClose;
-	VERIFY( sClose.LoadString( IDS_CLOSING ) );
-	m_pTray.SetName( theApp.sFullTitle + _T( "\r\n" ) + sClose );
+	m_pTray.SetName( theApp.sFullTitle + _T( "\r\n" ) + theApp.LoadString( IDS_CLOSING ) );
 
 	win_sparkle_cleanup();
 
@@ -457,7 +447,7 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 	if ( bSuccess )
 	{
 		CString sStatus;
-		sStatus.Format( IDS_RESULT, theApp.GetAvatarCount(), theApp.GetAvatarCount( TRUE ) );
+		sStatus.Format( theApp.LoadString( IDS_RESULT ), theApp.GetAvatarCount(), theApp.GetAvatarCount( TRUE ) );
 		SetStatus( sStatus );
 	}
 
@@ -555,11 +545,10 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 	}
 	else if ( theApp.IsValid( pAvatar ) )
 	{
-		CString sTitle;
-		VERIFY( sTitle.LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE ) );
+		CString sTitle = theApp.LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
 
 		CString sNotify;
-		sNotify.Format( IDS_AVATAR_NOTIFY, (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
+		sNotify.Format( theApp.LoadString( IDS_AVATAR_NOTIFY ), (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
 
 		if ( ! m_dlgNotify )
 		{
@@ -604,7 +593,7 @@ void CSLAPDlg::OnShow()
 void CSLAPDlg::OnTrayIconRButtonUp(CTrayIcon* /*pTrayIcon*/)
 {
 	CMenu pMenu;
-	if ( pMenu.LoadMenu( IDR_MENU ) )
+	if ( theApp.LoadMenu( pMenu, IDR_MENU ) )
 	{
 		// Get second sub-menu - Avatar Menu
 		if ( CMenu* pAvatarMenu = pMenu.GetSubMenu( 1 ) )
@@ -625,7 +614,12 @@ void CSLAPDlg::OnLbnDblclkUsers()
 		const int nSelected = m_wndAvatars.GetCurSel();
 		if ( nSelected != LB_ERR )
 		{
-			ShowNotify( Get( nSelected ) );
+			CAvatar* pAvatar = Get( nSelected );
+
+			if ( GetKeyState( VK_CONTROL ) & 0x8000000 )
+				pAvatar->m_bOnline = ! pAvatar->m_bOnline;
+
+			ShowNotify( pAvatar );
 		}
 	}
 	else if ( GetKeyState( VK_CONTROL ) & 0x8000000 )
@@ -758,7 +752,7 @@ void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 	if ( m_nMouseSelected != LB_ERR && ! bOutside )
 	{
 		CMenu pMenu;
-		if ( pMenu.LoadMenu( IDR_MENU ) )
+		if ( theApp.LoadMenu( pMenu, IDR_MENU ) )
 		{
 			CMenu* pAvatarMenu = NULL;
 
@@ -853,8 +847,7 @@ void CSLAPDlg::OnBnClickedWebProfile()
 				sRealName.MakeLower();
 				sRealName.Replace( _T( ' ' ), _T( '.' ) );
 
-				CString sProfile;
-				VERIFY( sProfile.LoadString( IDS_PROFILE_URL ) );
+				CString sProfile = theApp.LoadString( IDS_PROFILE_URL );
 				sProfile.Replace( _T( "{USERNAME}" ), sRealName );
 
 				theApp.Log( _T( "Opening web-profile: " ) + sProfile );
@@ -1012,7 +1005,7 @@ void CSLAPDlg::OnDelete()
 	if ( nSelected > 0 )
 	{
 		CString sPrompt;
-		sPrompt.Format( IDS_DELETE_AVATAR, nSelected );
+		sPrompt.Format( theApp.LoadString( IDS_DELETE_AVATAR ), nSelected );
 		if ( AfxMessageBox( sPrompt, MB_ICONQUESTION | MB_YESNO ) == IDYES )
 		{
 			int nCount = GetCount();

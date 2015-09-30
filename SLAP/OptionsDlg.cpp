@@ -86,6 +86,8 @@ BOOL COptionsDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
+	theApp.m_Loc.Translate( GetSafeHwnd(), COptionsDlg::IDD );
+
 	m_bShowOnlineOnlyOld = m_bShowOnlineOnly;
 
 	m_wndUpdatePeriodSpin.SetRange32( UPDATE_PERIOD_MIN, UPDATE_PERIOD_MAX );
@@ -101,8 +103,7 @@ BOOL COptionsDlg::OnInitDialog()
 
 	theApp.LoadPassword( m_sUsername, m_sPassword );
 
-	CString sFilter;
-	VERIFY( sFilter.LoadString( IDS_SOUNDS_FILTER ) );
+	CString sFilter = theApp.LoadString( IDS_SOUNDS_FILTER );
 
 	{
 		CString sOnlineSound = theApp.GetProfileString( SETTINGS, SOUND_ONLINE );

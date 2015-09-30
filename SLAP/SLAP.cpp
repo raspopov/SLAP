@@ -27,19 +27,19 @@ static char THIS_FILE[] = __FILE__;
 #define new DEBUG_NEW
 #endif
 
-LPCTSTR szAppURL = _T("http://www.cherubicsoft.com/projects/slap");
-LPCSTR szAppCastURL = "http://www.cherubicsoft.com/_media/projects/slap/appcast.xml";
-LPCTSTR szLoginCookie = _T("agni_sl_session_id");
-LPCTSTR szSessionCookie = _T("session-token");
-LPCTSTR szMemberCookie = _T("second-life-member");
-LPCTSTR szLoginURL = _T("https://id.secondlife.com/openid/loginsubmit");
-LPCTSTR szFriendsURL = _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends");
-LPCTSTR szFriendsOnlineURL = _T("https://secondlife.com/my/account/friends.php");
-LPCTSTR szLoginReferer = _T("https://id.secondlife.com/openid/login");
-LPCSTR szLoginForm = "username={USERNAME}&password={PASSWORD}&Submit=&stay_logged_in=stay_logged_in&return_to={RETURNTO}&previous_language=en_US&language=en_US&show_join=True&from_amazon=";
-LPCTSTR szImageURL = _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
-LPCTSTR pszAcceptTypes[] = { _T( "*/*" ), NULL };
-LPCTSTR szVersion = _T( "HTTP/1.1" );
+LPCTSTR szAppURL			= _T("http://www.cherubicsoft.com/projects/slap");
+LPCSTR  szAppCastURL		= "http://www.cherubicsoft.com/_media/projects/slap/appcast.xml";
+LPCTSTR szLoginCookie		= _T("agni_sl_session_id");
+LPCTSTR szSessionCookie		= _T("session-token");
+LPCTSTR szMemberCookie		= _T("second-life-member");
+LPCTSTR szLoginURL			= _T("https://id.secondlife.com/openid/loginsubmit");
+LPCTSTR szFriendsURL		= _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends");
+LPCTSTR szFriendsOnlineURL	= _T("https://secondlife.com/my/account/friends.php");
+LPCTSTR szLoginReferer		= _T("https://id.secondlife.com/openid/login");
+LPCSTR  szLoginForm			= "username={USERNAME}&password={PASSWORD}&Submit=&stay_logged_in=stay_logged_in&return_to={RETURNTO}&previous_language=en_US&language=en_US&show_join=True&from_amazon=";
+LPCTSTR szImageURL			= _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
+LPCTSTR pszAcceptTypes[]	= { _T( "*/*" ), NULL };
+LPCTSTR szVersion			= _T( "HTTP/1.1" );
 
 
 // Returns string from registry
@@ -163,6 +163,7 @@ END_MESSAGE_MAP()
 CSLAPApp::CSLAPApp()
 	: m_bDebugLog	( FALSE )
 	, m_bTray		( FALSE )
+	, m_nLangID		( GetUserDefaultLangID() )
 {
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 
@@ -222,9 +223,7 @@ void CSLAPApp::Log( UINT nID )
 	if ( m_bDebugLog )
 #endif
 	{
-		CString sText;
-		VERIFY( sText.LoadString( nID ) );
-		Log( sText );
+		Log( LoadString( nID ) );
 	}
 }
 
@@ -238,8 +237,7 @@ void CSLAPApp::Log(const CString& sText)
 			m_pLog.Attach( new CStdioFile( sDesktop + CTime::GetCurrentTime().Format( _T( "\\SLAP-%Y%m%d.txt" ) ),
 				CFile::modeCreate | CFile::modeWrite | CFile::typeUnicode | CFile::shareDenyWrite ) );
 
-			CString sWarning;
-			VERIFY( sWarning.LoadString( IDS_WARNING ) );
+			CString sWarning = LoadString( IDS_WARNING );
 			Log( CString( _T("This file created by ") ) + m_pszAppName + _T(" ") + sVersion + _T(" (") + _T( __DATE__ ) + _T(" ") + _T( __TIME__ ) + _T(")\n") + sWarning );
 		}
 		catch ( ... ) {}
@@ -687,7 +685,10 @@ BOOL CSLAPApp::InitInstance()
 
 		ParseCommandLine( *this );
 
-		VERIFY( sFullTitle.LoadString( IDS_FULLTITLE ) );
+		m_Loc.Load();
+		m_Loc.Select( m_nLangID );
+
+		sFullTitle = LoadString( IDS_FULLTITLE );
 
 		// Get application .exe-file path
 		GetModuleFileName( AfxGetInstanceHandle(), sModuleFileName.GetBuffer( MAX_PATH ), MAX_PATH );
@@ -747,6 +748,11 @@ BOOL CSLAPApp::InitInstance()
 			{
 				LoadCookies();
 
+				// Setup WinSparkle update system
+				win_sparkle_set_appcast_url( szAppCastURL );
+				win_sparkle_set_langid( theApp.m_nLangID );
+				win_sparkle_set_shutdown_request_callback( &CSLAPApp::OnShutdown );
+
 				CSLAPDlg dlg;
 				m_pMainWnd = &dlg;
 				dlg.DoModal();
@@ -778,6 +784,12 @@ BOOL CSLAPApp::InitInstance()
 	return FALSE;
 }
 
+void __cdecl CSLAPApp::OnShutdown()
+{
+	if ( theApp.m_pMainWnd )
+		::PostMessage( theApp.m_pMainWnd->GetSafeHwnd(), WM_CLOSE, 0, 0 );
+}
+
 BOOL CSLAPApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
 	if ( lpMsg->hwnd == m_pMainWnd->m_hWnd || ::IsChild( m_pMainWnd->m_hWnd, lpMsg->hwnd ) )
@@ -798,6 +810,10 @@ void CSLAPApp::ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL /*bLast*/)
 	if ( _tcsicmp( pszParam, _T( "tray" ) ) == 0 && bFlag )
 	{
 		m_bTray = TRUE;
+	}
+	else if ( _tcsnicmp( pszParam, _T( "lang:" ), 5 ) == 0 && bFlag )
+	{
+		m_nLangID = (LANGID)_tcstoul( pszParam + 5, NULL, 16 );
 	}
 }
 

@@ -41,6 +41,16 @@ void CNotifyDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CNotifyDlg, CDialog)
 END_MESSAGE_MAP()
 
+BOOL CNotifyDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	theApp.m_Loc.Translate( GetSafeHwnd(), CNotifyDlg::IDD );
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // EXCEPTION: OCX Property Pages should return FALSE
+}
+
 // CNotifyDlg message handlers
 
 void CNotifyDlg::OnOK()

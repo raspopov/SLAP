@@ -111,8 +111,6 @@ protected:
 	void Stop();
 	BOOL IsWorkEnabled() const;
 
-	static void __cdecl OnShutdown();
-
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);

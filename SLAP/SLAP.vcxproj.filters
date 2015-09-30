@@ -116,6 +116,9 @@
     </None>
     <None Include="..\README.md" />
     <None Include="..\LICENSE" />
+    <None Include="res\SLAP.exe.19.p_">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SLAP.ico">
@@ -157,5 +160,10 @@
     <Image Include="res\filter.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="res\SLAP.exe.19.po">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

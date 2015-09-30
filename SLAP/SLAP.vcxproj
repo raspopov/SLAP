@@ -281,6 +281,22 @@
   <ItemGroup>
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
+    <CustomBuild Include="res\SLAP.exe.19.po">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compressing...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compressing...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compressing...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compressing...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
+    </CustomBuild>
+    <None Include="res\SLAP.exe.19.p_" />
     <None Include="res\SLAP.rc2" />
   </ItemGroup>
   <ItemGroup>

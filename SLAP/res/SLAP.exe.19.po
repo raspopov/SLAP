@@ -1,0 +1,237 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: SLAP.exe\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Nikolay Raspopov <raspopov@cherubicsoft.com>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.5\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: DIALOGCAPTION.130 DIALOGCONTROL.136.Button.1017
+#: DIALOGCONTROL.136.Button.1020 STRING.1001
+msgid "Global settings"
+msgstr "Глобальные настройки"
+
+#: DIALOGCONTROL.130.Button.1 DIALOGCONTROL.136.Button.1
+#: DIALOGCONTROL.138.Button.1
+msgid "OK"
+msgstr "Принять"
+
+#: DIALOGCONTROL.130.Button.1006
+msgid "Write debugging log on Desktop"
+msgstr "Запись отладочного лога на Рабочем столе"
+
+#: DIALOGCONTROL.130.Button.1016 DIALOGCONTROL.130.Button.1019
+#: DIALOGCONTROL.136.Button.1016 DIALOGCONTROL.136.Button.1019
+msgid "No sound"
+msgstr "Без звука"
+
+#: DIALOGCONTROL.130.Button.1018 DIALOGCONTROL.130.Button.1021
+#: DIALOGCONTROL.136.Button.1018 DIALOGCONTROL.136.Button.1021
+msgid "Play this sound:"
+msgstr "Проиграть этот звук:"
+
+#: DIALOGCONTROL.130.Button.1022
+msgid "Show online avatars only"
+msgstr "Показывать только онлайн аватары"
+
+#: DIALOGCONTROL.130.Button.1024 DIALOGCONTROL.130.Button.1025
+msgid "Show tray notification"
+msgstr "Показывать уведомления в трее"
+
+#: DIALOGCONTROL.130.Button.1030
+msgid "Start application at Windows startup"
+msgstr "Запускать приложение при старте Windows"
+
+#: DIALOGCONTROL.130.Button.2 DIALOGCONTROL.136.Button.2
+msgid "Cancel"
+msgstr "Отмена"
+
+#: DIALOGCONTROL.130.Button.2147483652 DIALOGCONTROL.136.Button.2147483648
+msgid "Online"
+msgstr "Онлайн"
+
+#: DIALOGCONTROL.130.Button.2147483653 DIALOGCONTROL.136.Button.2147483649
+msgid "Offline"
+msgstr "Офлайн"
+
+#: DIALOGCONTROL.130.Button.2147483655
+msgid "Second Life Login"
+msgstr "Авторизация Second Life"
+
+#: DIALOGCONTROL.130.Static.2147483648
+msgid "Avatar list update period (seconds):"
+msgstr "Период обновления списка (секунд):"
+
+#: DIALOGCONTROL.130.Static.2147483649
+msgid "Dead time after status change (seconds):"
+msgstr "Мёртвое время после смены статуса (секунд):"
+
+#: DIALOGCONTROL.130.Static.2147483650
+msgid "Username:"
+msgstr "Имя пользователя:"
+
+#: DIALOGCONTROL.130.Static.2147483651
+msgid "Password:"
+msgstr "Пароль:"
+
+#: DIALOGCONTROL.130.SysLink.1028
+msgid "<a>Check for updates...</a>"
+msgstr "<a>Обновления...</a>"
+
+#: DIALOGCONTROL.136.Button.1022
+msgid "Play sound and show notification until manually stopped"
+msgstr "Играть звук и показывать уведомление до ручного останова"
+
+#: DIALOGCONTROL.136.Button.1041
+msgid "Reset Timeline"
+msgstr "Обнулить"
+
+#: DIALOGCONTROL.136.Static.2147483650
+msgid "Online timeline (hours):"
+msgstr "Время онлайна (часы):"
+
+#: MENUITEM.147.1003 STRING.1003
+msgid "Teleport To"
+msgstr "Телепорт к"
+
+#: MENUITEM.147.1004 STRING.1004
+msgid "Avatar Options"
+msgstr "Настройки аватара"
+
+#: MENUITEM.147.1006 STRING.1006
+msgid "Open Web-Profile"
+msgstr "Открыть веб-профиль"
+
+#: MENUITEM.147.1007 STRING.1007
+msgid "Copy to Clipboard"
+msgstr "Копировать в буфер обмена"
+
+#: MENUITEM.147.1035
+msgid "Exit"
+msgstr "Выход"
+
+#: MENUITEM.147.1036
+msgid "Show/Hide"
+msgstr "Показать/Спрятать"
+
+#: MENUITEM.147.32775
+msgid "Delete"
+msgstr "Удалить"
+
+#: STRING.1002
+msgid "Refresh list"
+msgstr "Обновить список"
+
+#: STRING.103
+msgid "Windows Sockets initialization failed."
+msgstr "Ошибка инициализации Windows Sockets."
+
+#: STRING.1037
+msgid "Filter avatars by name"
+msgstr "Выбор аватаров по имени"
+
+#: STRING.104
+msgid "Closing..."
+msgstr "Закрытие..."
+
+#: STRING.105
+msgid "Windows Internet initialization failed."
+msgstr "Ошибка инициализации Windows Internet."
+
+#: STRING.113
+msgid "Second Life"
+msgstr "Second Life"
+
+#: STRING.114
+msgid ""
+"WARNING! This file may contain an unencrypted user name, password and other "
+"personal information of Second Life!"
+msgstr ""
+"ПРЕДУПРЕЖДЕНИЕ! Этот файл может содержать незашифрованные имя пользователя, "
+"пароль и другую личную информацию Second Life!"
+
+#: STRING.115
+msgid "Second Life Avatar Online"
+msgstr "Second Life аватар появился онлайн"
+
+#: STRING.116
+msgid "Second Life Avatar Offline"
+msgstr "Second Life аватар перешёл в офлайн"
+
+#: STRING.117
+msgid "https://my.secondlife.com/en/{USERNAME}"
+msgstr "https://my.secondlife.com/en/{USERNAME}"
+
+#: STRING.118
+msgid "Retrieving \"Friends Online\" page..."
+msgstr "Получение \"Friends Online\"..."
+
+#: STRING.119
+msgid "Authorizing..."
+msgstr "Авторизация..."
+
+#: STRING.120
+msgid "Avatars: %u / Online: %u"
+msgstr "Аватаров: %u / Онлайн: %u"
+
+#: STRING.121
+msgid "Last online: %H:%M %d.%m.%Y"
+msgstr "Был онлайн в: %H:%M %d.%m.%Y"
+
+#: STRING.122
+msgid "%s (%s)"
+msgstr "%s (%s)"
+
+#: STRING.123
+msgid "Required username and password."
+msgstr "Требуется имя пользователя и пароль."
+
+#: STRING.124
+msgid "Second Life Avatar Probe"
+msgstr "Second Life Avatar Probe"
+
+#: STRING.127
+msgid "Failed to load \"Friends Widget\" page."
+msgstr "Ошибка загрузки \"Friends Widget\"."
+
+#: STRING.128
+msgid "Failed to load \"Friends Online\" page."
+msgstr "Ошибка загрузки \"Friends Online\"."
+
+#: STRING.129
+msgid "Do you want delete %d selected avatar(s)?"
+msgstr "Удалить %d выделенных аватаров?"
+
+#: STRING.130
+msgid "Sound Files (*.wav;*.mp3)|*.wav;*.mp3|All Files (*.*)|*.*||"
+msgstr "Звуковые файлы (*.wav;*.mp3)|*.wav;*.mp3|Все файлы (*.*)|*.*||"
+
+#: STRING.131
+msgid "Login failed."
+msgstr "Ошибка авторизации."
+
+#: STRING.132
+msgid "Failed to load OpenId form."
+msgstr "Ошибка загрузки формы OpenId."
+
+#: STRING.133
+msgid "Failed to complete OpenId login."
+msgstr "Ошибка авторизации OpenId."
+
+#: STRING.134
+msgid "Retrieving \"Friends Widget\" page..."
+msgstr "Получение \"Friends Widget\"..."
+
+#: STRING.135
+msgid "Authorizing OpenId..."
+msgstr "Авторизация OpenId..."
+
+#~ msgid "Options"
+#~ msgstr "Настройки"

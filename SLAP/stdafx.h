@@ -70,6 +70,8 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #include "winsparkle.h"
 
+#include "../Localization/Localization.h"
+
 template<>
 AFX_INLINE UINT AFXAPI HashKey(const CStringW& key)
 {
