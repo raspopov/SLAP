@@ -611,7 +611,7 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 
 void CSLAPDlg::SetStatus(UINT nStatus)
 {
-	SetStatus( theApp.LoadString( nStatus ) );
+	SetStatus( LoadString( nStatus ) );
 }
 
 void CSLAPDlg::SetStatus(LPCTSTR szStatus)

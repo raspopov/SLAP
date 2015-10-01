@@ -13,6 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Translations">
+      <UniqueIdentifier>{0d13a519-531f-4430-8952-2f325df5ced5}</UniqueIdentifier>
+      <Extensions>po</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SLAP.h">
@@ -163,7 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="res\SLAP.exe.19.po">
-      <Filter>Source Files</Filter>
+      <Filter>Translations</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

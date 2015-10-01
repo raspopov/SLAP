@@ -176,7 +176,7 @@ BOOL CSLAPApp::SavePassword(const CString& sUsername, const CString& sPassword)
 {
 	CREDENTIAL cred = {};
 	cred.Type = CRED_TYPE_GENERIC;
-	cred.TargetName = (LPWSTR)(LPCTSTR)sFullTitle;
+	cred.TargetName = (LPWSTR)APP_TITLE;
 	cred.CredentialBlobSize = ( sPassword.GetLength() + 1 ) * sizeof( TCHAR );
 	cred.CredentialBlob = (LPBYTE)(LPCTSTR)sPassword;
 	cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
@@ -189,7 +189,7 @@ BOOL CSLAPApp::SavePassword(const CString& sUsername, const CString& sPassword)
 BOOL CSLAPApp::LoadPassword(CString& sUsername, CString& sPassword)
 {
 	PCREDENTIAL pcred = NULL;
-	if ( CredRead( sFullTitle, CRED_TYPE_GENERIC, 0, &pcred ) )
+	if ( CredRead( APP_TITLE, CRED_TYPE_GENERIC, 0, &pcred ) )
 	{
 		sUsername = pcred->UserName;
 		sPassword = CString( (LPCTSTR)pcred->CredentialBlob, pcred->CredentialBlobSize / sizeof( TCHAR ) );
@@ -237,8 +237,8 @@ void CSLAPApp::Log(const CString& sText)
 			m_pLog.Attach( new CStdioFile( sDesktop + CTime::GetCurrentTime().Format( _T( "\\SLAP-%Y%m%d.txt" ) ),
 				CFile::modeCreate | CFile::modeWrite | CFile::typeUnicode | CFile::shareDenyWrite ) );
 
-			CString sWarning = LoadString( IDS_WARNING );
-			Log( CString( _T("This file created by ") ) + m_pszAppName + _T(" ") + sVersion + _T(" (") + _T( __DATE__ ) + _T(" ") + _T( __TIME__ ) + _T(")\n") + sWarning );
+			Log( CString( _T("This file created by ") ) + m_pszAppName + _T(" ") + sVersion + _T(" (") + _T( __DATE__ ) + _T(" ") +
+				_T( __TIME__ ) + _T(")\n") + LoadString( IDS_WARNING ) );
 		}
 		catch ( ... ) {}
 	}
@@ -683,12 +683,12 @@ BOOL CSLAPApp::InitInstance()
 
 		SetAppID( CString( m_pszRegistryKey ) + _T(".") + m_pszAppName );
 
+		m_nLangID = (LANGID)GetProfileInt( SETTINGS, LANGUAGE, m_nLangID );
+
 		ParseCommandLine( *this );
 
-		m_Loc.Load();
-		m_Loc.Select( m_nLangID );
-
-		sFullTitle = LoadString( IDS_FULLTITLE );
+		theLoc.Load();
+		theLoc.Select( m_nLangID );
 
 		// Get application .exe-file path
 		GetModuleFileName( AfxGetInstanceHandle(), sModuleFileName.GetBuffer( MAX_PATH ), MAX_PATH );
@@ -750,12 +750,14 @@ BOOL CSLAPApp::InitInstance()
 
 				// Setup WinSparkle update system
 				win_sparkle_set_appcast_url( szAppCastURL );
-				win_sparkle_set_langid( theApp.m_nLangID );
+				win_sparkle_set_langid( m_nLangID );
 				win_sparkle_set_shutdown_request_callback( &CSLAPApp::OnShutdown );
 
 				CSLAPDlg dlg;
 				m_pMainWnd = &dlg;
 				dlg.DoModal();
+
+				WriteProfileInt( SETTINGS, LANGUAGE, m_nLangID );
 
 				SaveCookies();
 
@@ -817,4 +819,5 @@ void CSLAPApp::ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL /*bLast*/)
 	}
 }
 
-CSLAPApp theApp;
+CSLAPApp		theApp;
+CLocalization	theLoc;

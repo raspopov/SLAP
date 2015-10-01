@@ -10,7 +10,7 @@ http://www.cherubicsoft.com/en/projects/slap
 
 	-tray - Minimize application to the tray
 
-	-lang:x - Force application language, where x - 2 or 4-digits hexadecimal code of language (09 - English, 19 - Russian etc.)
+	-lang:x - Force application language, where x - 2 or 4-digits hexadecimal code of language (see Translations below)
 
  Hotkeys
 ---------
@@ -57,7 +57,7 @@ http://www.cherubicsoft.com/en/projects/slap
  Translations
 --------------
 
-Complete translations:
+Complete translations and language codes:
 
 	* English (09) by Nikolay Raspopov
 	* Russian (19) by Nikolay Raspopov

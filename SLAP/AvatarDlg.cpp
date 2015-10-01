@@ -76,11 +76,11 @@ BOOL CAvatarDlg::OnInitDialog()
 		return FALSE;
 	}
 
-	theApp.m_Loc.Translate( GetSafeHwnd(), CAvatarDlg::IDD );
+	Translate( GetSafeHwnd(), CAvatarDlg::IDD );
 
 	SetWindowText( m_pAvatar->m_sDisplayName );
 
-	CString sFilter = theApp.LoadString( IDS_SOUNDS_FILTER );
+	CString sFilter = LoadString( IDS_SOUNDS_FILTER );
 
 	{
 		int nOnline = ( m_pAvatar->m_sOnlineSound.IsEmpty() ? IDC_ONLINE_DEFAULT :

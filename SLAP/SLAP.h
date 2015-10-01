@@ -34,7 +34,10 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #define CACHE_TIME				48		// Avatar image cache time (hours)
 
+#define APP_TITLE			_T("Second Life Avatar Probe")
+
 #define SETTINGS			_T("Settings")
+#define LANGUAGE			_T("Language")
 #define SHOW_ONLINE_ONLY	_T("ShowOnlineOnly")
 #define DEBUGLOG			_T("DebugLog")
 #define UPDATE_PERIOD		_T("UpdatePeriod")
@@ -70,7 +73,6 @@ class CSLAPApp : public CWinApp, CCommandLineInfo
 public:
 	CSLAPApp();
 
-	CString sFullTitle;				// Full title of application
 	CString	sVersion;				// Application version ("X.X.X.X")
 	CString sCopyright;				// Copyright information
 	CString sModuleFileName;		// Full path of application exe-file
@@ -79,9 +81,7 @@ public:
 	CString sStartup;				// Path to startup folder
 	BOOL	m_bDebugLog;			// Enabled debug log
 	BOOL	m_bTray;				// Send to tray on start
-
-	LANGID			m_nLangID;
-	CLocalization	m_Loc;
+	LANGID	m_nLangID;
 
 	BOOL SavePassword(const CString& sUsername, const CString& sPassword);
 	BOOL LoadPassword(CString& sUsername, CString& sPassword);
@@ -89,23 +89,6 @@ public:
 	void LogFormat(LPCTSTR szFormat, ...);
 	void Log(const CString& sText = CString());
 	void Log(UINT nID);
-
-	// Load and translate string
-	inline CString LoadString(UINT nID) const
-	{
-		return m_Loc.LoadString( nID );
-	}
-
-	// Load and translate menu
-	inline BOOL LoadMenu(CMenu& pMenu, UINT nMenuID, UINT* pnOrdinal = NULL) const
-	{
-		if ( pMenu.LoadMenu( nMenuID ) )
-		{
-			VERIFY( m_Loc.Translate( pMenu.GetSafeHmenu(), nMenuID, pnOrdinal ) );
-			return TRUE;
-		}
-		return FALSE;
-	}
 
 	// Refresh avatar list (NULL - whole list)
 	inline void Refresh(BOOL bSuccess, CAvatar* pAvatar = NULL)
@@ -168,7 +151,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CSLAPApp theApp;
+extern CSLAPApp			theApp;
 
 // Homepage
 extern LPCTSTR szAppURL;
@@ -194,3 +177,28 @@ CString RegGetString(CRegKey& key, LPCTSTR szValueName = NULL, DWORD nMaxSize = 
 LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString);
 CString URLEncode(LPCTSTR szText);
 CStringA URLEncode(LPCSTR szText);
+
+extern CLocalization	theLoc;
+
+// Load and translate string
+inline CString LoadString(UINT nID)
+{
+	return theLoc.LoadString( nID );
+}
+
+// Load and translate menu
+inline BOOL LoadMenu(CMenu& pMenu, UINT nMenuID, UINT* pnOrdinal = NULL)
+{
+	if ( pMenu.LoadMenu( nMenuID ) )
+	{
+		VERIFY( theLoc.Translate( pMenu.GetSafeHmenu(), nMenuID, pnOrdinal ) );
+		return TRUE;
+	}
+	return FALSE;
+}
+
+// Translate dialog
+inline void Translate(HWND hDialog, UINT nDialogID)
+{
+	theLoc.Translate( hDialog, nDialogID );
+}

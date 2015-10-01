@@ -51,16 +51,16 @@ int		CAvatar::m_nItemHeight	= 0;
 int		CAvatar::m_nTitleHeight	= 0;
 int		CAvatar::m_nTextHeight	= 0;
 
-CAvatar::CAvatar( const CString& sRealName )
-	: m_sRealName( sRealName )
-	, m_bOnline( FALSE )
-	, m_bFriend( FALSE )
-	, m_nTimeline()
-	, m_bLoopSound( FALSE )
-	, m_bNewOnline( FALSE )
-	, m_bNewFriend( FALSE )
-	, m_bDirty( TRUE )
-	, m_bFiltered( TRUE )
+CAvatar::CAvatar(const CString& sRealName)
+	: m_sRealName	( sRealName )
+	, m_bOnline		( FALSE )
+	, m_bFriend		( FALSE )
+	, m_nTimeline	()
+	, m_bLoopSound	( FALSE )
+	, m_bNewOnline	( FALSE )
+	, m_bNewFriend	( FALSE )
+	, m_bDirty		( TRUE )
+	, m_bFiltered	( TRUE )
 {
 }
 
@@ -251,7 +251,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 	CFont* pOldFont = (CFont*)pDC->SelectObject( &m_fntBold );
 	pDC->DrawText( m_sDisplayName, &rcTitle, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
 
-	CPoint rcSoundIcon(
+	const CPoint rcSoundIcon(
 		pDIS->rcItem.right - BOX_GAP - BOX_STATUS,
 		pDIS->rcItem.top + BOX_GAP );
 	if ( !m_sOnlineSound.IsEmpty() )
@@ -292,7 +292,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 		pDC->DrawText( sOnline, &rcOnline, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
 	}
 
-	CRect rcTimeline(
+	const CRect rcTimeline(
 		rcIcon.right + BOX_GAP,
 		pDIS->rcItem.bottom - BOX_GAP - BOX_TIMELINE,
 		pDIS->rcItem.right - BOX_GAP - ( ( m_nTitleHeight + m_nTextHeight * 2 > 16 * 2 + 3 ) ? 0 : ( BOX_STATUS + 1 ) ),
@@ -307,7 +307,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 		bmSelection.CreateCompatibleBitmap( pDC, cx, cy );
 		CBitmap* pOldBitmap = (CBitmap*)dcSelection.SelectObject( &bmSelection );
 		dcSelection.FillSolidRect( 0, 0, cx, cy, GetSysColor( COLOR_HIGHLIGHT ) );
-		BLENDFUNCTION fn = { AC_SRC_OVER, 0, 48, 0 };
+		const BLENDFUNCTION fn = { AC_SRC_OVER, 0, 48, 0 };
 		pDC->AlphaBlend( pDIS->rcItem.left, pDIS->rcItem.top, cx, cy, &dcSelection, 0, 0, cx, cy, fn );
 		dcSelection.SelectObject( pOldBitmap );
 		bmSelection.DeleteObject();
@@ -331,7 +331,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 		if ( nMin > m_nTimeline[ i ] )
 			nMin = m_nTimeline[ i ];
 	}
-	ULONGLONG d = max( ( nMax - nMin ) / 128, 1 );
+	const ULONGLONG d = max( ( nMax - nMin ) / 128, 1 );
 
 	int width = ( pRect->Width() - 2 ) / 24;
 	int offset = ( pRect->Width() - 2 - width * 24 ) / 2;

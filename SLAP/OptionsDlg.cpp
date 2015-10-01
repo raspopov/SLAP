@@ -86,7 +86,9 @@ BOOL COptionsDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
-	theApp.m_Loc.Translate( GetSafeHwnd(), COptionsDlg::IDD );
+	Translate( GetSafeHwnd(), COptionsDlg::IDD );
+
+	theLoc.FillComboBox( GetDlgItem( IDC_LANGS )->GetSafeHwnd() );
 
 	m_bShowOnlineOnlyOld = m_bShowOnlineOnly;
 
@@ -97,13 +99,13 @@ BOOL COptionsDlg::OnInitDialog()
 	const int nOpen = theApp.sCopyright.Find( _T( '<' ) );
 	const CString sMail = theApp.sCopyright.Mid( nOpen + 1, nClose - nOpen - 1 );
 	m_wndTitle.SetWindowText( CString( _T("<a href=\"" ) ) + szAppURL + _T( "\">" ) +
-		theApp.sFullTitle + _T("</a> ") + theApp.sVersion + _T( "\n" ) +
+		APP_TITLE + _T("</a> ") + theApp.sVersion + _T( "\n" ) +
 		theApp.sCopyright.Left( nOpen + 1 ) + _T("<a href=\"mailto:" ) + sMail + _T( "?Subject=" ) +
-		theApp.sFullTitle + _T(" ") + theApp.sVersion + _T( "\">" ) + sMail + _T( "</a>" ) + theApp.sCopyright.Mid( nClose ) );
+		APP_TITLE + _T(" ") + theApp.sVersion + _T( "\">" ) + sMail + _T( "</a>" ) + theApp.sCopyright.Mid( nClose ) );
 
 	theApp.LoadPassword( m_sUsername, m_sPassword );
 
-	CString sFilter = theApp.LoadString( IDS_SOUNDS_FILTER );
+	CString sFilter = LoadString( IDS_SOUNDS_FILTER );
 
 	{
 		CString sOnlineSound = theApp.GetProfileString( SETTINGS, SOUND_ONLINE );
@@ -143,6 +145,14 @@ void COptionsDlg::OnOK()
 		return;
 
 	m_bChanged = FALSE;
+	
+	LANGID nOldLang = theLoc.GetLang();
+	theLoc.Select( GetDlgItem( IDC_LANGS )->GetSafeHwnd() );
+	theApp.m_nLangID = theLoc.GetLang();
+	if ( nOldLang != theApp.m_nLangID )
+	{
+		m_bChanged = TRUE;
+	}
 
 	// Save changed username and/or password only
 	CString sUsername, sPassword;
@@ -203,7 +213,7 @@ void COptionsDlg::OnOK()
 		if ( SUCCEEDED( pLink.CoCreateInstance( CLSID_ShellLink ) ) )
 		{
 			pLink->SetPath( theApp.sModuleFileName );
-			pLink->SetDescription( theApp.sFullTitle );
+			pLink->SetDescription( APP_TITLE );
 			pLink->SetArguments( _T("-tray") );
 			CComQIPtr< IPersistFile > pLinkFile( pLink );
 			if ( pLinkFile )

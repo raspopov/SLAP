@@ -43,7 +43,6 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	, m_bOnlineTray		( theApp.GetProfileInt( SETTINGS, ONLINE_TRAY, 1 ) != 0 )
 	, m_bOfflineTray	( theApp.GetProfileInt( SETTINGS, OFFLINE_TRAY, 1 ) != 0 )
 	, m_wndFilter		( IDI_FILTER )
-	, m_nMouseSelected	( LB_ERR )
 	, m_nYOffset		( 15 )
 	, m_nXOffset		( 15 )
 {
@@ -90,29 +89,11 @@ void CSLAPDlg::ReCreateList()
 	UpdateInterface();
 }
 
-int CSLAPDlg::GetSelectedCount() const
+void CSLAPDlg::SelectAll(BOOL bSel)
 {
-	int nSelected = 0;
 	const int nCount = GetCount();
-	for ( int i = 0; i < nCount; ++i )
-	{
-		if ( IsSelected( i ) )
-		{
-			++ nSelected;
-		}
-	}
-	return nSelected;
-}
-
-int CSLAPDlg::GetSelected() const
-{
-	const int nCount = m_wndAvatars.GetSelCount();
-	if ( nCount < 1 )
-		return LB_ERR;
-	else if ( nCount == 1 || ! IsSelected( m_nMouseSelected ) )
-		return m_wndAvatars.GetCurSel();
-	else
-		return m_nMouseSelected;
+	for ( int i = 0; i < nCount; ++ i )
+		m_wndAvatars.SetSel( i, bSel );
 }
 
 BOOL CSLAPDlg::PreTranslateMessage(MSG* pMsg)
@@ -125,6 +106,19 @@ BOOL CSLAPDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return __super::PreTranslateMessage( pMsg );
+}
+
+void CSLAPDlg::OnLanguage()
+{
+	m_wndFilter.SetCueBanner( LoadString( IDC_FILTER ) );
+
+	m_pTips.AddTool( &m_wndTeleport, LoadString( m_wndTeleport.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndWeb, LoadString( m_wndWeb.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndCopy, LoadString( m_wndCopy.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndAvatarOptions, LoadString( m_wndAvatarOptions.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndRefresh, LoadString( m_wndRefresh.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndOptions, LoadString( m_wndOptions.GetDlgCtrlID() ) );
+	m_pTips.AddTool( &m_wndFilter, LoadString( m_wndFilter.GetDlgCtrlID() ) );
 }
 
 BEGIN_MESSAGE_MAP(CSLAPDlg, CDialog)
@@ -161,14 +155,13 @@ BOOL CSLAPDlg::OnInitDialog()
 {
 	__super::OnInitDialog();
 
-	theApp.m_Loc.Translate( GetSafeHwnd(), CSLAPDlg::IDD );
+	Translate( GetSafeHwnd(), CSLAPDlg::IDD );
 
 	SetWindowText( theApp.m_pszAppName );
 
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 32, 32, LR_DEFAULTCOLOR | LR_SHARED ), TRUE );		// Set big icon
 	SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDR_MAINFRAME ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ), FALSE );	// Set small icon
 
-	m_wndFilter.SetCueBanner( theApp.LoadString( IDC_FILTER ) );
 	m_wndFilter.SetLimitText( 64 );
 
 	m_pTray.SetIcon( m_hIcon, false );
@@ -187,13 +180,6 @@ BOOL CSLAPDlg::OnInitDialog()
 	m_pTips.Create( this, TTS_ALWAYSTIP );
 	m_pTips.Activate( TRUE );
 	m_pTips.SetMaxTipWidth( 300 );
-	m_pTips.AddTool( &m_wndTeleport, theApp.LoadString( m_wndTeleport.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndWeb, theApp.LoadString( m_wndWeb.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndCopy, theApp.LoadString( m_wndCopy.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndAvatarOptions, theApp.LoadString( m_wndAvatarOptions.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndRefresh, theApp.LoadString( m_wndRefresh.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndOptions, theApp.LoadString( m_wndOptions.GetDlgCtrlID() ) );
-	m_pTips.AddTool( &m_wndFilter, theApp.LoadString( m_wndFilter.GetDlgCtrlID() ) );
 
 	m_wndTeleport.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_TELEPORT ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
 	m_wndWeb.SetIcon( (HICON)LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( IDI_WEB ), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR | LR_SHARED ) );
@@ -218,6 +204,8 @@ BOOL CSLAPDlg::OnInitDialog()
 	{
 		MoveWindow( rc, FALSE );
 	}
+
+	OnLanguage();
 
 	theApp.LoadAvatars();
 
@@ -262,7 +250,7 @@ void CSLAPDlg::OnDestroy()
 		// Already waiting for stop
 		return;
 
-	m_pTray.SetName( theApp.sFullTitle + _T( "\r\n" ) + theApp.LoadString( IDS_CLOSING ) );
+	m_pTray.SetName( CString( APP_TITLE ) + _T( "\r\n" ) + LoadString( IDS_CLOSING ) );
 
 	win_sparkle_cleanup();
 
@@ -339,6 +327,8 @@ void CSLAPDlg::OnBnClickedOptions()
 		theApp.WriteProfileInt( SETTINGS, ONLINE_TRAY, m_bOnlineTray ? 1 : 0 );
 		theApp.WriteProfileInt( SETTINGS, OFFLINE_TRAY, m_bOfflineTray ? 1 : 0 );
 		theApp.WriteProfileInt( SETTINGS, DEBUGLOG, theApp.m_bDebugLog ? 1 : 0 );
+
+		OnLanguage();
 
 		theApp.Log();
 
@@ -447,7 +437,7 @@ LRESULT CSLAPDlg::OnRefresh(WPARAM wParam, LPARAM lParam)
 	if ( bSuccess )
 	{
 		CString sStatus;
-		sStatus.Format( theApp.LoadString( IDS_RESULT ), theApp.GetAvatarCount(), theApp.GetAvatarCount( TRUE ) );
+		sStatus.Format( LoadString( IDS_RESULT ), theApp.GetAvatarCount(), theApp.GetAvatarCount( TRUE ) );
 		SetStatus( sStatus );
 	}
 
@@ -480,7 +470,7 @@ void CSLAPDlg::OnTimer( UINT_PTR nIDEvent )
 			m_wndStatus.SetWindowText( m_sStatus );
 			theApp.Log( m_sStatus );
 
-			m_pTray.SetName( theApp.sFullTitle + _T( "\r\n" ) + m_sStatus );
+			m_pTray.SetName( CString( APP_TITLE ) + _T( "\r\n" ) + m_sStatus );
 		}
 
 		// Time to refresh avatar list?
@@ -545,10 +535,10 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 	}
 	else if ( theApp.IsValid( pAvatar ) )
 	{
-		CString sTitle = theApp.LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
+		CString sTitle = LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
 
 		CString sNotify;
-		sNotify.Format( theApp.LoadString( IDS_AVATAR_NOTIFY ), (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
+		sNotify.Format( LoadString( IDS_AVATAR_NOTIFY ), (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
 
 		if ( ! m_dlgNotify )
 		{
@@ -593,7 +583,7 @@ void CSLAPDlg::OnShow()
 void CSLAPDlg::OnTrayIconRButtonUp(CTrayIcon* /*pTrayIcon*/)
 {
 	CMenu pMenu;
-	if ( theApp.LoadMenu( pMenu, IDR_MENU ) )
+	if ( LoadMenu( pMenu, IDR_MENU ) )
 	{
 		// Get second sub-menu - Avatar Menu
 		if ( CMenu* pAvatarMenu = pMenu.GetSubMenu( 1 ) )
@@ -726,20 +716,14 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 	}
 	else if ( nChar == 'A' && GetKeyState( VK_CONTROL ) & 0x8000000 )
 	{
-		const int nCount = GetCount();
-		for ( int i = 0; i < nCount; ++ i )
-		{
-			m_wndAvatars.SetSel( i, TRUE );
-		}
+		SelectAll( TRUE );
+		UpdateInterface();
 		return TRUE;
 	}
 	else if ( nChar == VK_ESCAPE )
 	{
-		const int nCount = GetCount();
-		for ( int i = 0; i < nCount; ++ i )
-		{
-			m_wndAvatars.SetSel( i, FALSE );
-		}
+		SelectAll( FALSE );
+		UpdateInterface();
 		return TRUE;
 	}
 	return FALSE;
@@ -748,32 +732,41 @@ BOOL CSLAPDlg::OnKeyDown(UINT nChar, UINT /*nRepCnt*/, UINT /*nFlags*/)
 void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 {
 	BOOL bOutside = TRUE;
-	m_nMouseSelected = m_wndAvatars.ItemFromPoint( point, bOutside );
-	if ( m_nMouseSelected != LB_ERR && ! bOutside )
+	const int nMouseSelected = m_wndAvatars.ItemFromPoint( point, bOutside );
+	if ( nMouseSelected != LB_ERR && ! bOutside )
 	{
-		CMenu pMenu;
-		if ( theApp.LoadMenu( pMenu, IDR_MENU ) )
+		// Right-click adds to selection only if multiple items already selected
+		if ( ! IsSelected( nMouseSelected ) )
 		{
-			CMenu* pAvatarMenu = NULL;
+			if ( GetSelCount() == 1 )
+				SelectAll( FALSE );
+			m_wndAvatars.SetSel( nMouseSelected, TRUE );
+			UpdateInterface();
+		}
 
+		CMenu pMenu;
+		if ( LoadMenu( pMenu, IDR_MENU ) )
+		{
+			// Get first sub-menu - Avatar Menu
+			if ( CMenu* pAvatarMenu = pMenu.GetSubMenu( 0 ) )
 			{
-				CSingleLock pLock( &theApp.m_pSection, TRUE );
-
-				const CAvatar* pAvatar = Get( m_nMouseSelected );
-				if ( theApp.IsValid( pAvatar ) )
+				BOOL bNoPlace = FALSE;
 				{
-					// Get first sub-menu - Avatar Menu
-					pAvatarMenu = pMenu.GetSubMenu( 0 );
+					CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-					pAvatarMenu->EnableMenuItem( IDC_TELEPORT, MF_BYCOMMAND | ( pAvatar->m_sPlace.IsEmpty() ? MF_DISABLED : MF_ENABLED ) );
+					const CAvatar* pAvatar = Get( nMouseSelected );
+					if ( theApp.IsValid( pAvatar ) )
+					{
+						bNoPlace = pAvatar->m_sPlace.IsEmpty();
+					}
 				}
-			}
 
-			CPoint ptCursor;
-			GetCursorPos( &ptCursor );
-			if ( pAvatarMenu )
+				pAvatarMenu->EnableMenuItem( IDC_TELEPORT, MF_BYCOMMAND | ( bNoPlace ? MF_DISABLED : MF_ENABLED ) );
+
+				CPoint ptCursor;
+				GetCursorPos( &ptCursor );
 				pAvatarMenu->TrackPopupMenu( TPM_TOPALIGN | TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_RIGHTBUTTON, ptCursor.x, ptCursor.y, this );
-
+			}
 			pMenu.DestroyMenu();
 		}
 	}
@@ -813,18 +806,24 @@ void CSLAPDlg::OnBnClickedTeleport()
 {
 	CWaitCursor wc;
 
-	const int nSelected = GetSelected();
-	if ( nSelected != LB_ERR )
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
 	{
-		CSingleLock pLock( &theApp.m_pSection, TRUE );
-
-		const CAvatar* pAvatar = Get( nSelected );
-		if ( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() )
+		if ( IsSelected( i ) )
 		{
-			const CString sPlace = pAvatar->m_sPlace + _T( "/0" );
+			CSingleLock pLock( &theApp.m_pSection, TRUE );
 
-			theApp.Log( _T( "Teleporting to: " ) + sPlace );
-			ShellExecute( NULL, NULL, sPlace, NULL, NULL, SW_SHOWDEFAULT );
+			const CAvatar* pAvatar = Get( i );
+			if ( theApp.IsValid( pAvatar ) && ! pAvatar->m_sPlace.IsEmpty() )
+			{
+				const CString sPlace = pAvatar->m_sPlace + _T( "/0" );
+
+				theApp.Log( _T( "Teleporting to: " ) + sPlace );
+				ShellExecute( NULL, NULL, sPlace, NULL, NULL, SW_SHOWDEFAULT );
+
+				// Only one teleport
+				break;
+			}
 		}
 	}
 }
@@ -847,7 +846,7 @@ void CSLAPDlg::OnBnClickedWebProfile()
 				sRealName.MakeLower();
 				sRealName.Replace( _T( ' ' ), _T( '.' ) );
 
-				CString sProfile = theApp.LoadString( IDS_PROFILE_URL );
+				CString sProfile = LoadString( IDS_PROFILE_URL );
 				sProfile.Replace( _T( "{USERNAME}" ), sRealName );
 
 				theApp.Log( _T( "Opening web-profile: " ) + sProfile );
@@ -904,11 +903,15 @@ void CSLAPDlg::OnBnClickedAvatarOptions()
 {
 	CWaitCursor wc;
 
-	const int nSelected = GetSelected();
-	if ( nSelected != LB_ERR )
+	const int nCount = GetCount();
+	for ( int i = 0; i < nCount; ++i )
 	{
-		CAvatarDlg dlg( Get( nSelected ), this );
-		dlg.DoModal();
+		if ( IsSelected( i ) )
+		{
+			CAvatarDlg dlg( Get( i ), this );
+			dlg.DoModal();
+			break;
+		}
 	}
 }
 
@@ -1001,11 +1004,11 @@ void CSLAPDlg::OnFilterChange()
 
 void CSLAPDlg::OnDelete()
 {
-	const int nSelected = GetSelectedCount();
+	const int nSelected = GetSelCount();
 	if ( nSelected > 0 )
 	{
 		CString sPrompt;
-		sPrompt.Format( theApp.LoadString( IDS_DELETE_AVATAR ), nSelected );
+		sPrompt.Format( LoadString( IDS_DELETE_AVATAR ), nSelected );
 		if ( AfxMessageBox( sPrompt, MB_ICONQUESTION | MB_YESNO ) == IDYES )
 		{
 			int nCount = GetCount();

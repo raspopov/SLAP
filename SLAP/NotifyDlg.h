@@ -29,7 +29,8 @@ public:
 	enum { IDD = IDD_NOTIFY };
 
 protected:
-	CString m_sText;
+	CStatic m_wndText;
+	CFont	m_pBigFont;
 
 	virtual void DoDataExchange(CDataExchange* pDX);
 	virtual BOOL OnInitDialog();

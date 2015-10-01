@@ -88,6 +88,10 @@ msgstr ""
 msgid "Password:"
 msgstr ""
 
+#: DIALOGCONTROL.130.Static.2147483657
+msgid "Language:"
+msgstr ""
+
 #: DIALOGCONTROL.130.SysLink.1028
 msgid "<a>Check for updates...</a>"
 msgstr ""
@@ -200,10 +204,6 @@ msgstr ""
 msgid "Required username and password."
 msgstr ""
 
-#: STRING.124
-msgid "Second Life Avatar Probe"
-msgstr ""
-
 #: STRING.127
 msgid "Failed to load \"Friends Widget\" page."
 msgstr ""
@@ -239,4 +239,3 @@ msgstr ""
 #: STRING.135
 msgid "Authorizing OpenId..."
 msgstr ""
-

@@ -10,8 +10,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.5\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: DIALOGCAPTION.130 DIALOGCONTROL.136.Button.1017
 #: DIALOGCONTROL.136.Button.1020 STRING.1001
@@ -80,6 +78,10 @@ msgstr "Имя пользователя:"
 #: DIALOGCONTROL.130.Static.2147483651
 msgid "Password:"
 msgstr "Пароль:"
+
+#: DIALOGCONTROL.130.Static.2147483657
+msgid "Language:"
+msgstr "Язык:"
 
 #: DIALOGCONTROL.130.SysLink.1028
 msgid "<a>Check for updates...</a>"
@@ -193,10 +195,6 @@ msgstr "%s (%s)"
 msgid "Required username and password."
 msgstr "Требуется имя пользователя и пароль."
 
-#: STRING.124
-msgid "Second Life Avatar Probe"
-msgstr "Second Life Avatar Probe"
-
 #: STRING.127
 msgid "Failed to load \"Friends Widget\" page."
 msgstr "Ошибка загрузки \"Friends Widget\"."
@@ -232,6 +230,3 @@ msgstr "Получение \"Friends Widget\"..."
 #: STRING.135
 msgid "Authorizing OpenId..."
 msgstr "Авторизация OpenId..."
-
-#~ msgid "Options"
-#~ msgstr "Настройки"

@@ -73,7 +73,6 @@ protected:
 	BOOL					m_bOfflineTray;
 	CString					m_sFilter;
 	CIconEdit				m_wndFilter;
-	int						m_nMouseSelected;
 	int						m_nYOffset;
 	int						m_nXOffset;
 
@@ -93,17 +92,18 @@ protected:
 	CString GetStatus() const;
 
 	inline int GetCount() const { return m_wndAvatars.GetCount(); }
+	inline int GetSelCount() const { return m_wndAvatars.GetSelCount(); }
 	inline const CAvatar* Get(int n) const { return (const CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
 	inline CAvatar* Get(int n) { return (CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
 	inline BOOL IsSelected(int n) const { return ( m_wndAvatars.GetSel( n ) > 0 ); }
-	int GetSelectedCount() const;
-	int GetSelected() const;									// Returns currently selected avatar in the list (mouse preferred)
+	void SelectAll(BOOL bSel);
 	bool Filter(const CAvatar* pAvatar) const;					// Show filtered avatars only
 	void ReCreateList();										// Re-create avatar list
 	int FindAvatar(const CAvatar* pAvatar);						// Returns avatar index in the avatar list (LB_ERR - not found)
 	void ShowNotify(const CAvatar* pAvatar);
 	void ShowNotifyDialog(LPCTSTR szTitle, LPCTSTR szText);
 	void UpdateInterface();
+	void OnLanguage();											// Update translated strings
 
 	static UINT __cdecl ThreadFn(LPVOID pParam);
 	void Thread();
