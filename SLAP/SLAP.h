@@ -93,13 +93,13 @@ public:
 	// Refresh avatar list (NULL - whole list)
 	inline void Refresh(BOOL bSuccess, CAvatar* pAvatar = NULL)
 	{
-		m_pMainWnd->PostMessage( WM_APP_REFRESH, bSuccess, (LPARAM)pAvatar );
+		if ( m_pMainWnd ) m_pMainWnd->PostMessage( WM_APP_REFRESH, bSuccess, (LPARAM)pAvatar );
 	}
 
 	// Show avatar notification (NULL - hide)
 	inline void Notify(const CAvatar* pAvatar)
 	{
-		m_pMainWnd->PostMessage( WM_APP_NOTIFY, NULL, (LPARAM)pAvatar );
+		if ( m_pMainWnd ) m_pMainWnd->PostMessage( WM_APP_NOTIFY, NULL, (LPARAM)pAvatar );
 	}
 
 	inline CString GetAvatarsKey() const

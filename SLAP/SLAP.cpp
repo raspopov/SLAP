@@ -794,7 +794,7 @@ void __cdecl CSLAPApp::OnShutdown()
 
 BOOL CSLAPApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
-	if ( lpMsg->hwnd == m_pMainWnd->m_hWnd || ::IsChild( m_pMainWnd->m_hWnd, lpMsg->hwnd ) )
+	if ( m_pMainWnd && ( lpMsg->hwnd == m_pMainWnd->m_hWnd || ::IsChild( m_pMainWnd->m_hWnd, lpMsg->hwnd ) ) )
 	{
 		if ( lpMsg->message == WM_KEYDOWN )
 		{

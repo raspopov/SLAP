@@ -42,7 +42,6 @@ CSLAPDlg::CSLAPDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowOnlineOnly	( theApp.GetProfileInt( SETTINGS, SHOW_ONLINE_ONLY, 0 ) != 0 )
 	, m_bOnlineTray		( theApp.GetProfileInt( SETTINGS, ONLINE_TRAY, 1 ) != 0 )
 	, m_bOfflineTray	( theApp.GetProfileInt( SETTINGS, OFFLINE_TRAY, 1 ) != 0 )
-	, m_wndFilter		( IDI_FILTER )
 	, m_nYOffset		( 15 )
 	, m_nXOffset		( 15 )
 {
@@ -196,18 +195,20 @@ BOOL CSLAPDlg::OnInitDialog()
 	CRect rc;
 	rc.left = theApp.GetProfileInt( SETTINGS, WINDOW_X, 0 );
 	rc.top = theApp.GetProfileInt( SETTINGS, WINDOW_Y, 0 );
-	rc.right = rc.left + theApp.GetProfileInt( SETTINGS, WINDOW_WIDTH, 0 ) - 1;
-	rc.bottom = rc.top + theApp.GetProfileInt( SETTINGS, WINDOW_HEIGHT, 0 ) - 1;
+	rc.right = rc.left + theApp.GetProfileInt( SETTINGS, WINDOW_WIDTH, 0 );
+	rc.bottom = rc.top + theApp.GetProfileInt( SETTINGS, WINDOW_HEIGHT, 0 );
 	CRect rcScreen( 0, 0, GetSystemMetrics( SM_CXVIRTUALSCREEN ), GetSystemMetrics( SM_CYVIRTUALSCREEN ) );
 	if ( ( rcScreen.PtInRect( CPoint( rc.left,  rc.top ) ) ||
 		   rcScreen.PtInRect( CPoint( rc.right, rc.top ) ) ||
 		   rcScreen.PtInRect( CPoint( rc.left,  rc.bottom ) ) ||
 		   rcScreen.PtInRect( CPoint( rc.right, rc.bottom ) ) ) &&
-		   rc.Width()  > MIN_WIDTH &&
-		   rc.Height() > MIN_HEIGHT )
+		   rc.Width()  >= MIN_WIDTH &&
+		   rc.Height() >= MIN_HEIGHT )
 	{
-		MoveWindow( rc, FALSE );
+		MoveWindow( rc );
 	}
+
+	m_wndFilter.SetIcon( IDI_FILTER );
 
 	OnLanguage();
 
@@ -555,7 +556,7 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 		}
 
 		if ( pAvatar->m_bOnline ? m_bOnlineTray : m_bOfflineTray )
-			m_pTray.ShowBalloonTooltip( sTitle, sNotify, NIIF_USER );
+			m_pTray.ShowBalloonTooltip( sTitle, sNotify, 0x00000004 /* NIIF_USER */ );
 
 		theApp.Log( _T( "Show notification \"" ) + sTitle + _T( "\" : " ) + sNotify );
 	}

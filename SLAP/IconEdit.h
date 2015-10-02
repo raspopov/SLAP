@@ -25,7 +25,7 @@ class CIconEdit : public CEdit
 	DECLARE_DYNAMIC(CIconEdit)
 
 public:
-	CIconEdit(UINT id = 0);
+	CIconEdit();
 	virtual ~CIconEdit();
 
 	BOOL SetIcon(UINT id);

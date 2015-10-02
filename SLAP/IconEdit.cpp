@@ -26,10 +26,9 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 IMPLEMENT_DYNAMIC(CIconEdit, CEdit)
 
-CIconEdit::CIconEdit(UINT id)
+CIconEdit::CIconEdit()
 	: m_hIcon( NULL )
 {
-	SetIcon( id );
 }
 
 CIconEdit::~CIconEdit()
@@ -47,6 +46,8 @@ BOOL CIconEdit::SetIcon(UINT id)
 
 	if ( id )
 		m_hIcon = (HICON)::LoadImage( AfxGetResourceHandle(), MAKEINTRESOURCE( id ), IMAGE_ICON, ICON_SIZE, ICON_SIZE, LR_DEFAULTCOLOR );
+
+	SetWindowPos( NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
 	return ( m_hIcon != NULL ) || ! id;
 }
