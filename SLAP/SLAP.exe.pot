@@ -196,10 +196,6 @@ msgstr ""
 msgid "Last online: %H:%M %d.%m.%Y"
 msgstr ""
 
-#: STRING.122
-msgid "%s (%s)"
-msgstr ""
-
 #: STRING.123
 msgid "Required username and password."
 msgstr ""
@@ -239,3 +235,4 @@ msgstr ""
 #: STRING.135
 msgid "Authorizing OpenId..."
 msgstr ""
+

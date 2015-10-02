@@ -187,10 +187,6 @@ msgstr "Аватаров: %u / Онлайн: %u"
 msgid "Last online: %H:%M %d.%m.%Y"
 msgstr "Был онлайн в: %H:%M %d.%m.%Y"
 
-#: STRING.122
-msgid "%s (%s)"
-msgstr "%s (%s)"
-
 #: STRING.123
 msgid "Required username and password."
 msgstr "Требуется имя пользователя и пароль."

@@ -93,13 +93,12 @@ protected:
 
 	inline int GetCount() const { return m_wndAvatars.GetCount(); }
 	inline int GetSelCount() const { return m_wndAvatars.GetSelCount(); }
-	inline const CAvatar* Get(int n) const { return (const CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
-	inline CAvatar* Get(int n) { return (CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
+	inline CAvatar* Get(int n) const { return (CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
 	inline BOOL IsSelected(int n) const { return ( m_wndAvatars.GetSel( n ) > 0 ); }
 	void SelectAll(BOOL bSel);
 	bool Filter(const CAvatar* pAvatar) const;					// Show filtered avatars only
 	void ReCreateList();										// Re-create avatar list
-	int FindAvatar(const CAvatar* pAvatar);						// Returns avatar index in the avatar list (LB_ERR - not found)
+	int FindAvatar(const CAvatar* pAvatar) const;				// Returns avatar index in the avatar list (LB_ERR - not found)
 	void ShowNotify(const CAvatar* pAvatar);
 	void ShowNotifyDialog(LPCTSTR szTitle, LPCTSTR szText);
 	void UpdateInterface();

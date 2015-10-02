@@ -52,36 +52,45 @@ BOOL CIconEdit::SetIcon(UINT id)
 }
 
 BEGIN_MESSAGE_MAP(CIconEdit, CEdit)
-	ON_WM_PAINT()
 	ON_WM_NCCALCSIZE()
+	ON_WM_NCPAINT()
 END_MESSAGE_MAP()
 
 // CIconEdit message handlers
-
-void CIconEdit::OnPaint()
-{
-	CRect rect;
-	GetClientRect( &rect );
-
-	const int x = rect.right;
-	const int y = rect.top + ( rect.Height() - ICON_SIZE ) / 2;
-
-	__super::OnPaint();
-
-	if ( m_hIcon )
-	{
-		if ( CDC* pDC = GetDC() )
-		{
-			pDC->FillSolidRect( x, y, ICON_SIZE, ICON_SIZE, pDC->GetBkColor() );
-			::DrawIconEx( pDC->m_hDC, x, y, m_hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
-			ReleaseDC( pDC );
-		}
-	}
-}
 
 void CIconEdit::OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp)
 {
 	lpncsp->rgrc->right -= ICON_SIZE + HIWORD( GetMargins() );
 
 	__super::OnNcCalcSize( bCalcValidRects, lpncsp );
+}
+
+void CIconEdit::OnNcPaint()
+{
+	if ( CDC* pDC = GetDC() )
+	{
+		CRect rcClient;
+		GetClientRect( &rcClient );
+
+		CRect rcWindow;
+		GetWindowRect( &rcWindow );
+		ScreenToClient( &rcWindow );
+
+		const int cx = HIWORD( GetMargins() );
+
+		pDC->FillSolidRect( rcClient.right, rcClient.top, ICON_SIZE + cx, rcClient.Height(), pDC->GetBkColor() );
+
+		if ( m_hIcon )
+		{
+			const int x = rcClient.right + cx / 2;
+			const int y = rcClient.top + ( rcWindow.Height() - rcClient.Height() ) / 2;
+			::DrawIconEx( pDC->m_hDC, x, y, m_hIcon, ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL );
+		}
+
+		pDC->ExcludeClipRect( rcClient.right, rcClient.top, rcClient.right + ICON_SIZE + cx - 1, rcClient.top + rcClient.Height() - 1 );
+
+		ReleaseDC( pDC );
+	}
+
+	__super::OnNcPaint();
 }

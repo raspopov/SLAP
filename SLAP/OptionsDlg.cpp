@@ -105,7 +105,7 @@ BOOL COptionsDlg::OnInitDialog()
 
 	theApp.LoadPassword( m_sUsername, m_sPassword );
 
-	CString sFilter = LoadString( IDS_SOUNDS_FILTER );
+	const CString sFilter = LoadString( IDS_SOUNDS_FILTER );
 
 	{
 		CString sOnlineSound = theApp.GetProfileString( SETTINGS, SOUND_ONLINE );
@@ -146,7 +146,7 @@ void COptionsDlg::OnOK()
 
 	m_bChanged = FALSE;
 	
-	LANGID nOldLang = theLoc.GetLang();
+	const LANGID nOldLang = theLoc.GetLang();
 	theLoc.Select( GetDlgItem( IDC_LANGS )->GetSafeHwnd() );
 	theApp.m_nLangID = theLoc.GetLang();
 	if ( nOldLang != theApp.m_nLangID )
@@ -174,7 +174,7 @@ void COptionsDlg::OnOK()
 	m_sPassword.ReleaseBuffer();
 
 	{
-		int nOnline = GetCheckedRadioButton( IDC_ONLINE_NO_SOUND, IDC_ONLINE_CUSTOM );
+		const int nOnline = GetCheckedRadioButton( IDC_ONLINE_NO_SOUND, IDC_ONLINE_CUSTOM );
 		CString sOnlineSound;
 		switch ( nOnline )
 		{
@@ -188,7 +188,7 @@ void COptionsDlg::OnOK()
 	}
 
 	{
-		int nOffline = GetCheckedRadioButton( IDC_OFFLINE_NO_SOUND, IDC_OFFLINE_CUSTOM );
+		const int nOffline = GetCheckedRadioButton( IDC_OFFLINE_NO_SOUND, IDC_OFFLINE_CUSTOM );
 		CString sOfflineSound;
 		switch ( nOffline )
 		{

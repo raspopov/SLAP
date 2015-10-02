@@ -93,7 +93,11 @@ void CSLAPDlg::SelectAll(BOOL bSel)
 {
 	const int nCount = GetCount();
 	for ( int i = 0; i < nCount; ++ i )
-		m_wndAvatars.SetSel( i, bSel );
+	{
+		BOOL bCurSel = ( m_wndAvatars.GetSel( i ) > 0 );
+		if ( bCurSel != bSel )
+			m_wndAvatars.SetSel( i, bSel );
+	}
 }
 
 BOOL CSLAPDlg::PreTranslateMessage(MSG* pMsg)
@@ -342,7 +346,7 @@ void CSLAPDlg::OnBnClickedOptions()
 	}
 }
 
-int CSLAPDlg::FindAvatar(const CAvatar* pAvatar)
+int CSLAPDlg::FindAvatar(const CAvatar* pAvatar) const
 {
 	const int nCount = GetCount();
 	for ( int i = 0; i < nCount; ++i )
@@ -535,14 +539,14 @@ LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 	}
 	else if ( theApp.IsValid( pAvatar ) )
 	{
-		CString sTitle = LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
+		const CString sTitle = LoadString( pAvatar->m_bOnline ? IDS_AVATAR_ONLINE : IDS_AVATAR_OFFLINE );
 
 		CString sNotify;
-		sNotify.Format( LoadString( IDS_AVATAR_NOTIFY ), (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
+		sNotify.Format( _T("%s\n(%s)"), (LPCTSTR)pAvatar->m_sDisplayName, (LPCTSTR)pAvatar->m_sRealName );
 
 		if ( ! m_dlgNotify )
 		{
-			CString sSound = pAvatar->GetSound();
+			const CString sSound = pAvatar->GetSound();
 			if ( ! sSound.IsEmpty() )
 				PlaySound( sSound, NULL, SND_FILENAME | SND_ASYNC | ( pAvatar->m_bLoopSound ? SND_LOOP : 0 ) );
 
@@ -740,7 +744,9 @@ void CSLAPDlg::OnUsersRButtonUp(UINT /*nFlags*/, CPoint point)
 		{
 			if ( GetSelCount() == 1 )
 				SelectAll( FALSE );
+
 			m_wndAvatars.SetSel( nMouseSelected, TRUE );
+
 			UpdateInterface();
 		}
 

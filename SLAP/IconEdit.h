@@ -33,8 +33,8 @@ public:
 protected:
 	HICON	m_hIcon;
 
-	afx_msg void OnPaint();
 	afx_msg void OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp);
+	afx_msg void OnNcPaint();
 
 	DECLARE_MESSAGE_MAP()
 };

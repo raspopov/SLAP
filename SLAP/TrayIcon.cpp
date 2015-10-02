@@ -197,7 +197,7 @@ bool CTrayIcon::ShowBalloonTooltip(LPCTSTR title, LPCTSTR msg, DWORD icon)
 	data.uFlags |= NIF_INFO;
 	data.dwInfoFlags = icon;
 	data.uTimeout = 10000;	// deprecated as of Windows Vista, it has a min(10000) and max(30000) value on previous Windows versions.
-	data.uVersion = NOTIFYICON_VERSION_4;
+	data.uVersion = NOTIFYICON_VERSION;
 
 	size_t title_len = max( _countof( data.szInfoTitle ) - 1, _tcslen( title ) );
 	_tcsncpy_s( data.szInfoTitle, title, title_len );
@@ -221,7 +221,7 @@ void CTrayIcon::OnMessage(UINT uMsg)
 void CTrayIcon::FillNotifyIconData(NOTIFYICONDATA& data)
 {
 	memset( &data, 0, sizeof( data ) );
-	data.cbSize = NOTIFYICONDATA_V3_SIZE;	// Windows XP
+	data.cbSize = NOTIFYICONDATA_V2_SIZE;	// Windows XP
 	data.hWnd = GetMessageProcessorHWND();
 	data.uID = m_Id;
 }
