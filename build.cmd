@@ -10,7 +10,7 @@ exit /b 1
 :build
 echo Building...
 call %vc% x86
-msbuild SLAP.sln /v:m /t:Rebuild /p:Configuration=Release /p:Platform=Win32
+msbuild SLAP.sln /v:m /t:Rebuild /p:Configuration=Release /p:Platform=x86
 if exist Win32\release\SLAP.exe goto pack
 echo Binary file is missing. Compile project first please.
 exit /b 1
