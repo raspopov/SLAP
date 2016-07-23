@@ -1,5 +1,6 @@
 @echo off
 call :clean .
+call :clean WinSparkle
 call :clean Setup
 call :clean SLAP
 call :fileclean *.aps
@@ -8,6 +9,8 @@ call :fileclean *.sdf
 exit /b 0
 
 :clean
+call :dirclean %1\Release
+call :dirclean %1\Debug
 call :dirclean %1\Win32
 call :dirclean %1\x64
 call :dirclean %1\ipch
