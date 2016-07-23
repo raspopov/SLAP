@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/0y9kmj6esf3uqoqk?svg=true)](https://ci.appveyor.com/project/raspopov/slap)
+
  SLAP - Second Life Avatar Probe
 ---------------------------------
 
