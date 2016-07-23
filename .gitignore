@@ -196,3 +196,5 @@ FakesAssemblies/
 *.opt
 *.p_
 *.APS
+/*.db
+/*.opendb

@@ -32,11 +32,11 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(ProgramFiles)\Inno Setup 5\ISCC.exe" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building setup...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(TargetDir)Setup-Manifest.txt</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\SLAP.exe</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\SLAP.exe</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(ProgramFiles)\Inno Setup 5\ISCC.exe" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building setup...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(TargetDir)Setup-Manifest.txt</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Configuration)\SLAP.exe</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\SLAP.exe</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -83,15 +83,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />

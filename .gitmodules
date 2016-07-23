@@ -1,0 +1,3 @@
+[submodule "WinSparkle"]
+	path = WinSparkle
+	url = git://github.com/vslavik/winsparkle.git

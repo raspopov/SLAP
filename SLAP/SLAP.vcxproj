@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
@@ -73,16 +73,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -97,14 +93,14 @@
       <MinimalRebuild>false</MinimalRebuild>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle\include</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)WinSparkle</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -116,12 +112,8 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent>
-      <Command>copy /b /y "$(SolutionDir)WinSparkle\WinSparkle.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy WinSparkle...</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -132,14 +124,14 @@
       <SDLCheck>true</SDLCheck>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle\include</AdditionalIncludeDirectories>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)WinSparkle</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -150,12 +142,8 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent>
-      <Command>copy /b /y "$(SolutionDir)WinSparkle\WinSparkle.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy WinSparkle...</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -172,8 +160,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle</AdditionalIncludeDirectories>
-      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle\include</AdditionalIncludeDirectories>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -181,7 +168,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SetChecksum>true</SetChecksum>
-      <AdditionalLibraryDirectories>$(SolutionDir)WinSparkle</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -193,12 +180,8 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent>
-      <Command>copy /b /y "$(SolutionDir)WinSparkle\WinSparkle.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy WinSparkle...</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -214,7 +197,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)WinSparkle\include</AdditionalIncludeDirectories>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
@@ -223,7 +206,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SetChecksum>true</SetChecksum>
-      <AdditionalLibraryDirectories>$(SolutionDir)WinSparkle</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -234,16 +217,10 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent>
-      <Command>copy /b /y "$(SolutionDir)WinSparkle\WinSparkle.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copy WinSparkle...</Message>
-    </PostBuildEvent>
+    <PostBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\WinSparkle\winsparkle-version.h" />
-    <ClInclude Include="..\WinSparkle\winsparkle.h" />
     <ClInclude Include="Avatar.h" />
     <ClInclude Include="AvatarDlg.h" />
     <ClInclude Include="CtrlsResize.h" />

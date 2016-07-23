@@ -52,12 +52,6 @@
     <ClInclude Include="NotifyDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\WinSparkle\winsparkle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\WinSparkle\winsparkle-version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="IconEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>

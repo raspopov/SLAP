@@ -1,7 +1,7 @@
 ﻿#define MyAppName		    "SLAP"
 #define MyAppURL		    "http://www.cherubicsoft.com/projects/slap"
 #define MyAppExe		    "SLAP.exe"
-#define MyAppSource		  "..\Win32\Release\" + MyAppExe
+#define MyAppSource		  "..\Release\" + MyAppExe
 #define MyAppId			    GetStringFileInfo( MyAppSource, INTERNAL_NAME )
 #define MyAppVersion	  GetFileProductVersion( MyAppSource )
 #define MyAppCopyright	GetFileCopyright( MyAppSource )
@@ -39,7 +39,7 @@ AppMutex=Global\{#MyAppId}
 AppCopyright={#MyAppCopyright}
 DefaultDirName={pf}\{#MyAppPublisher}\{#MyAppId}
 DefaultGroupName={#MyAppName}
-OutputDir=..\Win32\Release
+OutputDir=..\Release
 OutputBaseFilename={#MyOutput}
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -63,7 +63,7 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "..\WinSparkle\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
+Source: "..\Release\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 
 Source: "{#MyAppSource}"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 Source: "..\ReadMe.md"; DestName: "ReadMe.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
