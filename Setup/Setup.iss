@@ -1,59 +1,55 @@
-﻿#define MyAppName		    "SLAP"
-#define MyAppURL		    "http://www.cherubicsoft.com/projects/slap"
-#define MyAppExe		    "SLAP.exe"
-#define MyAppSource		  "..\Release\" + MyAppExe
-#define MyAppId			    GetStringFileInfo( MyAppSource, INTERNAL_NAME )
+﻿#if Platform == "x64"
+  #define MyBitness		  "64-bit"
+#else
+  #define MyBitness		  "32-bit"
+#endif
+
+#define MyAppExe		    ExtractFileName( TargetPath )
+#define MyAppSource		  ( TargetPath )
+#define MyAppName			  GetStringFileInfo( MyAppSource, INTERNAL_NAME )
 #define MyAppVersion	  GetFileProductVersion( MyAppSource )
 #define MyAppCopyright	GetFileCopyright( MyAppSource )
 #define MyAppPublisher	GetFileCompany( MyAppSource )
-#define MyOutput		    LowerCase( StringChange( MyAppName + " " + MyAppVersion, " ", "_" ) )
-
-#ifndef WIN64
-  #define vcredist_exe          "vc_redist.x86.exe"
-  #define vcredist_title        "Microsoft Visual C++ 2015 Redistributable (x86)"
-  #define vcredist_url          "http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/" + vcredist_exe
-  #define vcredist_productcode  "{A2563E55-3BEC-3828-8D67-E5E8B9E8B675}"
-#else
-  #define vcredist_exe          "vc_redist.x64.exe"
-  #define vcredist_title        "Microsoft Visual C++ 2015 Redistributable (x64)"
-  #define vcredist_productcode  "{0D3E9E15-DE7A-300B-96F1-B4AF12B96488}"
-  #define vcredist_url          "http://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/" + vcredist_exe
-#endif
-
+#define MyAppURL		    GetStringFileInfo( MyAppSource, "Comments" )
+#define MyOutputDir		  ExtractFileDir( TargetPath )
+#define MyOutput		    LowerCase( StringChange( MyAppName + " " + MyAppVersion + " " + MyBitness, " ", "_" ) )
+         
 #include "idp\lang\russian.iss"
 #include "idp\idp.iss"
-
 #include "dep\lang\russian.iss"
 #include "dep\dep.iss"
+#include "vcredist.iss"
 
 [Setup]
-AppId={#MyAppId}
-AppName={#MyAppName}
+AppId={#MyAppName}
+AppName={#MyAppName} {#MyBitness}
 AppVersion={#MyAppVersion}
 VersionInfoVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-AppMutex=Global\{#MyAppId}
+AppMutex=Global\{#MyAppName}
 AppCopyright={#MyAppCopyright}
-DefaultDirName={pf}\{#MyAppPublisher}\{#MyAppId}
+DefaultDirName={pf}\{#MyAppPublisher}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-OutputDir=..\Release
+OutputDir={#MyOutputDir}
 OutputBaseFilename={#MyOutput}
 Compression=lzma2/ultra64
 SolidCompression=yes
 InternalCompressLevel=ultra64
 LZMAUseSeparateProcess=yes
 PrivilegesRequired=admin
-ChangesAssociations=yes
 UninstallDisplayIcon={app}\{#MyAppExe},0
 DirExistsWarning=no
 WizardImageFile=compiler:WizModernImage-IS.bmp
 WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
-SetupIconFile=Setup.ico
-SetupMutex=Global\Setup_{#MyAppId}
+SetupMutex=Global\Setup_{#MyAppName}
 OutputManifestFile=Setup-Manifest.txt
+#if Platform == "x64"
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+#endif
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
@@ -63,10 +59,10 @@ Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "..\Release\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
+Source: "{#MyOutputDir}\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 
 Source: "{#MyAppSource}"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
-Source: "..\ReadMe.md"; DestName: "ReadMe.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
+Source: "..\README.md"; DestName: "ReadMe.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 Source: "..\LICENSE"; DestName: "License.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 
 [Icons]
@@ -93,18 +89,11 @@ Name: "{localappdata}\{#MyAppPublisher}"; Type: dirifempty
 
 [Code]
 procedure InitializeWizard();
-var
-  bWork: Boolean;
 begin
-  bWork := False;
 
-  if ( not MsiProduct( '{#vcredist_productcode}' ) ) then begin
-    AddProduct( '{#vcredist_exe}', '/quiet /norestart', '{#vcredist_title}', '{#vcredist_url}', false, false );
-    bWork := True;
-  end;
-
-  if bWork then begin
+  if InstallVCRedist() then begin
     idpDownloadAfter( wpReady );
     idpSetDetailedMode( True );
   end;
+
 end;

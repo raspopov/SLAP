@@ -117,6 +117,7 @@
     <None Include="res\SLAP.exe.19.p_">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\SLAP.ico">

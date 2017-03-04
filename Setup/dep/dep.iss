@@ -21,7 +21,7 @@ external 'MsiQueryProductState{#AW}@msi.dll stdcall';
 
 function MsiProduct(const ProductID: string): boolean;
 begin
-    Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
+  Result := MsiQueryProductState(ProductID) = INSTALLSTATE_DEFAULT;
 end;
 
 type
@@ -31,6 +31,7 @@ type
 		Parameters: String;
 		InstallClean : boolean;
 		MustRebootAfter : boolean;
+		AnyVersion : boolean;
 	end;
 
 	InstallResult = (InstallSuccessful, InstallRebootRequired, InstallError);
@@ -41,7 +42,7 @@ var
 	delayedReboot: boolean;
 	DependencyPage: TOutputProgressWizardPage;
 
-procedure AddProduct(FileName, Parameters, Title, URL: string; InstallClean : boolean; MustRebootAfter : boolean);
+procedure AddProduct(FileName, Parameters, Title, URL: string; InstallClean, MustRebootAfter, AnyVersion : boolean);
 var
 	path: string;
 	i: Integer;
@@ -62,6 +63,7 @@ begin
 	products[i].Parameters := Parameters;
 	products[i].InstallClean := InstallClean;
 	products[i].MustRebootAfter := MustRebootAfter;
+	products[i].AnyVersion := AnyVersion;
 end;
 
 function SmartExec(prod : TProduct; var ResultCode : Integer) : Boolean;
@@ -71,7 +73,7 @@ begin
 	end else begin
 		Result := ShellExec('', prod.File, prod.Parameters, '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
 	end;
-end;
+end;       
 
 function PendingReboot : Boolean;
 var	names: String;
@@ -84,6 +86,12 @@ begin
 		Result := false;
 	end;
 end;
+
+const
+  ERROR_SUCCESS	                  = 0;    // The action completed successfully.
+  ERROR_PRODUCT_VERSION           = 1638; // Another version of this product is already installed.
+  ERROR_SUCCESS_REBOOT_INITIATED  =	1641; // The installer has initiated a restart. This message is indicative of a success. 
+  ERROR_SUCCESS_REBOOT_REQUIRED   = 3010; // A restart is required to complete the install. This message is indicative of a success.
 
 function InstallProducts: InstallResult;
 var
@@ -115,10 +123,9 @@ begin
 						Result := InstallRebootRequired;
 					end;
 					break;
-				end else if (ResultCode = 0) then begin
+				end else if ((ResultCode = ERROR_SUCCESS) or (products[i].AnyVersion and (ResultCode = ERROR_PRODUCT_VERSION))) then begin
 					finishCount := finishCount + 1;
-				end else if (ResultCode = 3010) then begin
-					//ResultCode 3010: A restart is required to complete the installation. This message indicates success.
+				end else if ((ResultCode = ERROR_SUCCESS_REBOOT_INITIATED) or (ResultCode = ERROR_SUCCESS_REBOOT_REQUIRED)) then begin
 					delayedReboot := true;
 					finishCount := finishCount + 1;
 				end else begin

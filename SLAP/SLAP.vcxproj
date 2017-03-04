@@ -28,7 +28,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -60,12 +60,14 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="WindowsXP.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="WindowsXP.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -180,8 +182,15 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent />
-    <PostBuildEvent />
+    <CustomBuildStep>
+      <Inputs>$(SolutionDir)setup\setup.iss;$(TargetPath);%(Inputs)</Inputs>
+      <Outputs>$(OutDir)Setup-Manifest.txt;%(Outputs)</Outputs>
+      <Message>Building setup...</Message>
+      <Command>cd "$(SolutionDir)"
+for /r %%i in (*iscc.exe) do set iscc="%%i"
+if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
+%iscc% "/DPlatform=$(Platform)" "/DTargetPath=$(TargetPath)" "$(SolutionDir)setup\setup.iss"</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -217,8 +226,15 @@
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-    <PostBuildEvent />
-    <PostBuildEvent />
+    <CustomBuildStep>
+      <Inputs>$(SolutionDir)setup\setup.iss;$(TargetPath);%(Inputs)</Inputs>
+      <Outputs>$(OutDir)Setup-Manifest.txt;%(Outputs)</Outputs>
+      <Message>Building setup...</Message>
+      <Command>cd "$(SolutionDir)"
+for /r %%i in (*iscc.exe) do set iscc="%%i"
+if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
+%iscc% "/DPlatform=$(Platform)" "/DTargetPath=$(TargetPath)" "$(SolutionDir)setup\setup.iss"</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
@@ -277,6 +293,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compressing...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
     </CustomBuild>
+    <None Include="packages.config" />
     <None Include="res\SLAP.exe.19.p_" />
     <None Include="res\SLAP.rc2" />
   </ItemGroup>
