@@ -22,7 +22,6 @@
     <ProjectGuid>{F2A2C266-FB7A-4AFA-B350-4154CDC1987A}</ProjectGuid>
     <RootNamespace>SLAP</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
