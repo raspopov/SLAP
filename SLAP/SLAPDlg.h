@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ protected:
 
 	inline int GetCount() const { return m_wndAvatars.GetCount(); }
 	inline int GetSelCount() const { return m_wndAvatars.GetSelCount(); }
-	inline CAvatar* Get(int n) const { return (CAvatar*)m_wndAvatars.GetItemDataPtr( n ); }
+	inline CAvatar* Get(int n) const { return reinterpret_cast< CAvatar* >( m_wndAvatars.GetItemDataPtr( n ) ); }
 	inline BOOL IsSelected(int n) const { return ( m_wndAvatars.GetSel( n ) > 0 ); }
 	void SelectAll(BOOL bSel);
 	bool Filter(const CAvatar* pAvatar) const;					// Show filtered avatars only

@@ -1,7 +1,9 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -719,7 +721,7 @@ BOOL CSLAPApp::InitInstance()
 			DWORD handle = NULL;
 			if ( DWORD size = GetFileVersionInfoSize( sModuleFileName, &handle ) )
 			{
-				if ( char* ver = (char*)GlobalAlloc( GPTR, size ) )
+				if ( char* ver = reinterpret_cast< char* >( GlobalAlloc( GPTR, size ) ) )
 				{
 					if ( GetFileVersionInfo( sModuleFileName, handle, size, ver ) )
 					{

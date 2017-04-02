@@ -1,3 +1,5 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
@@ -161,7 +163,7 @@ int CAvatar::OnMeasureItem(CWnd* pWnd)
 		// Calculate text metrics
 		if ( CDC* pDC = pWnd->GetDC() )
 		{
-			CFont* pOldFont = (CFont*)pDC->SelectObject( &m_fntBold );
+			CFont* pOldFont = static_cast< CFont* >( pDC->SelectObject( &m_fntBold ) );
 			m_nTitleHeight = pDC->GetTextExtent( _T( "Xg|" ) ).cy + 1;
 			pDC->SelectObject( &m_fntNormal );
 			m_nTextHeight = pDC->GetTextExtent( _T( "Xg|" ) ).cy + 1;
@@ -248,7 +250,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 		pDIS->rcItem.top + BOX_GAP,
 		pDIS->rcItem.right - BOX_GAP - BOX_STATUS - 1,
 		pDIS->rcItem.top + BOX_GAP + m_nTitleHeight );
-	CFont* pOldFont = (CFont*)pDC->SelectObject( &m_fntBold );
+	CFont* pOldFont = static_cast< CFont* >( pDC->SelectObject( &m_fntBold ) );
 	pDC->DrawText( m_sDisplayName, &rcTitle, DT_LEFT | DT_SINGLELINE | DT_TOP | DT_NOPREFIX | DT_END_ELLIPSIS );
 
 	const CPoint rcSoundIcon(
@@ -305,7 +307,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 		dcSelection.CreateCompatibleDC( pDC );
 		CBitmap bmSelection;
 		bmSelection.CreateCompatibleBitmap( pDC, cx, cy );
-		CBitmap* pOldBitmap = (CBitmap*)dcSelection.SelectObject( &bmSelection );
+		CBitmap* pOldBitmap = static_cast< CBitmap* >( dcSelection.SelectObject( &bmSelection ) );
 		dcSelection.FillSolidRect( 0, 0, cx, cy, GetSysColor( COLOR_HIGHLIGHT ) );
 		const BLENDFUNCTION fn = { AC_SRC_OVER, 0, 48, 0 };
 		pDC->AlphaBlend( pDIS->rcItem.left, pDIS->rcItem.top, cx, cy, &dcSelection, 0, 0, cx, cy, fn );
@@ -349,7 +351,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 
 	TCHAR szText[ 16 ] = {};
 	SYSTEMTIME time = {};
-	CFont* pOldFont = (CFont*)pDC->SelectObject( &m_fntTimeline );
+	CFont* pOldFont = static_cast< CFont* >( pDC->SelectObject( &m_fntTimeline ) );
 	pDC->SetBkMode( TRANSPARENT );
 
 	for ( int i = 0; i < 24; ++i )

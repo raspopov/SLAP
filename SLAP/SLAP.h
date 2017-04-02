@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -140,7 +140,6 @@ protected:
 	CAutoPtr< CStdioFile >			m_pLog;
 	CAvatarMap						m_pAvatars;
 	CCookieMap						m_pCookies;
-	DWORD							m_nCacheTime;
 
 	static void __cdecl OnShutdown();
 
