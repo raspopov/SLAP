@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2018 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -70,7 +70,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #include "winsparkle.h"
 
-#include "../Localization/Localization.h"
+#include "../Localization/src/Localization.h"
 
 template<>
 AFX_INLINE UINT AFXAPI HashKey(const CStringW& key)

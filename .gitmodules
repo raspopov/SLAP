@@ -1,3 +1,6 @@
 [submodule "WinSparkle"]
 	path = WinSparkle
-	url = https://github.com/raspopov/winsparkle.git
+	url = git@github.com:raspopov/winsparkle.git
+[submodule "Localization"]
+	path = Localization
+	url = git@github.com:raspopov/po-localization.git

@@ -22,6 +22,7 @@
     <ProjectGuid>{F2A2C266-FB7A-4AFA-B350-4154CDC1987A}</ProjectGuid>
     <RootNamespace>SLAP</RootNamespace>
     <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -115,6 +116,7 @@
     </ResourceCompile>
     <PostBuildEvent />
     <PostBuildEvent />
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -145,6 +147,7 @@
     </ResourceCompile>
     <PostBuildEvent />
     <PostBuildEvent />
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -191,6 +194,7 @@ for /r %%i in (*iscc.exe) do set iscc="%%i"
 if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
 %iscc% "/DPlatform=$(Platform)" "/DTargetPath=$(TargetPath)" "$(SolutionDir)setup\setup.iss"</Command>
     </CustomBuildStep>
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -236,6 +240,7 @@ for /r %%i in (*iscc.exe) do set iscc="%%i"
 if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
 %iscc% "/DPlatform=$(Platform)" "/DTargetPath=$(TargetPath)" "$(SolutionDir)setup\setup.iss"</Command>
     </CustomBuildStep>
+    <Manifest />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Avatar.h" />
@@ -281,16 +286,16 @@ if "%iscc%"=="" ( echo Inno Setup not found! &amp;&amp; exit /b 1 )
     <None Include="..\README.md" />
     <CustomBuild Include="res\SLAP.exe.19.po">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(SolutionDir)Localization\src\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compressing...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(SolutionDir)Localization\src\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compressing...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(SolutionDir)Localization\src\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compressing...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)Localization\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(SolutionDir)Localization\src\compress.exe" "%(FullPath)" "%(RootDir)%(Directory)%(Filename).p_"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compressing...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).p_</Outputs>
     </CustomBuild>
