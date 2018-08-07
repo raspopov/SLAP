@@ -62,13 +62,17 @@ LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString)
 {
 	// Return null if string or substring is empty
 	if ( !*pszString || !*pszSubString )
+	{
 		return NULL;
+	}
 
 	// Return if string is too small to hold the substring
 	size_t nString(_tcslen(pszString));
 	size_t nSubString(_tcslen(pszSubString));
 	if ( nString < nSubString )
+	{
 		return NULL;
+	}
 
 	// Get the first character from the substring and lowercase it
 	const TCHAR cFirstPatternChar = _totlower(*pszSubString);
@@ -85,7 +89,9 @@ LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString)
 
 		// Exit loop if no match found
 		if ( pszString > pszCutOff )
+		{
 			break;
+		}
 
 		// Check the rest of the substring
 		size_t nChar(1);
@@ -96,7 +102,9 @@ LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString)
 
 		// If the substring matched return a pointer to the start of the match
 		if ( !pszSubString[ nChar ] )
+		{
 			return pszString;
+		}
 
 		// Move on to the next character and continue search
 		++pszString;
@@ -389,8 +397,10 @@ CAvatar* CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayNa
 		bSave = TRUE;
 		pAvatar = new CAvatar( sKey );
 		if ( ! pAvatar )
+		{
 			// Out of memory
 			return NULL;
+		}
 		m_pAvatars.SetAt( sKey, pAvatar );
 	}
 
@@ -424,13 +434,21 @@ CAvatar* CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayNa
 	}
 
 	// Prefer online status
-	if ( bOnline ) pAvatar->m_bNewOnline = TRUE;
+	if ( bOnline )
+	{
+		pAvatar->m_bNewOnline = TRUE;
+	}
 
 	// Prefer friend status
-	if ( bFriend ) pAvatar->m_bNewFriend = TRUE;
+	if ( bFriend )
+	{
+		pAvatar->m_bNewFriend = TRUE;
+	}
 
 	if ( bSave )
+	{
 		pAvatar->Save();
+	}
 
 	Log( _T( "Updated avatar: \"" ) + pAvatar->m_sDisplayName + _T( "\" (" ) + pAvatar->m_sRealName + _T( ") " ) +
 		( ( pAvatar->m_bOnline != pAvatar->m_bNewOnline ) ?  ( pAvatar->m_bOnline ? _T("offline -> online") : _T("online -> offline") ) : _T("") ) );
@@ -465,19 +483,25 @@ UINT CSLAPApp::GetAvatarCount(BOOL bOnlineOnly) const
 			CAvatar* pAvatar = NULL;
 			m_pAvatars.GetNextAssoc(pos, sKey, pAvatar);
 			if ( pAvatar->m_bOnline )
+			{
 				++nOnline;
+			}
 		}
 		return nOnline;
 	}
 	else
+	{
 		return (UINT)m_pAvatars.GetCount();
+	}
 }
 
 CAvatar* CSLAPApp::GetEmptyAvatar() const
 {
 	if ( sImageCache.IsEmpty() )
+	{
 		// Disabled cache
 		return NULL;
+	}
 
 	CSingleLock pLock( &m_pSection, TRUE );
 
@@ -491,7 +515,9 @@ CAvatar* CSLAPApp::GetEmptyAvatar() const
 		m_pAvatars.GetNextAssoc( pos, sKey, pAvatar );
 
 		if ( pAvatar->m_bOnline && ( tNow - pAvatar->m_tImage ).GetTotalHours() > CACHE_TIME )
+		{
 			return pAvatar;
+		}
 	}
 
 	// Offline second
@@ -502,7 +528,9 @@ CAvatar* CSLAPApp::GetEmptyAvatar() const
 		m_pAvatars.GetNextAssoc( pos, sKey, pAvatar );
 
 		if ( ! pAvatar->m_bOnline && ( tNow - pAvatar->m_tImage ).GetTotalHours() > CACHE_TIME )
+		{
 			return pAvatar;
+		}
 	}
 
 	return NULL;
@@ -519,7 +547,9 @@ BOOL CSLAPApp::IsValid(const CAvatar* pTestAvatar) const
 		m_pAvatars.GetNextAssoc( pos, sKey, pAvatar );
 
 		if ( pAvatar == pTestAvatar )
+		{
 			return TRUE;
+		}
 	}
 
 	return FALSE;
@@ -791,18 +821,23 @@ BOOL CSLAPApp::InitInstance()
 void __cdecl CSLAPApp::OnShutdown()
 {
 	if ( theApp.m_pMainWnd )
+	{
 		::PostMessage( theApp.m_pMainWnd->GetSafeHwnd(), WM_CLOSE, 0, 0 );
+	}
 }
 
 BOOL CSLAPApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
-	if ( m_pMainWnd && ( lpMsg->hwnd == m_pMainWnd->m_hWnd || ::IsChild( m_pMainWnd->m_hWnd, lpMsg->hwnd ) ) )
+	CSLAPDlg* pMainWnd = static_cast< CSLAPDlg* >( m_pMainWnd );
+	if ( pMainWnd && ( lpMsg->hwnd == pMainWnd->m_hWnd || ::IsChild( pMainWnd->m_hWnd, lpMsg->hwnd ) ) )
 	{
 		if ( lpMsg->message == WM_KEYDOWN )
 		{
 			// Emulate key down message for dialog
-			if ( ((CSLAPDlg*)m_pMainWnd)->OnKeyDown( (UINT)lpMsg->wParam, (UINT)( lpMsg->lParam & 0xffff ), (UINT)( ( lpMsg->lParam >> 16 ) & 0xffff ) ) )
+			if ( pMainWnd->OnKeyDown( (UINT)lpMsg->wParam, (UINT)( lpMsg->lParam & 0xffff ), (UINT)( ( lpMsg->lParam >> 16 ) & 0xffff ) ) )
+			{
 				return TRUE;
+			}
 		}
 	}
 
