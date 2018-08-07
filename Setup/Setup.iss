@@ -40,6 +40,7 @@ SolidCompression=yes
 InternalCompressLevel=ultra64
 LZMAUseSeparateProcess=yes
 PrivilegesRequired=admin
+UsedUserAreasWarning=no
 UninstallDisplayIcon={app}\{#MyAppExe},0
 DirExistsWarning=no
 WizardImageFile=compiler:WizModernImage-IS.bmp

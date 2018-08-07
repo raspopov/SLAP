@@ -165,4 +165,7 @@
       <Filter>Translations</Filter>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\Setup\appcast.xml" />
+  </ItemGroup>
 </Project>

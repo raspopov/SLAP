@@ -30,7 +30,7 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 LPCTSTR szAppURL			= _T("http://www.cherubicsoft.com/projects/slap");
-LPCSTR  szAppCastURL		= "http://www.cherubicsoft.com/_media/projects/slap/appcast.xml";
+LPCSTR  szAppCastURL		= "https://raw.githubusercontent.com/raspopov/SLAP/master/Setup/appcast.xml";
 LPCTSTR szLoginCookie		= _T("agni_sl_session_id");
 LPCTSTR szSessionCookie		= _T("session-token");
 LPCTSTR szMemberCookie		= _T("second-life-member");
@@ -511,7 +511,7 @@ CAvatar* CSLAPApp::GetEmptyAvatar() const
 BOOL CSLAPApp::IsValid(const CAvatar* pTestAvatar) const
 {
 	CSingleLock pLock( &m_pSection, TRUE );
-	
+
 	for ( POSITION pos = m_pAvatars.GetStartPosition(); pos; )
 	{
 		CString sKey;

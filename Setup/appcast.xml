@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+	<channel>
+		<title>SLAP</title>
+		<link>https://raw.githubusercontent.com/raspopov/SLAP/master/Setup/appcast.xml</link>
+		<description>Second Life Avatar Probe</description>
+		<language>en</language>
+		<item>
+			<title>New version</title>
+			<pubDate>01 Jun 2017 00:00:00 +0300</pubDate>
+			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.13/slap_1.0.0.13_32-bit.exe" sparkle:version="1.0.0.13" length="1139252" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+			<description>
+				<![CDATA[
+				<b>Version 1.0.0.13</b>
+				<ul>
+					<li>Setup fixed.</li>
+				</ul>
+				<b>Version 1.0.0.12</b>
+				<ul>
+					<li>GUI bugfixes.</li>
+				</ul>
+				<b>Version 1.0.0.11</b>
+				<ul>
+					<li>Added translation support.</li>
+					<li>Added Russian translation.</li>
+				</ul>
+				<b>Version 1.0.0.10</b>
+				<ul>
+					<li>Improved online timeline.</li>
+				</ul>
+				<b>Version 1.0.0.9</b>
+				<ul>
+					<li>Added online timeline.</li>
+					<li>Added Ctrl+A (select all) and Esc (deselect all) hotkeys.</li>
+					<li>Improved miltiple avatar operations.</li>
+				</ul>
+				<b>Version 1.0.0.8</b>
+				<ul>
+					<li>Improved avatar filter edit box.</li>
+				</ul>
+				<b>Version 1.0.0.7</b>
+				<ul>
+					<li>Added avatar filter.</li>
+				</ul>
+				<b>Version 1.0.0.6</b>
+				<ul>
+					<li>Added "-tray" command-line option to minimize application at Windows startup.</li>
+					<li>Added window snapping to the screen edges by holding Shift key.</li>
+					<li>Project updated up to Visual C++ 2015.</li>
+					<li>Reduced setup size by excluding C++ redistributables.</li>
+				</ul>
+				<b>Version 1.0.0.5</b>
+				<ul>
+					<li>Fixed "Show online avatars only" option.</li>
+					<li>Added tray menu.</li>
+					<li>Setup built by InnoSetup 5.5.6.</li>
+				</ul>
+				<b>Version 1.0.0.4</b>
+				<ul>
+					<li>Added more options.</li>
+					<li>Added application auto-start after upgrade.</li>
+					<li>Improved debugging log.</li>
+					<li>Improved setup.</li>
+					<li>Minor optimizations.</li>
+				</ul>
+				<b>Version 1.0.0.3</b>
+				<ul>
+					<li>Added auto-restoring after login errors.</li>
+				</ul>
+				<b>Version 1.0.0.2</b>
+				<ul>
+					<li>Added start at Windows startup option.</li>
+					<li>Added avatar list context menu.</li>
+					<li>Minor bugfixes.</li>
+				</ul>
+				<b>Version 1.0.0.1</b>
+				<ul>
+					<li>Fixed case of display names.</li>
+					<li>Improved image cache.</li>
+					<li>Added online/offline delay time (5 minutes).</li>
+				</ul>
+				<b>Version 1.0.0.0</b>
+				<ul>
+					<li>Initial release.</li>
+				</ul>
+			]]>
+			</description>
+		</item>
+	</channel>
+</rss>
