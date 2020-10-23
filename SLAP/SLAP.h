@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -158,20 +158,6 @@ extern LPCTSTR szAppURL;
 // WinSparkle AppCast feed
 extern LPCSTR szAppCastURL;
 
-// Well-Known cookie names
-extern LPCTSTR szLoginCookie;
-extern LPCTSTR szSessionCookie;
-extern LPCTSTR szMemberCookie;
-
-extern LPCTSTR szLoginURL;
-extern LPCTSTR szFriendsURL;
-extern LPCTSTR szFriendsOnlineURL;
-extern LPCTSTR szLoginReferer;
-extern LPCSTR szLoginForm;
-extern LPCTSTR szImageURL;
-extern LPCTSTR pszAcceptTypes[];
-extern LPCTSTR szVersion;
-
 CString RegGetString(CRegKey& key, LPCTSTR szValueName = NULL, DWORD nMaxSize = MAX_PATH, LPCTSTR szDefault = NULL);
 LPCTSTR _tcsistr(LPCTSTR pszString, LPCTSTR pszSubString);
 CString URLEncode(LPCTSTR szText);
@@ -201,3 +187,5 @@ inline void Translate(HWND hDialog, UINT nDialogID)
 {
 	theLoc.Translate( hDialog, nDialogID );
 }
+
+#define _P(x) _T(x),(_countof(_T(x))-1)

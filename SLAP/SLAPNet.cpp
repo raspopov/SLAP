@@ -3,7 +3,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -154,8 +154,9 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 		{
 			try
 			{
+				LPCTSTR pszAcceptTypes[] = { _T( "*/*" ), NULL };
 				CAutoPtr< CHttpFile > pFile( pConnection->OpenRequest( ( bPOST ? CHttpConnection::HTTP_VERB_POST : CHttpConnection::HTTP_VERB_GET ),
-					sObject, sReferer, 1, pszAcceptTypes, szVersion, dwFlags ) );
+					sObject, sReferer, 1, pszAcceptTypes, _T("HTTP/1.1"), dwFlags ) );
 				if ( pFile )
 				{
 					try
@@ -209,40 +210,36 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 
 BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 {
-	BOOL bRet = FALSE;
-	CString sUrl = szLoginURL;
-	CString sReferer = szLoginReferer;
-	CString sReturnTo = szFriendsURL;
-	CByteArray aContent;
-	CString sLocation;
-
 	SetStatus( IDS_LOGINING );
 
 	CString sUsername, sPassword;
 	if ( ! theApp.LoadPassword( sUsername, sPassword ) || sUsername.IsEmpty() || sPassword.IsEmpty() )
 	{
 		SetStatus( IDS_NOPASSWORD );
-		return bRet;
+		return FALSE;
 	}
 
-	CStringA sParams = szLoginForm;
+	CByteArray aContent;
+	CString sLocation;
+	CStringA sParams = "username={USERNAME}&password={PASSWORD}&Submit=&stay_logged_in=stay_logged_in&return_to={RETURNTO}&previous_language=en_US&language=en_US&show_join=True&from_amazon=";
 	sParams.Replace( "{USERNAME}", URLEncode( CT2A( sUsername, CP_UTF8 ) ) );
 	sParams.Replace( "{PASSWORD}", URLEncode( CT2A( sPassword, CP_UTF8 ) ) );
-	sParams.Replace( "{RETURNTO}", URLEncode( CT2A( sReturnTo.Left( sReturnTo.ReverseFind( _T( '/' ) ) + 1 ) ) ) );
+	sParams.Replace( "{RETURNTO}", URLEncode( CT2A( _T("https://secondlife.com/my/") ) ) );
 
 	theApp.ClearCookies();
 
-	DWORD nStatus = WebRequest( pInternet, sUrl, sReferer, aContent, sLocation, sParams, TRUE );
-	if ( ! theApp.GetCookie( szLoginCookie ).IsEmpty() )
+	CString sUrl = _T("https://id.secondlife.com/openid/loginsubmit");
+	DWORD nStatus = WebRequest( pInternet, sUrl, _T("https://id.secondlife.com/openid/login"), aContent, sLocation, sParams, TRUE );
+	if ( ! theApp.GetCookie( _T("agni_sl_session_id") ).IsEmpty() )
 	{
 		// Some redirects
 		for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
 		{
 			theApp.LogFormat( _T( "Redirecting #%d..." ), redirects );
 
-			sReferer = sUrl;
+			m_sReferer = sUrl;
 			sUrl = sLocation;
-			nStatus = WebRequest( pInternet, sUrl, sReferer, aContent, sLocation );
+			nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
 		}
 
 		// Until OpenId form
@@ -254,7 +251,7 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 			if ( sContent.Find( "OpenId transaction in progress" ) != -1 )
 			{
 				// Parse OpenId form
-				sReferer = sUrl;
+				m_sReferer = sUrl;
 				sUrl.Empty();
 				sParams.Empty();
 				BOOL bPOST = FALSE;
@@ -285,21 +282,23 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 				if ( ! sUrl.IsEmpty() && ! sParams.IsEmpty() )
 				{
 					// Complete OpenId login
-					nStatus = WebRequest( pInternet, sUrl, sReferer, aContent, sLocation, sParams, bPOST );
+					nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation, sParams, bPOST );
 
 					// Some redirects
 					for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
 					{
 						theApp.LogFormat( _T( "Redirecting #%d..." ), redirects );
 
-						sReferer = sUrl;
+						m_sReferer = sUrl;
 						sUrl = sLocation;
-						nStatus = WebRequest( pInternet, sUrl, sReferer, aContent, sLocation );
+						nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
 					}
 
-					if ( nStatus / 100 == 2 && theApp.HasCookies() )
+					if ( nStatus / 100 == 2 && theApp.HasCookies() && _tcsnicmp( sUrl, _P("https://secondlife.com/my/") ) == 0 )
 					{
-						bRet = TRUE;
+						m_sReferer = sUrl;
+
+						return TRUE;
 					}
 					else
 						SetStatus( IDS_LOGIN_ERROR_COMPLETE );
@@ -316,20 +315,22 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 	else
 		SetStatus( IDS_LOGIN_ERROR );
 
-	return bRet;
+	m_sReferer.Empty();
+
+	return FALSE;
 }
 
 BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 {
 	BOOL bRet = FALSE;
-	CString sUrl = szFriendsOnlineURL;
+	CString sUrl = _T("https://secondlife.com/my/account/friends.php");
 	CByteArray aContent;
 	CString sLocation;
 
 	SetStatus( IDS_UPDATING_FRIENDS_ONLINE );
 
 	// Load "Friends Online"
-	DWORD nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
+	DWORD nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
 		CStringA sContent = GetString( aContent );
@@ -444,7 +445,7 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 	SetStatus( IDS_UPDATING_FRIENDS );
 
 	// Load "Friends Widget"
-	sUrl = szFriendsURL;
+	sUrl = _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends");
 	nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
 	if ( IsWorkEnabled() && nStatus / 100 == 2 )
 	{
@@ -542,7 +543,7 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 		sRealName = pAvatar->m_sRealName;
 	}
 
-	CString sUrl = szImageURL;
+	CString sUrl = _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
 	sRealName.Replace( _T( ' ' ), _T( '.' ) );
 	sUrl.Replace( _T( "{USERNAME}" ), sRealName );
 
@@ -564,18 +565,18 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 				CImage img;
 				if ( SUCCEEDED( img.Load( pStream ) ) )
 				{
-					// Resize image to 48x48 bitmap
+					// Resize image
 					CBitmap bmp;
 					if ( CDC* pDC = GetDC() )
 					{
-						if ( bmp.CreateCompatibleBitmap( pDC, 48, 48 ) )
+						if ( bmp.CreateCompatibleBitmap( pDC, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ) )
 						{
 							CDC dcMem;
 							if ( dcMem.CreateCompatibleDC( pDC ) )
 							{
 								CBitmap* pbmpOld = static_cast< CBitmap* >( dcMem.SelectObject( &bmp ) );
 
-								bRet = img.Draw( dcMem.m_hDC, CRect( 0, 0, 48, 48 ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
+								bRet = img.Draw( dcMem.m_hDC, CRect( 0, 0, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
 
 								dcMem.SelectObject( pbmpOld );
 							}

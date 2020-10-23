@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ public:
 	CSLAPDlg(CWnd* pParent = NULL);	// standard constructor
 
 	enum { IDD = IDD_SLAP_DIALOG };
-	
+
 	BOOL OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	void OnUsersRButtonUp(UINT nFlags, CPoint point);
 
@@ -65,6 +65,7 @@ protected:
 	volatile CWinThread*	m_pThread;
 	CEvent					m_eventThreadStop;
 
+	CString					m_sReferer;				// Last "Referer:" header
 	CTime					m_tLastRefresh;
 	DWORD					m_nUpdatePeriod;		// Update avatar list period (seconds), 30..3600 seconds, default: 60 seconds
 	DWORD					m_nDeadTime;			// Dead time after status change (seconds), default: 300 seconds
@@ -85,7 +86,7 @@ protected:
 	BOOL WebLogin(CInternetSession* pInternet);
 	BOOL WebUpdate(CInternetSession* pInternet);
 	BOOL WebGetImage(CInternetSession* pInternet);
-	
+
 	// Status
 	void SetStatus(UINT nStatus);
 	void SetStatus(LPCTSTR szStatus);
