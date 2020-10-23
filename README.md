@@ -1,4 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/0y9kmj6esf3uqoqk?svg=true)](https://ci.appveyor.com/project/raspopov/slap)
+[![GitHub All Releases](https://img.shields.io/github/downloads/raspopov/SLAP/total)](https://github.com/raspopov/SLAP/releases)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/raspopov/SLAP)](https://github.com/raspopov/SLAP/releases)
 
  SLAP - Second Life Avatar Probe
 ---------------------------------
@@ -19,28 +21,28 @@ http://www.cherubicsoft.com/en/projects/slap
 
     Enter, Left Double Click:
         Avatar Options
-    
+
     Alt + Left Double Click:
         Open Web-Profile
-    
+
     Ctrl + Left Double Click:
         Teleport To
-    
+
     Shift + Left Double Click:
         Simulate notification with current online status
 
      Shift + Ctrl + Left Double Click:
         Simulate notification with opposite online status
-   
+
     Delete:
         Delete selected avatar(s)
-    
+
     F1:
         Open SLAP web-site
-    
+
     F5:
         Refresh list
-     
+
     Ctrl + A:
         Select all avatars
 
@@ -49,7 +51,7 @@ http://www.cherubicsoft.com/en/projects/slap
 
     Ctrl + P:
         Global Options
-    
+
     Ctrl + C, Ctrl + Insert:
         Copy to the clipboard
 
@@ -81,20 +83,20 @@ How to add a new translation:
  Second Life Avatar Probe (SLAP)
 ---------------------------------
 
-    Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
-    
+    Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
+
     http://www.cherubicsoft.com/projects/slap
-    
+
     This program is free software : you can redistribute it and / or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     ( at your option ) any later version.
-    
+
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
     GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License
     along with this program.If not, see < http://www.gnu.org/licenses/>.
 
@@ -102,19 +104,19 @@ How to add a new translation:
 ------------
 
     Copyright (c) 2009-2015 Vaclav Slavik
-    
+
     http://winsparkle.org
-    
+
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
     the Software without restriction, including without limitation the rights to
     use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
     of the Software, and to permit persons to whom the Software is furnished to do
     so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -127,7 +129,7 @@ How to add a new translation:
 -----------
 
     Copyright (c) Istvan Pasztor
-    
+
     http://www.codeproject.com/Articles/127791/A-simple-and-easy-to-use-trayicon
-    
+
     This source has been published on www.codeproject.com under the CPOL license.
