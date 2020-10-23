@@ -1,7 +1,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ along with this program.If not, see < http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#define TML		(24)	// Time-line parts
 
 class CAvatar
 {
@@ -55,7 +56,7 @@ public:
 	CString		m_sOfflineSound;	// Play this sound file when avatar goes offline
 	BOOL		m_bLoopSound;		// Play sound until manually stopped
 	CTime		m_tImage;			// When image was loaded (successful or not)
-	DWORD		m_nTimeline[ 24 ];	// Avatar online timeline
+	DWORD		m_nTimeline[ TML ];	// Avatar online timeline
 
 	BOOL		m_bNewOnline;		// New online status
 	BOOL		m_bNewFriend;		// New friend status
@@ -75,4 +76,5 @@ public:
 	static int		m_nItemHeight;
 	static int		m_nTitleHeight;
 	static int		m_nTextHeight;
+	static int		m_nBoxSize;		// Avatar image size
 };

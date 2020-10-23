@@ -3,7 +3,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -34,7 +34,6 @@ static char THIS_FILE[] = __FILE__;
 #define BOX_TIMELINE	9
 #define BOX_INDICATOR	7
 #define BOX_STATUS		16
-#define BOX_ICON		(48 + 2)
 #define RGB_ONLINE		RGB( 64, 240, 64 )		// Minimum color value must be 64
 #define RGB_OFFLINE		RGB( 200, 200, 200 )	// Minimum color value must be 64
 #define RGB_UNKNOWN		RGB( 240, 64, 64 )		// Minimum color value must be 64
@@ -52,6 +51,8 @@ CFont	CAvatar::m_fntTimeline;
 int		CAvatar::m_nItemHeight	= 0;
 int		CAvatar::m_nTitleHeight	= 0;
 int		CAvatar::m_nTextHeight	= 0;
+int		CAvatar::m_nBoxSize		= 48;
+
 
 CAvatar::CAvatar(const CString& sRealName)
 	: m_sRealName	( sRealName )
@@ -173,7 +174,8 @@ int CAvatar::OnMeasureItem(CWnd* pWnd)
 		}
 
 		// Calculate listbox item height
-		m_nItemHeight = BOX_GAP + max( BOX_ICON, m_nTitleHeight + m_nTextHeight * 2 + BOX_TIMELINE + 1 ) + BOX_GAP;
+		m_nItemHeight = BOX_GAP + max( m_nBoxSize + 2, m_nTitleHeight + m_nTextHeight * 2 + BOX_TIMELINE + 1 ) + BOX_GAP;
+		m_nBoxSize = m_nItemHeight - BOX_GAP * 2 - 2;
 	}
 
 	return m_nItemHeight;
@@ -216,7 +218,7 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 		pDIS->rcItem.left + BOX_GAP,
 		pDIS->rcItem.top + BOX_GAP,
 		pDIS->rcItem.left + BOX_GAP + BOX_INDICATOR,
-		pDIS->rcItem.top + BOX_GAP + BOX_ICON );
+		pDIS->rcItem.top + BOX_GAP + m_nBoxSize + 2 );
 	TRIVERTEX vertexIndicator[ 2 ] =
 	{
 		{ rcIndicator.left, rcIndicator.top,
@@ -236,17 +238,17 @@ void CAvatar::OnDrawItem(LPDRAWITEMSTRUCT pDIS) const
 	CRect rcIcon(
 		rcIndicator.right,
 		rcIndicator.top,
-		rcIndicator.right + BOX_ICON,
+		rcIndicator.right + m_nBoxSize + 2,
 		rcIndicator.bottom );
 	pDC->Draw3dRect( &rcIcon, rgbIndicatorBack, rgbIndicatorBack );
 	rcIcon.DeflateRect( 1, 1, 1, 1 );
 	if ( m_pImage.IsNull() )
-		DrawIconEx( pDIS->hDC, rcIcon.left, rcIcon.top, m_hUserIcon, 48, 48, NULL, NULL, DI_NORMAL );
+		DrawIconEx( pDIS->hDC, rcIcon.left, rcIcon.top, m_hUserIcon, m_nBoxSize, m_nBoxSize, NULL, NULL, DI_NORMAL );
 	else
-		m_pImage.Draw( pDIS->hDC, rcIcon.left, rcIcon.top );
+		m_pImage.Draw( pDIS->hDC, rcIcon.left, rcIcon.top, m_nBoxSize, m_nBoxSize );
 
 	CRect rcTitle(
-		rcIndicator.right + BOX_ICON + BOX_GAP,
+		rcIndicator.right + m_nBoxSize + 2 + BOX_GAP,
 		pDIS->rcItem.top + BOX_GAP,
 		pDIS->rcItem.right - BOX_GAP - BOX_STATUS - 1,
 		pDIS->rcItem.top + BOX_GAP + m_nTitleHeight );
@@ -326,7 +328,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 	const BOOL bExtended = ( pRect->Height() > 24 );
 
 	DWORD nMax = m_nTimeline[ 0 ], nMin = m_nTimeline[ 0 ];
-	for ( int i = 1; i < 24; ++i )
+	for ( int i = 1; i < TML; ++i )
 	{
 		if ( nMax < m_nTimeline[ i ] )
 			nMax = m_nTimeline[ i ];
@@ -335,8 +337,8 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 	}
 	const ULONGLONG d = max( ( nMax - nMin ) / 128, 1 );
 
-	int width = ( pRect->Width() - 2 ) / 24;
-	int offset = ( pRect->Width() - 2 - width * 24 ) / 2;
+	int width = ( pRect->Width() - 2 ) / TML;
+	int offset = ( pRect->Width() - 2 - width * TML ) / 2;
 
 	CRect rcHour, rcText;
 	rcHour.top = pRect->top;
@@ -354,7 +356,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 	CFont* pOldFont = static_cast< CFont* >( pDC->SelectObject( &m_fntTimeline ) );
 	pDC->SetBkMode( TRANSPARENT );
 
-	for ( int i = 0; i < 24; ++i )
+	for ( int i = 0; i < TML; ++i )
 	{
 		if ( i < 12 )
 		{
@@ -363,7 +365,7 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 		}
 		else
 		{
-			rcHour.left = pRect->right - offset - width * ( 24 - i );
+			rcHour.left = pRect->right - offset - width * ( TML - i );
 			rcHour.right = rcHour.left + width - 1;
 		}
 		rcText.left = rcHour.left;
@@ -396,17 +398,17 @@ void CAvatar::PaintTimeline(CDC* pDC, const CRect* pRect) const
 //	CRect rcHour;
 //	rcHour.top = pRect->top;
 //	rcHour.bottom = pRect->bottom;
-//	for ( int i = 0; i < 24; ++i )
+//	for ( int i = 0; i < TML; ++i )
 //	{
 //		if ( i < 12 )
 //		{
-//			rcHour.left = pRect->left + ( width * i ) / 24;
-//			rcHour.right = pRect->left + ( width * ( i + 1 ) ) / 24 - 1;
+//			rcHour.left = pRect->left + ( width * i ) / TML;
+//			rcHour.right = pRect->left + ( width * ( i + 1 ) ) / TML - 1;
 //		}
 //		else
 //		{
-//			rcHour.left = pRect->right - ( width * ( 24 - i - 1 ) ) / 24 - 1;
-//			rcHour.right = pRect->right - ( width * ( 24 - i ) ) / 24;
+//			rcHour.left = pRect->right - ( width * ( TML - i - 1 ) ) / TML - 1;
+//			rcHour.right = pRect->right - ( width * ( TML - i ) ) / TML;
 //		}
 //		if ( rcHour.PtInRect( pt ) )
 //		{
