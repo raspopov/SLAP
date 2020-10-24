@@ -111,13 +111,12 @@ protected:
 	void Stop();
 	BOOL IsWorkEnabled() const;
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnInitDialog();
-	virtual void DoDataExchange(CDataExchange* pDX);
-	virtual void OnOK();
-
-	virtual void OnTrayIconLButtonDblClk(CTrayIcon* pTrayIcon);
-	virtual void OnTrayIconRButtonUp(CTrayIcon* pTrayIcon);
+	virtual BOOL PreTranslateMessage(MSG* pMsg) override;
+	virtual BOOL OnInitDialog() override;
+	virtual void DoDataExchange(CDataExchange* pDX) override;
+	virtual void OnOK() override;
+	virtual void OnTrayIconLButtonDblClk(CTrayIcon* pTrayIcon) override;
+	virtual void OnTrayIconRButtonUp(CTrayIcon* pTrayIcon) override;
 
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
@@ -143,6 +142,8 @@ protected:
 	afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
 	afx_msg void OnFilterChange();
 	afx_msg void OnDelete();
+	afx_msg BOOL OnQueryEndSession();
+	afx_msg void OnEndSession( BOOL bEnding );
 
 	DECLARE_MESSAGE_MAP()
 };

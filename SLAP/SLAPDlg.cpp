@@ -3,7 +3,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2017 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -110,6 +110,12 @@ BOOL CSLAPDlg::PreTranslateMessage(MSG* pMsg)
 		m_wndAvatars.PostMessage( pMsg->message, pMsg->wParam, pMsg->lParam );
 	}
 
+	// Alt+F4 exit
+	if ( pMsg->message == WM_SYSKEYDOWN && pMsg->wParam == VK_F4)
+	{
+		PostMessage( WM_COMMAND, IDC_EXIT );
+	}
+
 	return __super::PreTranslateMessage( pMsg );
 }
 
@@ -152,6 +158,8 @@ BEGIN_MESSAGE_MAP(CSLAPDlg, CDialog)
 	ON_WM_WINDOWPOSCHANGING()
 	ON_EN_CHANGE( IDC_FILTER, &CSLAPDlg::OnFilterChange)
 	ON_COMMAND( IDC_DELETE, &CSLAPDlg::OnDelete )
+	ON_WM_QUERYENDSESSION()
+	ON_WM_ENDSESSION()
 END_MESSAGE_MAP()
 
 // CSLAPDlg message handlers
@@ -275,7 +283,7 @@ void CSLAPDlg::OnDestroy()
 	theApp.WriteProfileInt( SETTINGS, WINDOW_Y, rc.top );
 	theApp.WriteProfileInt( SETTINGS, WINDOW_WIDTH, rc.Width() );
 	theApp.WriteProfileInt( SETTINGS, WINDOW_HEIGHT, rc.Height() );
-	
+
 	m_pTray.SetVisible( false );
 
 	CAvatar::Clear();
@@ -528,7 +536,7 @@ void CSLAPDlg::ShowNotifyDialog(LPCTSTR szTitle, LPCTSTR szText)
 LRESULT CSLAPDlg::OnNotify(WPARAM, LPARAM lParam)
 {
 	// Show notification popup and play sound
-	
+
 	CSingleLock pLock( &theApp.m_pSection, TRUE );
 
 	const CAvatar* pAvatar = reinterpret_cast< const CAvatar* >( lParam );
@@ -573,7 +581,11 @@ void CSLAPDlg::OnTrayIconLButtonDblClk(CTrayIcon* /*pTrayIcon*/)
 
 void CSLAPDlg::OnExit()
 {
-	OnCancel();
+	ShowWindow( SW_HIDE );
+
+	m_pTray.SetVisible( false );
+
+	EndDialog( IDCANCEL );
 }
 
 void CSLAPDlg::OnShow()
@@ -584,7 +596,9 @@ void CSLAPDlg::OnShow()
 		SetForegroundWindow();
 	}
 	else
+	{
 		ShowWindow( SW_HIDE );
+	}
 }
 
 void CSLAPDlg::OnTrayIconRButtonUp(CTrayIcon* /*pTrayIcon*/)
@@ -635,7 +649,8 @@ void CSLAPDlg::OnLbnDblclkUsers()
 
 void CSLAPDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ( nID == SC_MINIMIZE )
+	// Block menu or caption button exit
+	if ( nID == SC_MINIMIZE || nID == SC_CLOSE )
 	{
 		m_pTray.SetVisible( true );
 		ShowWindow( SW_HIDE );
@@ -1034,5 +1049,21 @@ void CSLAPDlg::OnDelete()
 
 			UpdateInterface();
 		}
+	}
+}
+
+BOOL CSLAPDlg::OnQueryEndSession()
+{
+	return TRUE;
+}
+
+void CSLAPDlg::OnEndSession(BOOL bEnding)
+{
+	__super::OnEndSession( bEnding );
+
+	// Windows shutdown exit
+	if ( bEnding )
+	{
+		OnExit();
 	}
 }
