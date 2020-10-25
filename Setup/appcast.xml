@@ -7,10 +7,16 @@
 		<language>en</language>
 		<item>
 			<title>New version</title>
-			<pubDate>01 Jun 2017 00:00:00 +0300</pubDate>
-			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.13/slap_1.0.0.13_32-bit.exe" sparkle:version="1.0.0.13" length="1139252" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+			<pubDate>24 Oct 2020 00:00:00 +0300</pubDate>
+			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.14/slap_1.0.0.14_32-bit.exe" sparkle:version="1.0.0.14" length="1374735" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
 			<description>
 				<![CDATA[
+				<b>Version 1.0.0.14</b>
+				<ul>
+					<li>Updated Second Life login algorithm.</li>
+					<li>Increased avatar image size.</li>
+					<li>Block menu or caption button exit.</li>
+				</ul>
 				<b>Version 1.0.0.13</b>
 				<ul>
 					<li>Setup fixed.</li>
