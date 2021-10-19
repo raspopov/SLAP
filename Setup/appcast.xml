@@ -7,10 +7,15 @@
 		<language>en</language>
 		<item>
 			<title>New version</title>
-			<pubDate>24 Oct 2020 00:00:00 +0300</pubDate>
-			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.14/slap_1.0.0.14_32-bit.exe" sparkle:version="1.0.0.14" length="1374735" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+			<pubDate>19 Oct 2021 21:50:00 +0300</pubDate>
+			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.15/slap_1.0.0.15_32-bit.exe" sparkle:version="1.0.0.15" length="1305707" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
 			<description>
 				<![CDATA[
+				<b>Version 1.0.0.15</b>
+				<ul>
+					<li>Added support for CSRF token.</li>
+					<li>Switched to small PNG images of avatars (since program has no JPEG 2000 support yet).</li>
+				</ul>
 				<b>Version 1.0.0.14</b>
 				<ul>
 					<li>Updated Second Life login algorithm.</li>
