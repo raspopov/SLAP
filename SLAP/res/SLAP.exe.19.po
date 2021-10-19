@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: DIALOGCAPTION.130 DIALOGCONTROL.136.Button.1017
 #: DIALOGCONTROL.136.Button.1020 STRING.1001
@@ -176,8 +176,8 @@ msgid "Retrieving \"Friends Online\" page..."
 msgstr "Получение \"Friends Online\"..."
 
 #: STRING.119
-msgid "Authorizing..."
-msgstr "Авторизация..."
+msgid "Authorizing Login..."
+msgstr "Авторизация логина..."
 
 #: STRING.120
 msgid "Avatars: %u / Online: %u"
@@ -226,3 +226,11 @@ msgstr "Получение \"Friends Widget\"..."
 #: STRING.135
 msgid "Authorizing OpenId..."
 msgstr "Авторизация OpenId..."
+
+#: STRING.137
+msgid "Authorizing CSRF token..."
+msgstr "Авторизация CSRF токена..."
+
+#: STRING.140
+msgid "Failed to load CSRF token."
+msgstr "Ошибка загрузки CSRF токена."

@@ -210,114 +210,190 @@ DWORD CSLAPDlg::WebRequest(CInternetSession* pInternet, const CString& sUrl, con
 
 BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 {
-	SetStatus( IDS_LOGINING );
+	DWORD nStatus;
+	CStringA sContent;
+	CByteArray aContent;
+	CString sLocation;
 
 	CString sUsername, sPassword;
 	if ( ! theApp.LoadPassword( sUsername, sPassword ) || sUsername.IsEmpty() || sPassword.IsEmpty() )
 	{
+		// User name or password not set
 		SetStatus( IDS_NOPASSWORD );
 		return FALSE;
 	}
 
-	CByteArray aContent;
-	CString sLocation;
-	CStringA sParams = "username={USERNAME}&password={PASSWORD}&Submit=&stay_logged_in=stay_logged_in&return_to={RETURNTO}&previous_language=en_US&language=en_US&show_join=True&from_amazon=";
-	sParams.Replace( "{USERNAME}", URLEncode( CT2A( sUsername, CP_UTF8 ) ) );
-	sParams.Replace( "{PASSWORD}", URLEncode( CT2A( sPassword, CP_UTF8 ) ) );
-	sParams.Replace( "{RETURNTO}", URLEncode( CT2A( _T("https://secondlife.com/my/") ) ) );
+	// Get Login form for CSRF token
+	SetStatus( IDS_LOGINING_TOKEN );
 
+	m_sReferer = _T("https://secondlife.com/");
 	theApp.ClearCookies();
 
-	CString sUrl = _T("https://id.secondlife.com/openid/loginsubmit");
-	DWORD nStatus = WebRequest( pInternet, sUrl, _T("https://id.secondlife.com/openid/login"), aContent, sLocation, sParams, TRUE );
-	if ( ! theApp.GetCookie( _T("agni_sl_session_id") ).IsEmpty() )
+	CString sUrl = _T("https://id.secondlife.com/openid/login");
+	nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
+
+	// Some redirects
+	for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
 	{
-		// Some redirects
-		for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
-		{
-			theApp.LogFormat( _T( "Redirecting #%d..." ), redirects );
+		theApp.LogFormat( _T( "Redirecting #%d to: %s" ), redirects, (LPCTSTR)sLocation );
 
-			m_sReferer = sUrl;
-			sUrl = sLocation;
-			nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
-		}
-
-		// Until OpenId form
-		SetStatus( IDS_LOGINING_OPENID );
-
-		if ( IsWorkEnabled() && nStatus / 100 == 2 )
-		{
-			CStringA sContent = GetString( aContent );
-			if ( sContent.Find( "OpenId transaction in progress" ) != -1 )
-			{
-				// Parse OpenId form
-				m_sReferer = sUrl;
-				sUrl.Empty();
-				sParams.Empty();
-				BOOL bPOST = FALSE;
-				for ( int nStart = 0; nStart < sContent.GetLength(); ++nStart )
-				{
-					CStringA sPart = sContent.Mid( nStart ).SpanExcluding( ">" );
-					if ( const int nSize = sPart.GetLength() )
-					{
-						sPart.Remove( '\r' );
-						sPart.Remove( '\n' );
-						sPart.Trim( "\t " );
-						if ( _strnicmp( sPart, "<form ", 6 ) == 0 )
-						{
-							sUrl = GetValue( sPart, "action" );
-							bPOST = ( GetValue( sPart, "method" ).CompareNoCase( "POST" ) == 0 );
-						}
-						else if ( _strnicmp( sPart, "<input ", 7 ) == 0 )
-						{
-							CStringA sName = GetValue( sPart, "name" );
-							if ( sName.IsEmpty() ) sName = "Submit";
-							CStringA sValue = GetValue( sPart, "value" );
-							if ( ! sParams.IsEmpty() ) sParams += "&";
-							sParams += sName + "=" + URLEncode( sValue );
-						}
-						nStart += nSize;
-					}
-				}
-				if ( ! sUrl.IsEmpty() && ! sParams.IsEmpty() )
-				{
-					// Complete OpenId login
-					nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation, sParams, bPOST );
-
-					// Some redirects
-					for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
-					{
-						theApp.LogFormat( _T( "Redirecting #%d..." ), redirects );
-
-						m_sReferer = sUrl;
-						sUrl = sLocation;
-						nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
-					}
-
-					if ( nStatus / 100 == 2 && theApp.HasCookies() && _tcsnicmp( sUrl, _P("https://secondlife.com/my/") ) == 0 )
-					{
-						m_sReferer = sUrl;
-
-						return TRUE;
-					}
-					else
-						SetStatus( IDS_LOGIN_ERROR_COMPLETE );
-				}
-				else
-					SetStatus( IDS_LOGIN_ERROR_OPENID );
-			}
-			else
-				SetStatus( IDS_LOGIN_ERROR_OPENID );
-		}
-		else
-			SetStatus( IDS_LOGIN_ERROR_OPENID );
+		m_sReferer = sUrl;
+		sUrl = sLocation;
+		nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
 	}
-	else
+	if ( nStatus / 100 != 2 )
+	{
+		// HTTP error
+		SetStatus( IDS_LOGIN_ERROR_TOKEN );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// Looking for CSRF token
+	const CStringA sTokenName = "csrfmiddlewaretoken";
+	sContent = GetString( aContent );
+	CString sToken;
+	for ( int nStart = 0; nStart < sContent.GetLength(); ++nStart )
+	{
+		CStringA sPart = sContent.Mid( nStart ).SpanExcluding( ">" );
+		if ( const int nSize = sPart.GetLength() )
+		{
+			sPart.Remove( '\r' );
+			sPart.Remove( '\n' );
+			sPart.Trim( "\t " );
+			if ( _strnicmp( sPart, "<input ", 7 ) == 0 )
+			{
+				const CStringA sName = GetValue( sPart, "name" );
+				if ( sName.CompareNoCase( sTokenName ) == 0 )
+				{
+					sToken = GetValue( sPart, "value" );
+					break;
+				}
+			}
+			nStart += nSize;
+		}
+	}
+	if ( sToken.IsEmpty() )
+	{
+		// CSRF token not found
+		SetStatus( IDS_LOGIN_ERROR_TOKEN );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// Submit Login form
+	SetStatus( IDS_LOGINING );
+
+	m_sReferer = sUrl;
+	sUrl = _T("https://id.secondlife.com/openid/loginsubmit");
+	const CStringA sParams = sTokenName + "=" + URLEncode( CT2A( sToken, CP_UTF8 ) ) + "&"
+		"username=" + URLEncode( CT2A( sUsername, CP_UTF8 ) ) + "&"
+		"password=" + URLEncode( CT2A( sPassword, CP_UTF8 ) ) + "&"
+		"Submit=&"
+		"stay_logged_in=stay_logged_in&"
+		"return_to=" + URLEncode( CT2A( _T("https://secondlife.com/my/") ) ) +"&"
+		"previous_language=en_US&"
+		"language=en_US&"
+		"show_join=True&"
+		"from_amazon=";
+	nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation, sParams, TRUE );
+	if ( theApp.GetCookie( _T("agni_sl_session_id") ).IsEmpty() )
+	{
+		// Login cookie not found
 		SetStatus( IDS_LOGIN_ERROR );
+		m_sReferer.Empty();
+		return FALSE;
+	}
 
-	m_sReferer.Empty();
+	// Some redirects
+	for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
+	{
+		theApp.LogFormat( _T( "Redirecting #%d to: %s" ), redirects, (LPCTSTR)sLocation );
 
-	return FALSE;
+		m_sReferer = sUrl;
+		sUrl = sLocation;
+		nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
+	}
+	if ( ! IsWorkEnabled() || nStatus / 100 != 2 )
+	{
+		// HTTP error
+		SetStatus( IDS_LOGIN_ERROR );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// Until OpenId form
+	SetStatus( IDS_LOGINING_OPENID );
+
+	sContent = GetString( aContent );
+	if ( sContent.Find( "OpenId transaction in progress" ) == -1 )
+	{
+		// OpenId form not found
+		SetStatus( IDS_LOGIN_ERROR_OPENID );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// Parse OpenId form
+	m_sReferer = sUrl;
+	sUrl.Empty();
+	CStringA sOpenIdParams;
+	BOOL bPOST = FALSE;
+	for ( int nStart = 0; nStart < sContent.GetLength(); ++nStart )
+	{
+		CStringA sPart = sContent.Mid( nStart ).SpanExcluding( ">" );
+		if ( const int nSize = sPart.GetLength() )
+		{
+			sPart.Remove( '\r' );
+			sPart.Remove( '\n' );
+			sPart.Trim( "\t " );
+			if ( _strnicmp( sPart, "<form ", 6 ) == 0 )
+			{
+				sUrl = GetValue( sPart, "action" );
+				bPOST = ( GetValue( sPart, "method" ).CompareNoCase( "POST" ) == 0 );
+			}
+			else if ( _strnicmp( sPart, "<input ", 7 ) == 0 )
+			{
+				CStringA sName = GetValue( sPart, "name" );
+				if ( sName.IsEmpty() ) sName = "Submit";
+				CStringA sValue = GetValue( sPart, "value" );
+				if ( ! sOpenIdParams.IsEmpty() ) sOpenIdParams += "&";
+				sOpenIdParams += sName + "=" + URLEncode( sValue );
+			}
+			nStart += nSize;
+		}
+	}
+
+	if ( sUrl.IsEmpty() || sOpenIdParams.IsEmpty() )
+	{
+		// OpenId form not found
+		SetStatus( IDS_LOGIN_ERROR_OPENID );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// Complete OpenId login
+	nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation, sOpenIdParams, bPOST );
+
+	// Some redirects
+	for ( int redirects = 1; IsWorkEnabled() && ! sLocation.IsEmpty() && nStatus / 100 == 3 && redirects < 10; ++redirects )
+	{
+		theApp.LogFormat( _T( "Redirecting #%d to: %s" ), redirects, (LPCTSTR)sLocation );
+
+		m_sReferer = sUrl;
+		sUrl = sLocation;
+		nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
+	}
+	if ( nStatus / 100 != 2 || ! theApp.HasCookies() || _tcsnicmp( sUrl, _P("https://secondlife.com/my/") ) != 0 )
+	{
+		SetStatus( IDS_LOGIN_ERROR_COMPLETE );
+		m_sReferer.Empty();
+		return FALSE;
+	}
+
+	// OK
+	m_sReferer = sUrl;
+	return TRUE;
 }
 
 BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
@@ -726,9 +802,13 @@ void CSLAPDlg::Thread()
 
 				case Work::Login:
 					if ( WebLogin( pInternet ) )
+					{
 						AddWork( Work::Update );
+					}
 					else
+					{
 						theApp.Refresh( FALSE );
+					}
 					break;
 
 				case Work::Update:

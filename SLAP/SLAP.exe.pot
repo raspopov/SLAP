@@ -185,7 +185,7 @@ msgid "Retrieving \"Friends Online\" page..."
 msgstr ""
 
 #: STRING.119
-msgid "Authorizing..."
+msgid "Authorizing Login..."
 msgstr ""
 
 #: STRING.120
@@ -234,5 +234,13 @@ msgstr ""
 
 #: STRING.135
 msgid "Authorizing OpenId..."
+msgstr ""
+
+#: STRING.137
+msgid "Authorizing CSRF token..."
+msgstr ""
+
+#: STRING.140
+msgid "Failed to load CSRF token."
 msgstr ""
 
