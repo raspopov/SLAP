@@ -3,7 +3,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2021 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ BOOL CAvatarDlg::OnInitDialog()
 		int nOnline = ( m_pAvatar->m_sOnlineSound.IsEmpty() ? IDC_ONLINE_DEFAULT :
 			( m_pAvatar->m_sOnlineSound == NO_SOUND ? IDC_ONLINE_NO_SOUND : IDC_ONLINE_CUSTOM ) );
 		CheckRadioButton( IDC_ONLINE_NO_SOUND, IDC_ONLINE_CUSTOM, nOnline );
-		
+
 		m_wndOnlineSound.EnableFileBrowseButton( _T( "wav" ), sFilter );
 		m_wndOnlineSound.EnableWindow( nOnline == IDC_ONLINE_CUSTOM );
 		if ( nOnline == IDC_ONLINE_CUSTOM ) m_wndOnlineSound.SetWindowText( m_pAvatar->m_sOnlineSound );
@@ -101,7 +101,7 @@ BOOL CAvatarDlg::OnInitDialog()
 		int nOffline = ( m_pAvatar->m_sOfflineSound.IsEmpty() ? IDC_OFFLINE_DEFAULT :
 			( m_pAvatar->m_sOfflineSound == NO_SOUND ? IDC_OFFLINE_NO_SOUND : IDC_OFFLINE_CUSTOM ) );
 		CheckRadioButton( IDC_OFFLINE_NO_SOUND, IDC_OFFLINE_CUSTOM, nOffline );
-		
+
 		m_wndOfflineSound.EnableFileBrowseButton( _T( "wav" ), sFilter );
 		m_wndOfflineSound.EnableWindow( nOffline == IDC_OFFLINE_CUSTOM );
 		if ( nOffline == IDC_OFFLINE_CUSTOM ) m_wndOfflineSound.SetWindowText( m_pAvatar->m_sOfflineSound );
@@ -167,6 +167,9 @@ void CAvatarDlg::OnOK()
 
 		m_pAvatar->m_bLoopSound = m_bLoop;
 
+		// Refresh image
+		m_pAvatar->m_tImage = 0;
+
 		theApp.Refresh( TRUE, m_pAvatar );
 	}
 
@@ -176,7 +179,7 @@ void CAvatarDlg::OnOK()
 void CAvatarDlg::OnBnClickedOnline()
 {
 	UpdateData();
-	
+
 	int nOnline = GetCheckedRadioButton( IDC_ONLINE_NO_SOUND, IDC_ONLINE_CUSTOM );
 	m_wndOnlineSound.EnableWindow( nOnline == IDC_ONLINE_CUSTOM );
 	m_wndPlayOnline.EnableWindow( nOnline == IDC_ONLINE_CUSTOM );

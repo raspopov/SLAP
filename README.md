@@ -7,8 +7,6 @@
 
 Shows Second Life friends list and notify about their online/offline status.
 
-http://www.cherubicsoft.com/en/projects/slap
-
  Command-line options
 ----------------------
 
@@ -85,7 +83,7 @@ How to add a new translation:
 
     Copyright (C) 2015-2021 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
-    http://www.cherubicsoft.com/projects/slap
+    https://www.cherubicsoft.com/projects/slap/
 
     This program is free software : you can redistribute it and / or modify
     it under the terms of the GNU General Public License as published by
@@ -105,7 +103,7 @@ How to add a new translation:
 
     Copyright (c) 2009-2021 Vaclav Slavik
 
-    http://winsparkle.org
+    https://winsparkle.org
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -130,6 +128,6 @@ How to add a new translation:
 
     Copyright (c) Istvan Pasztor
 
-    http://www.codeproject.com/Articles/127791/A-simple-and-easy-to-use-trayicon
+    https://www.codeproject.com/Articles/127791/A-simple-and-easy-to-use-trayicon
 
     This source has been published on www.codeproject.com under the CPOL license.

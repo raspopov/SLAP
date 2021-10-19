@@ -3,7 +3,7 @@
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2020 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2021 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -619,70 +619,82 @@ BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)
 		sRealName = pAvatar->m_sRealName;
 	}
 
-	CString sUrl = _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
+	CString sUrl = _T("https://my-secondlife-agni.akamaized.net/users/{USERNAME}/thumb_sl_image.png");
+	//CString sUrl = _T("https://my-secondlife.s3.amazonaws.com/users/{USERNAME}/sl_image.png");
 	sRealName.Replace( _T( ' ' ), _T( '.' ) );
 	sUrl.Replace( _T( "{USERNAME}" ), sRealName );
 
 	CByteArray aContent;
 	CString sLocation;
 	DWORD nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation, NULL, FALSE, FALSE );
-	if ( IsWorkEnabled() && nStatus / 100 == 2 && aContent.GetSize() > 16 && memcmp( aContent.GetData() + 1, "PNG", 3 ) == 0 )
+	if ( ! IsWorkEnabled() || nStatus / 100 != 2 )
 	{
-		if ( HGLOBAL hGlobal = GlobalAlloc( GHND, aContent.GetSize() ) )
+		// HTTP error
+		theApp.LogFormat( _T( "Avatar \"%s\" HTTP error: %d" ), (LPCTSTR)sRealName, nStatus );
+		return FALSE;
+	}
+
+	if ( aContent.GetSize() < 16 || memcmp( aContent.GetData() + 1, "PNG", 3 ) != 0 )
+	{
+		// PNG not found
+		theApp.LogFormat( _T( "Avatar \"%s\" format error" ), (LPCTSTR)sRealName );
+		return FALSE;
+	}
+
+	if ( HGLOBAL hGlobal = GlobalAlloc( GHND, aContent.GetSize() ) )
+	{
+		if ( LPBYTE lpByte = (LPBYTE)GlobalLock( hGlobal ) )
 		{
-			if ( LPBYTE lpByte = (LPBYTE)GlobalLock( hGlobal ) )
-			{
-				CopyMemory( lpByte, aContent.GetData(), aContent.GetSize() );
-				GlobalUnlock( hGlobal );
-			}
-			IStream* pStream = NULL;
-			if ( SUCCEEDED( ::CreateStreamOnHGlobal( hGlobal, FALSE, &pStream ) ) )
-			{
-				CImage img;
-				if ( SUCCEEDED( img.Load( pStream ) ) )
-				{
-					// Resize image
-					CBitmap bmp;
-					if ( CDC* pDC = GetDC() )
-					{
-						if ( bmp.CreateCompatibleBitmap( pDC, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ) )
-						{
-							CDC dcMem;
-							if ( dcMem.CreateCompatibleDC( pDC ) )
-							{
-								CBitmap* pbmpOld = static_cast< CBitmap* >( dcMem.SelectObject( &bmp ) );
-
-								bRet = img.Draw( dcMem.m_hDC, CRect( 0, 0, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
-
-								dcMem.SelectObject( pbmpOld );
-							}
-							dcMem.DeleteDC();
-						}
-
-						ReleaseDC( pDC );
-					}
-					img.Destroy();
-
-					if ( bRet )
-					{
-						CSingleLock pLock( &theApp.m_pSection, TRUE );
-
-						if ( theApp.IsValid( pAvatar ) )
-						{
-							pAvatar->SetImage( (HBITMAP)bmp.Detach() );
-
-							theApp.Refresh( TRUE, pAvatar );
-						}
-					}
-
-					if ( bmp.m_hObject )
-						bmp.DeleteObject();
-				}
-				pStream->Release();
-			}
-
-			GlobalFree( hGlobal );
+			CopyMemory( lpByte, aContent.GetData(), aContent.GetSize() );
+			GlobalUnlock( hGlobal );
 		}
+		IStream* pStream = NULL;
+		if ( SUCCEEDED( ::CreateStreamOnHGlobal( hGlobal, FALSE, &pStream ) ) )
+		{
+			CImage img;
+			if ( SUCCEEDED( img.Load( pStream ) ) )
+			{
+				// Resize image
+				CBitmap bmp;
+				if ( CDC* pDC = GetDC() )
+				{
+					if ( bmp.CreateCompatibleBitmap( pDC, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ) )
+					{
+						CDC dcMem;
+						if ( dcMem.CreateCompatibleDC( pDC ) )
+						{
+							CBitmap* pbmpOld = static_cast< CBitmap* >( dcMem.SelectObject( &bmp ) );
+
+							bRet = img.Draw( dcMem.m_hDC, CRect( 0, 0, pAvatar->m_nBoxSize, pAvatar->m_nBoxSize ), Gdiplus::InterpolationMode::InterpolationModeHighQuality );
+
+							dcMem.SelectObject( pbmpOld );
+						}
+						dcMem.DeleteDC();
+					}
+
+					ReleaseDC( pDC );
+				}
+				img.Destroy();
+
+				if ( bRet )
+				{
+					CSingleLock pLock( &theApp.m_pSection, TRUE );
+
+					if ( theApp.IsValid( pAvatar ) )
+					{
+						pAvatar->SetImage( (HBITMAP)bmp.Detach() );
+
+						theApp.Refresh( TRUE, pAvatar );
+					}
+				}
+
+				if ( bmp.m_hObject )
+					bmp.DeleteObject();
+			}
+			pStream->Release();
+		}
+
+		GlobalFree( hGlobal );
 	}
 
 	return bRet;
