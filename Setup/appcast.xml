@@ -7,10 +7,14 @@
 		<language>en</language>
 		<item>
 			<title>New version</title>
-			<pubDate>19 Oct 2021 21:50:00 +0300</pubDate>
-			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.15/slap_1.0.0.15_32-bit.exe" sparkle:version="1.0.0.15" length="1305707" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
+			<pubDate>08 Nov 2021 21:00:00 +0300</pubDate>
+			<enclosure url="https://github.com/raspopov/SLAP/releases/download/1.0.0.16/slap_1.0.0.16_32-bit.exe" sparkle:version="1.0.0.16" length="1306005" type="application/octet-stream" sparkle:os="windows" sparkle:installerArguments="/SILENT /SP-" />
 			<description>
 				<![CDATA[
+				<b>Version 1.0.0.16</b>
+				<ul>
+					<li>Fixed avatar duplicate place URL</li>
+				</ul>
 				<b>Version 1.0.0.15</b>
 				<ul>
 					<li>Added support for CSRF token.</li>
