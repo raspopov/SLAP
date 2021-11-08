@@ -438,7 +438,8 @@ CAvatar* CSLAPApp::SetAvatar(const CString& sRealName, const CString& sDisplayNa
 		pAvatar->Save();
 	}
 
-	Log( _T( "Updated avatar: \"" ) + pAvatar->m_sDisplayName + _T( "\" (" ) + pAvatar->m_sRealName + _T( ") " ) +
+	Log( _T( "Updated avatar: \"" ) + pAvatar->m_sDisplayName + _T( "\" (" ) + pAvatar->m_sRealName + _T(")") +
+		( pAvatar->m_sPlace.IsEmpty() ? _T("") : ( _T(" @") + pAvatar->m_sPlace ) ) + _T(" ") +
 		( ( pAvatar->m_bOnline != pAvatar->m_bNewOnline ) ?  ( pAvatar->m_bOnline ? _T("offline -> online") : _T("online -> offline") ) : _T("") ) );
 
 	return pAvatar;

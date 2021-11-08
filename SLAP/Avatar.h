@@ -40,7 +40,7 @@ public:
 	BOOL Save() const;				// Save avatar data to the registry
 	BOOL SetImage(HBITMAP hBitmap);	// Set new avatar image
 
-	static BOOL IsValidUsername(LPCTSTR szUsername);
+	static BOOL IsValidUsername(const CString& sUsername);
 	static CString MakePretty(const CString& sName);
 	static int OnMeasureItem(CWnd* pWnd);
 	static void Clear();			// Clears all static resources

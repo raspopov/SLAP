@@ -94,14 +94,17 @@ void CAvatar::Filter( const CString& sFilter )
 	}
 }
 
-BOOL CAvatar::IsValidUsername( LPCTSTR szUsername )
+BOOL CAvatar::IsValidUsername(const CString& sUsername)
 {
-	if ( !szUsername || !*szUsername )
+	if ( sUsername.IsEmpty() )
+	{
+		ASSERT( FALSE );
 		return FALSE;
+	}
 
 	UINT nLength = 0;
 	BOOL bSpace = FALSE;
-	for ( LPCTSTR ch = szUsername; *ch; ++ch )
+	for ( LPCTSTR ch = (LPCTSTR)sUsername; *ch; ++ch )
 	{
 		if ( ( *ch >= _T( '0' ) && *ch <= _T( '9' ) ) || ( *ch >= _T( 'a' ) && *ch <= _T( 'z' ) ) || ( *ch >= _T( 'A' ) && *ch <= _T( 'Z' ) ) ) // Can be alpha-numeric
 		{
@@ -111,7 +114,7 @@ BOOL CAvatar::IsValidUsername( LPCTSTR szUsername )
 				return FALSE;
 			}
 		}
-		else if ( *ch == _T( ' ' ) && ch != szUsername && *( ch + 1 ) && !bSpace ) // Can be one space in the middle
+		else if ( *ch == _T( ' ' ) && ch != (LPCTSTR)sUsername && *( ch + 1 ) && !bSpace ) // Can be one space in the middle
 		{
 			bSpace = TRUE;
 			nLength = 0;

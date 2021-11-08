@@ -433,11 +433,6 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 							if ( _tcsnicmp( sHref, _T( "secondlife:" ), 11 ) == 0 )
 							{
 								sPlace = sHref;
-
-								CStringA sTitle = GetValue( sPart, "title" );
-								const CStringA str = sTitle.Mid( 6, sTitle.GetLength() - 16 - 6 );
-								if ( ! str.IsEmpty() )
-									sDisplayName = CA2T( str, CP_UTF8 );
 							}
 						}
 						else if ( _strnicmp( sPart.Right( 4 ), "<br/", 4 ) == 0 )
@@ -445,21 +440,27 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 							// Display Name<br/>
 							const CStringA str = sPart.Left( sPart.GetLength() - 4 );
 							if ( ! str.IsEmpty() )
+							{
 								sDisplayName = CA2T( str, CP_UTF8 );
+							}
 						}
 						else if ( _strnicmp( sPart.Right( 3 ), "</a", 3 ) == 0 )
 						{
 							// Display Name</a>
 							const CStringA str = sPart.Left( sPart.GetLength() - 3 );
 							if ( ! str.IsEmpty() )
+							{
 								sDisplayName = CA2T( str, CP_UTF8 );
+							}
 						}
 						else if ( _strnicmp( sPart.Right( 7 ), ")</span", 7 ) == 0 )
 						{
 							// (User Name)</span>
 							sRealName = CA2T( sPart.Mid( 1, sPart.GetLength() - 7 - 1 ), CP_UTF8 );
 							if ( ! CAvatar::IsValidUsername( sRealName ) )
+							{
 								sRealName.Empty();
+							}
 						}
 						else if ( _strnicmp( sPart, "<span ", 6 ) == 0 )
 						{
@@ -528,9 +529,20 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 		CStringA sContent = GetString( aContent );
 		if ( sContent.Find( "widgetFriendsOnlineContent" ) != -1 )
 		{
-			// Parse "Friends Widget"
-			CString sRealName, sPlace;
+			// Parse "Friends Widget":
+
+			// <td class="trigger {online/offline} friend"><a href="secondlife://{Place}">{DisplayName}</a><br><span class="username">({UserName})</span></td>
+
+			// <td class="trigger {online/offline} friend"><a href="secondlife://{Place}">{DisplayName = UserName}</a></td>
+
+			// <td class="trigger {online/offline} friend"><span title="{UserFullName}">{DisplayName}</span></td>
+
+			// <td class="trigger {online/offline} friend"><span title="{UserFullName}">{DisplayName}</span><br><span class="username">({UserName})</span></td>
+
+			CString sDisplayName, sRealName, sPlace;
 			BOOL bOnline = FALSE;
+			BOOL bDetected = FALSE;
+			BOOL bUsername = FALSE;
 			for ( int nStart = 0; nStart < sContent.GetLength(); ++nStart )
 			{
 				CStringA sPart = sContent.Mid( nStart ).SpanExcluding( ">" );
@@ -540,50 +552,106 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 					sPart.Remove( '\n' );
 					sPart.Trim( "\t " );
 
-					// Parse display name: next tag after avatar name
-					if ( ! sRealName.IsEmpty() )
+					if ( ! bDetected )
 					{
-						// Load avatar display name
-						CString sDisplayName = CA2T( sPart.Left( sPart.ReverseFind( '<' ) ), CP_UTF8 );
-
-						if ( CAvatar::IsValidUsername( sRealName ) )
+						// Parse online status: <td class="trigger {online/offline} friend"
+						if ( _strnicmp( sPart, "<td ", 4 ) == 0 )
 						{
-							if ( sDisplayName.IsEmpty() )
-								sDisplayName = CAvatar::MakePretty( sRealName );
-
-							theApp.SetAvatar( sRealName, sDisplayName, sPlace, bOnline, TRUE );
+							const CStringA sClass = GetValue( sPart, "class" );
+							if ( sClass.CompareNoCase( "trigger online friend" ) == 0 )
+							{
+								bOnline = TRUE;
+								bDetected = TRUE;
+							}
+							else if ( sClass.CompareNoCase( "trigger offline friend" ) == 0 )
+							{
+								bOnline = FALSE;
+								bDetected = TRUE;
+							}
+							ASSERT( sDisplayName.IsEmpty() );
+							sDisplayName.Empty();
+							ASSERT( sRealName.IsEmpty() );
+							sRealName.Empty();
+							ASSERT( sPlace.IsEmpty() );
+							sPlace.Empty();
 						}
-						sPlace.Empty();
-						sRealName.Empty();
-						bOnline = FALSE;
 					}
-					// Parse online status: <td class="trigger online friend">
-					else if ( _strnicmp( sPart, "<td ", 4 ) == 0 )
-					{
-						const CStringA sClass = GetValue( sPart, "class" );
-						bOnline = ( sClass.Find( "online" ) != -1 );
-					}
-					// Parse avatar name: <a href='SLURL' title='Visit User Name in Second Life!'>Display Name</a>
+					// Parse avatar place: <a href="secondlife://{Place}"
 					else if ( _strnicmp( sPart, "<a ", 3 ) == 0 )
 					{
 						const CString sHref = CA2T( GetValue( sPart, "href" ), CP_UTF8 );
 						if ( _tcsnicmp( sHref, _T( "secondlife:" ), 11 ) == 0 )
 						{
 							sPlace = sHref;
-							CStringA sTitle = GetValue( sPart, "title" );
-							sRealName = CA2T( sTitle.Mid( 6, sTitle.GetLength() - 16 - 6 ), CP_UTF8 );
-							if ( ! CAvatar::IsValidUsername( sRealName ) )
-								sRealName.Empty();
+						}
+						else
+						{
+							ASSERT( FALSE );
 						}
 					}
-					// Parse avatar name: <span title="User Name">Display Name<br/> or <span title="User Name">Display Name</span>
+					// Parse avatar name:
+					// <span title="{UserFullName}"
+					// <span class="username"
 					else if ( _strnicmp( sPart, "<span ", 6 ) == 0 )
 					{
 						// Load avatar real name
-						sRealName = CA2T( GetValue( sPart, "title" ), CP_UTF8 );
-						if ( ! CAvatar::IsValidUsername( sRealName ) )
-							sRealName.Empty();
+						CString str = CA2T( GetValue( sPart, "title" ), CP_UTF8 );
+						if ( ! str.IsEmpty() && CAvatar::IsValidUsername( str ) )
+						{
+							sRealName = str;
+						}
+						else
+						{
+							bUsername = TRUE;
+						}
 					}
+					// End
+					else if ( _strnicmp( sPart, "</td", 4 ) == 0 )
+					{
+						if ( sRealName.IsEmpty() && ! sDisplayName.IsEmpty() )
+						{
+							sRealName = sDisplayName;
+						}
+						if ( sDisplayName.IsEmpty() )
+						{
+							sDisplayName = CAvatar::MakePretty( sRealName );
+						}
+						if ( CAvatar::IsValidUsername( sRealName ) )
+						{
+							theApp.SetAvatar( sRealName, sDisplayName, sPlace, bOnline, TRUE );
+						}
+						else
+						{
+							ASSERT( FALSE );
+						}
+						sDisplayName.Empty();
+						sRealName.Empty();
+						sPlace.Empty();
+						bOnline = FALSE;
+						bDetected = FALSE;
+					}
+					// {DisplayName = UserName}</a
+					// {DisplayName}</span
+					// ({UserName})</span
+					// <br
+					else
+					{
+						// Load avatar display name
+						const int pos = sPart.ReverseFind( '<' );
+						if ( pos > 0 )
+						{
+							const CString str = CA2T( sPart.Left( pos ), CP_UTF8 );
+							if ( sDisplayName.IsEmpty() )
+							{
+								sDisplayName = str;
+							}
+							else if ( sRealName.IsEmpty() && str.GetAt( 0 ) == _T('(') && str.GetAt( str.GetLength() - 1 ) == _T(')') )
+							{
+								sRealName = str.Mid( 1, str.GetLength() - 2 );
+							}
+						}
+					}
+
 					nStart += nSize;
 				}
 			}
