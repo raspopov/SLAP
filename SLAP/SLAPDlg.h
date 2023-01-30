@@ -85,6 +85,8 @@ protected:
 	DWORD WebRequest(CInternetSession* pInternet, const CString& sUrl, const CString& sReferer, CByteArray& aContent, CString& sLocation, LPCSTR szParams = NULL, BOOL bPOST = FALSE, BOOL bNoCache = TRUE);
 	BOOL WebLogin(CInternetSession* pInternet);
 	BOOL WebUpdate(CInternetSession* pInternet);
+	BOOL WebFriendsOnline(CInternetSession* pInternet, LPCTSTR szUrl);
+	BOOL WebFriendsWidget(CInternetSession* pInternet, LPCTSTR szUrl);
 	BOOL WebGetImage(CInternetSession* pInternet);
 
 	// Status

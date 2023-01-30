@@ -399,15 +399,47 @@ BOOL CSLAPDlg::WebLogin(CInternetSession* pInternet)
 BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 {
 	BOOL bRet = FALSE;
-	CString sUrl = _T("https://secondlife.com/my/account/friends.php");
-	CByteArray aContent;
-	CString sLocation;
+
+	if ( ! IsWorkEnabled() )
+	{
+		return FALSE;
+	}
 
 	SetStatus( IDS_UPDATING_FRIENDS_ONLINE );
+	if ( WebFriendsOnline( pInternet, _T("https://secondlife.com/my/account/friends.php") ) )
+	{
+		bRet = TRUE;
+	}
+	else
+	{
+		SetStatus( IDS_FRIENDS_ONLINE_URL_FAILED );
+	}
 
-	// Load "Friends Online"
-	DWORD nStatus = WebRequest( pInternet, sUrl, m_sReferer, aContent, sLocation );
-	if ( IsWorkEnabled() && nStatus / 100 == 2 )
+	if ( ! IsWorkEnabled() )
+	{
+		return FALSE;
+	}
+
+	SetStatus( IDS_UPDATING_FRIENDS );
+	// Old widget: _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends")
+	if ( WebFriendsWidget( pInternet, _T("https://secondlife.com/my/widget-friends.php") ) )
+	{
+		bRet = TRUE;
+	}
+	else
+	{
+		SetStatus( IDS_FRIENDS_URL_FAILED );
+	}
+
+	return bRet;
+}
+
+BOOL CSLAPDlg::WebFriendsOnline(CInternetSession* pInternet, LPCTSTR szUrl)
+{
+	CByteArray aContent;
+	CString sLocation;
+	DWORD nStatus = WebRequest( pInternet, szUrl, m_sReferer, aContent, sLocation );
+	if ( nStatus / 100 == 2 )
 	{
 		CStringA sContent = GetString( aContent );
 		if ( sContent.Find( "Friends Online" ) != -1 )
@@ -507,36 +539,26 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 					nStart += nSize;
 				}
 			}
-
-			bRet = TRUE;
+			return TRUE;
 		}
-		else
-			SetStatus( IDS_FRIENDS_ONLINE_URL_FAILED );
 	}
-	else
-		SetStatus( IDS_FRIENDS_ONLINE_URL_FAILED );
+	return FALSE;
+}
 
-	if ( ! IsWorkEnabled() )
-		return FALSE;
-
-	SetStatus( IDS_UPDATING_FRIENDS );
-
-	// Load "Friends Widget"
-	sUrl = _T("https://secondlife.com/my/loadWidgetContent.php?widget=widgetFriends");
-	nStatus = WebRequest( pInternet, sUrl, _T( "" ), aContent, sLocation );
-	if ( IsWorkEnabled() && nStatus / 100 == 2 )
+BOOL CSLAPDlg::WebFriendsWidget(CInternetSession* pInternet, LPCTSTR szUrl)
+{
+	CByteArray aContent;
+	CString sLocation;
+	DWORD nStatus = WebRequest( pInternet, szUrl, m_sReferer, aContent, sLocation );
+	if ( nStatus / 100 == 2 )
 	{
 		CStringA sContent = GetString( aContent );
 		if ( sContent.Find( "widgetFriendsOnlineContent" ) != -1 )
 		{
 			// Parse "Friends Widget":
-
 			// <td class="trigger {online/offline} friend"><a href="secondlife://{Place}">{DisplayName}</a><br><span class="username">({UserName})</span></td>
-
 			// <td class="trigger {online/offline} friend"><a href="secondlife://{Place}">{DisplayName = UserName}</a></td>
-
 			// <td class="trigger {online/offline} friend"><span title="{UserFullName}">{DisplayName}</span></td>
-
 			// <td class="trigger {online/offline} friend"><span title="{UserFullName}">{DisplayName}</span><br><span class="username">({UserName})</span></td>
 
 			CString sDisplayName, sRealName, sPlace;
@@ -655,16 +677,10 @@ BOOL CSLAPDlg::WebUpdate(CInternetSession* pInternet)
 					nStart += nSize;
 				}
 			}
-
-			bRet = TRUE;
+			return TRUE;
 		}
-		else
-			SetStatus( IDS_FRIENDS_URL_FAILED );
 	}
-	else
-		SetStatus( IDS_FRIENDS_URL_FAILED );
-
-	return bRet;
+	return FALSE;
 }
 
 BOOL CSLAPDlg::WebGetImage(CInternetSession* pInternet)

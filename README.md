@@ -81,7 +81,7 @@ How to add a new translation:
  Second Life Avatar Probe (SLAP)
 ---------------------------------
 
-    Copyright (C) 2015-2021 Nikolay Raspopov <raspopov@cherubicsoft.com>
+    Copyright (C) 2015-2023 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
     https://www.cherubicsoft.com/projects/slap/
 
