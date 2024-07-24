@@ -1,24 +1,18 @@
 ﻿#if Platform == "x64"
-  #define MyBitness		  "64-bit"
+  #define MyBitness     "64-bit"
 #else
-  #define MyBitness		  "32-bit"
+  #define MyBitness     "32-bit"
 #endif
 
-#define MyAppExe		    ExtractFileName( TargetPath )
-#define MyAppSource		  ( TargetPath )
-#define MyAppName			  GetStringFileInfo( MyAppSource, INTERNAL_NAME )
-#define MyAppVersion	  GetFileProductVersion( MyAppSource )
-#define MyAppCopyright	GetFileCopyright( MyAppSource )
-#define MyAppPublisher	GetFileCompany( MyAppSource )
-#define MyAppURL		    GetStringFileInfo( MyAppSource, "Comments" )
-#define MyOutputDir		  ExtractFileDir( TargetPath )
-#define MyOutput		    LowerCase( StringChange( MyAppName + " " + MyAppVersion + " " + MyBitness, " ", "_" ) )
-         
-#include "idp\lang\russian.iss"
-#include "idp\idp.iss"
-#include "dep\lang\russian.iss"
-#include "dep\dep.iss"
-#include "vcredist.iss"
+#define MyAppExe        ExtractFileName( TargetPath )
+#define MyAppSource     ( TargetPath )
+#define MyAppName       GetStringFileInfo( MyAppSource, INTERNAL_NAME )
+#define MyAppVersion    GetFileProductVersion( MyAppSource )
+#define MyAppCopyright  GetFileCopyright( MyAppSource )
+#define MyAppPublisher  GetFileCompany( MyAppSource )
+#define MyAppURL        GetStringFileInfo( MyAppSource, "Comments" )
+#define MyOutputDir     ExtractFileDir( TargetPath )
+#define MyOutput        LowerCase( StringChange( MyAppName + " " + MyAppVersion + " " + MyBitness, " ", "_" ) )
 
 [Setup]
 AppId={#MyAppName}
@@ -35,16 +29,10 @@ DefaultDirName={pf}\{#MyAppPublisher}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 OutputDir={#MyOutputDir}
 OutputBaseFilename={#MyOutput}
-Compression=lzma2/ultra64
-SolidCompression=yes
-InternalCompressLevel=ultra64
-LZMAUseSeparateProcess=yes
 PrivilegesRequired=admin
 UsedUserAreasWarning=no
 UninstallDisplayIcon={app}\{#MyAppExe},0
 DirExistsWarning=no
-WizardImageFile=compiler:WizModernImage-IS.bmp
-WizardSmallImageFile=compiler:WizModernSmallImage-IS.bmp
 SetupMutex=Global\Setup_{#MyAppName}
 OutputManifestFile=Setup-Manifest.txt
 #if Platform == "x64"
@@ -61,7 +49,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#MyOutputDir}\WinSparkle.dll"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
-
 Source: "{#MyAppSource}"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 Source: "..\README.md"; DestName: "ReadMe.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
 Source: "..\LICENSE"; DestName: "License.txt"; DestDir: "{app}"; Flags: replacesameversion uninsrestartdelete
@@ -71,7 +58,7 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"; Tasks: desk
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExe}"
 Name: "{group}\ReadMe.txt"; Filename: "{app}\ReadMe.txt"
 Name: "{group}\License.txt"; Filename: "{app}\License.txt"
-Name: "{group}\{cm:UninstallProgram,{#MyAppName}}";	Filename: "{uninstallexe}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Run]
 Filename: "{app}\{#MyAppExe}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall runasoriginaluser
@@ -88,13 +75,4 @@ Name: "{pf}\{#MyAppPublisher}"; Type: dirifempty
 Name: "{localappdata}\{#MyAppPublisher}\{#MyAppName}"; Type: filesandordirs
 Name: "{localappdata}\{#MyAppPublisher}"; Type: dirifempty
 
-[Code]
-procedure InitializeWizard();
-begin
-
-  if InstallVCRedist() then begin
-    idpDownloadAfter( wpReady );
-    idpSetDetailedMode( True );
-  end;
-
-end;
+#include "vcredist.iss"

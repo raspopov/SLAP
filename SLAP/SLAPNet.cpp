@@ -1,9 +1,10 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 This file is part of Second Life Avatar Probe (SLAP)
 
-Copyright (C) 2015-2021 Nikolay Raspopov <raspopov@cherubicsoft.com>
+Copyright (C) 2015-2024 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
 This program is free software : you can redistribute it and / or modify
 it under the terms of the GNU General Public License as published by
@@ -461,7 +462,7 @@ BOOL CSLAPDlg::WebFriendsOnline(CInternetSession* pInternet, LPCTSTR szUrl)
 						if ( _strnicmp( sPart, "<a ", 3 ) == 0 )
 						{
 							// <a href="SLURL" title='Visit User Name in Second Life!'>
-							const CString sHref = CA2T( GetValue( sPart, "href" ), CP_UTF8 );
+							const CString sHref = static_cast< LPCTSTR >( CA2T( GetValue( sPart, "href" ), CP_UTF8 ) );
 							if ( _tcsnicmp( sHref, _T( "secondlife:" ), 11 ) == 0 )
 							{
 								sPlace = sHref;
@@ -601,7 +602,7 @@ BOOL CSLAPDlg::WebFriendsWidget(CInternetSession* pInternet, LPCTSTR szUrl)
 					// Parse avatar place: <a href="secondlife://{Place}"
 					else if ( _strnicmp( sPart, "<a ", 3 ) == 0 )
 					{
-						const CString sHref = CA2T( GetValue( sPart, "href" ), CP_UTF8 );
+						const CString sHref = static_cast< LPCTSTR >( CA2T( GetValue( sPart, "href" ), CP_UTF8 ) );
 						if ( _tcsnicmp( sHref, _T( "secondlife:" ), 11 ) == 0 )
 						{
 							sPlace = sHref;
@@ -617,7 +618,7 @@ BOOL CSLAPDlg::WebFriendsWidget(CInternetSession* pInternet, LPCTSTR szUrl)
 					else if ( _strnicmp( sPart, "<span ", 6 ) == 0 )
 					{
 						// Load avatar real name
-						CString str = CA2T( GetValue( sPart, "title" ), CP_UTF8 );
+						CString str = static_cast< LPCTSTR >( CA2T( GetValue( sPart, "title" ), CP_UTF8 ) );
 						if ( ! str.IsEmpty() && CAvatar::IsValidUsername( str ) )
 						{
 							sRealName = str;
@@ -662,7 +663,7 @@ BOOL CSLAPDlg::WebFriendsWidget(CInternetSession* pInternet, LPCTSTR szUrl)
 						const int pos = sPart.ReverseFind( '<' );
 						if ( pos > 0 )
 						{
-							const CString str = CA2T( sPart.Left( pos ), CP_UTF8 );
+							const CString str = static_cast< LPCTSTR >( CA2T( sPart.Left( pos ), CP_UTF8 ) );
 							if ( sDisplayName.IsEmpty() )
 							{
 								sDisplayName = str;

@@ -1,7 +1,3 @@
-[submodule "WinSparkle"]
-	path = WinSparkle
-	url = https://github.com/raspopov/winsparkle.git
-	branch = master
 [submodule "Localization"]
 	path = Localization
 	url = https://github.com/raspopov/po-localization.git

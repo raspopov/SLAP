@@ -81,7 +81,7 @@ How to add a new translation:
  Second Life Avatar Probe (SLAP)
 ---------------------------------
 
-    Copyright (C) 2015-2023 Nikolay Raspopov <raspopov@cherubicsoft.com>
+    Copyright (C) 2015-2024 Nikolay Raspopov <raspopov@cherubicsoft.com>
 
     https://www.cherubicsoft.com/projects/slap/
 
@@ -101,9 +101,10 @@ How to add a new translation:
  WinSparkle
 ------------
 
-    Copyright (c) 2009-2021 Vaclav Slavik
+    Copyright (c) 2009-2024 Vaclav Slavik
 
     https://winsparkle.org
+	https://www.nuget.org/packages/WinSparkle
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in

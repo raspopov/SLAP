@@ -1,32 +1,31 @@
-#define vcredist_name			      "Microsoft Visual C++ 2017 Redistributable 14.14.26429.4"
-#define vcredist_file			      "mfc141u.dll"
+#ifndef Platform
+	#error "Platform" predefined variable must be defined (x64/Win32)
+#endif
 
-#define vcredist32_exe          "VC_redist.x86.exe"
-#define vcredist32_title        vcredist_name + " (x86)"
-#define vcredist32_productcode  "{7753EC39-3039-3629-98BE-447C5D869C09}"
-#define vcredist32_url          "https://aka.ms/vs/15/release/VC_redist.x86.exe"
+#if Platform == "x64"
+	#define vcredist_exe	"VC_redist.x64.exe"
+	#define vcredist_url	"https://aka.ms/vs/15/release/VC_redist.x64.exe"
+#else
+	#define vcredist_exe	"VC_redist.x86.exe"
+	#define vcredist_url	"https://aka.ms/vs/15/release/VC_redist.x86.exe"
+#endif
 
-#define vcredist64_exe          "VC_redist.x64.exe"
-#define vcredist64_title        vcredist_name + " (x64)"
-#define vcredist64_productcode  "{03EBF679-E886-38AD-8E70-28658449F7F9}"
-#define vcredist64_url          "https://aka.ms/vs/15/release/VC_redist.x64.exe"
+#define vcredist_path ExtractFilePath(__PATHFILENAME__) + '\' + vcredist_exe
+
+; Download file if not exists
+#expr Exec( 'powershell', '-NoProfile -Command if (!(Test-Path \"' + vcredist_path + '\")){(New-Object System.Net.WebClient).DownloadFile(\"' + vcredist_url + '\",\"' + vcredist_path + '\")}' )
+
+[Files]
+#if Platform == "x64"
+Source: "{#vcredist_path}"; DestDir: "{tmp}"; Flags: deleteafterinstall 64bit; Check: IsWin64; AfterInstall: ExecTemp( '{#vcredist_exe}', '/passive /norestart' );
+#else
+Source: "{#vcredist_path}"; DestDir: "{tmp}"; Flags: deleteafterinstall 32bit; AfterInstall: ExecTemp( '{#vcredist_exe}', '/passive /norestart' );
+#endif
 
 [Code]
-function InstallVCRedist(): Boolean;
+procedure ExecTemp(File, Params : String);
+var
+	nCode: Integer;
 begin
-  Result := False;
-
-  #if Platform == "Win32"
-    if not MsiProduct( '{#vcredist32_productcode}' ) and not FileExists( ExpandConstant( '{syswow64}\{#vcredist_file}' ) ) then begin
-      AddProduct( '{#vcredist32_exe}', '/quiet /norestart', '{#vcredist32_title}', '{#vcredist32_url}', false, false, true );
-      Result := True;
-    end;
-  #endif
-  #if Platform == "x64"
-    if IsWin64 and not MsiProduct( '{#vcredist64_productcode}' ) and not FileExists( ExpandConstant( '{sys}\{#vcredist_file}' ) ) then begin
-      AddProduct( '{#vcredist64_exe}', '/quiet /norestart', '{#vcredist64_title}', '{#vcredist64_url}', false, false, true );
-      Result := True;
-    end;
-  #endif
-
+	Exec( ExpandConstant( '{tmp}' ) + '\' + File, Params, ExpandConstant( '{tmp}' ), SW_SHOW, ewWaitUntilTerminated, nCode );
 end;

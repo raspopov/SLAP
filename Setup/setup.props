@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="BuildSetup" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
+		<Message Text="Building setup..." Importance="high" />
+		<Exec Command="for /r %%i in (*iscc.exe) do &quot;%%i&quot; &quot;/DPlatform=$(Platform)&quot; &quot;/DTargetPath=$(TargetPath)&quot; &quot;$(SolutionDir)Setup\setup.iss&quot;" ConsoleToMSBuild="true" LogStandardErrorAsError="true" WorkingDirectory="$(SolutionDir)" />
+    </Target>
+	<Target Name="CleanSetup" AfterTargets="Clean" Condition="'$(Configuration)'=='Release'">
+		<Message Text="Cleaning setup..." Importance="high" />
+		<ItemGroup>
+			<FilesToDelete Include="$(OutputPath)\*.exe;$(OutputPath)\*.txt" />
+		</ItemGroup>
+		<Delete Files="@(FilesToDelete)" />
+	</Target>
+</Project>
